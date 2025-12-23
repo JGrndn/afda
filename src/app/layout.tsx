@@ -1,22 +1,25 @@
-import { Navigation } from '@/components/layout/Navigation';
+import { Layout } from '@/components/layout/Layout';
 import './globals.css';
+import { NavigationProvider } from '@/components/navigation';
 
 export const metadata = {
-  title: 'AFDA Management',
+  title: 'AFDA',
   description: 'Association membership and workshop management system',
 };
 
-export default function RootLayout({
+export default function App({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-gray-50">
-        <Navigation />
-        <main className="min-h-screen">{children}</main>
+    <html>
+      <body>
+        <NavigationProvider>
+          <Layout title={metadata.title}>{children}</Layout>
+        </NavigationProvider>
       </body>
-    </html>
+    </html>    
   );
+
 }
