@@ -9,3 +9,17 @@ datasource db {
   provider = "postgresql"
 }
 
+model Season {
+  id                Int      @id @default(autoincrement())
+  startYear         Int      @map("start_year")
+  endYear           Int      @map("end_year")
+  isActive          Boolean  @default(false) @map("is_active")
+  membershipAmount  Decimal  @map("membership_amount") @db.Decimal(10, 2)
+  discountPercent   Int      @default(10) @map("discount_percent") 
+  totalDonations    Decimal @default(0) @map("total_donations") @db.Decimal(10, 2)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")        
+
+  @@unique([startYear, endYear])
+  @@map("seasons")
+}
