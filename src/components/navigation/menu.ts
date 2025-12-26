@@ -7,6 +7,6 @@ export const navItems: NavItem[] = [
     id: "list-seasons",
     label: "Saisons",
     icon: Calendar,
-    href: "/saisons"
+    href: "/seasons"
   }
 ];
