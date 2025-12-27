@@ -1,11 +1,26 @@
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/generated/prisma/client'
 import { extractScalarFields } from '@/lib/utils';
+import { QueryOptions } from '@/lib/hooks/query';
 
 export const seasonService = {
-  async getAll(){
+  async getAll(
+    options?: QueryOptions<Prisma.SeasonOrderByWithRelationInput> & {
+      isActive?: boolean;
+    }
+  ) {
+    const { filters = {}, orderBy, isActive } = options || {};
+    
+    const where: Prisma.SeasonWhereInput = {
+      ...filters,
+      ...(isActive !== undefined && { isActive }),
+    };
+    
+    const finalOrderBy = orderBy || { startYear: 'desc' as const };
+    
     return prisma.season.findMany({
-
+      where,
+      orderBy: finalOrderBy,
     });
   },
 

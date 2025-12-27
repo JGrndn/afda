@@ -7,7 +7,7 @@ import { DataTable, Button, StatusBadge } from '@/components/ui';
 
 export default function SeasonsPage() {
   const router = useRouter();
-  const { seasons, isLoading, mutate } = useSeasons();
+  const { data:seasons, isLoading, mutate } = useSeasons();
   const [activatingId, setActivatingId] = useState<number | null>(null);
 
   const handleActivate = async (seasonId: number, seasonLabel: string) => {
