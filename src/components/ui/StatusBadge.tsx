@@ -1,15 +1,11 @@
-import type { SeasonStatus } from '@/lib/schemas/enums';
+import type { SeasonStatus } from '@/lib/schemas/season';
 import {
   translateSeasonStatus
 } from '@/lib/i18n/translations';
 
-type StatusType = SeasonStatus | string;
-
-interface StatusBadgeProps {
-  status: StatusType;
-  type?: 'season' | 'generic';
-  className?: string;
-}
+type StatusBadgeProps = 
+  | { type: 'generic'; status: string; className?: string; }
+  | { type: 'season'; status: SeasonStatus; className?: string; };
 
 const COLOR_CLASSES:any = {
   yellow: 'bg-yellow-100 text-yellow-800',
@@ -23,21 +19,23 @@ export const SEASON_STATUS_COLORS: Record<SeasonStatus, string> = {
   active: 'green',
 };
 
-export function StatusBadge({ 
-  status, 
-  type = 'generic',
-  className = '' 
-}: StatusBadgeProps) {
-  let label = status;
-  let colorClass = 'gray';
-  
-  // Traduire selon le type
-  if (type === 'season') {
-    label = translateSeasonStatus(status as SeasonStatus);
-    colorClass = SEASON_STATUS_COLORS[status as SeasonStatus] || colorClass;
+export function StatusBadge(props: StatusBadgeProps) {
+  const { className = ''} = props;
+  let label = '';
+  let color = '';
+
+  switch (props.type){
+    case 'season':
+      label = translateSeasonStatus(props.status);
+      color = SEASON_STATUS_COLORS[props.status];
+      break;
+    default:
+      label = props.status;
+      color = 'gray';
+      break;
   }
-  colorClass = COLOR_CLASSES[colorClass];
-  
+  const colorClass = COLOR_CLASSES[color];
+
   return (
     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${colorClass} ${className}`}>
       {label}

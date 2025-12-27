@@ -2,7 +2,7 @@ import { Season } from "@/generated/prisma";
 import { useResource } from "@/lib/hooks/useResources";
 
 interface UseSeasonsOptions {
-  isActive?: boolean;
+  status?: string;
   sortBy?: 'startYear';
   sortDirection?: 'asc' | 'desc';
 }
@@ -11,10 +11,10 @@ export function useSeasons(options: UseSeasonsOptions = {
   sortBy: 'startYear',
   sortDirection: 'desc'
 }) {
-  const {isActive, sortBy, sortDirection } = options;
+  const {status, sortBy, sortDirection } = options;
 
   return useResource<Season>('/api/seasons', {
-    filters: { isActive },
+    filters: status ? { status : status} : undefined,
     sort : sortBy && sortDirection ? {
       field : sortBy,
       direction : sortDirection

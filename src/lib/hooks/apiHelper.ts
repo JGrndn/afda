@@ -1,5 +1,3 @@
-import { Prisma } from '@/generated/prisma/client';
-
 /**
  * Parse les query params et les convertit en options pour le service
  */

@@ -13,7 +13,7 @@ model Season {
   id                Int      @id @default(autoincrement())
   startYear         Int      @map("start_year")
   endYear           Int      @map("end_year")
-  isActive          Boolean  @default(false) @map("is_active")
+  status            String    @default("inactive")
   membershipAmount  Decimal  @map("membership_amount") @db.Decimal(10, 2)
   discountPercent   Int      @default(10) @map("discount_percent") 
   totalDonations    Decimal @default(0) @map("total_donations") @db.Decimal(10, 2)

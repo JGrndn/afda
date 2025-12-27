@@ -4,20 +4,21 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSeasons } from '@/hooks/seasons';
 import { DataTable, Button, StatusBadge } from '@/components/ui';
+import { SEASON_STATUS } from '@/lib/schemas/season';
 
 export default function SeasonsPage() {
   const router = useRouter();
   const { data:seasons, isLoading, mutate } = useSeasons();
   const [activatingId, setActivatingId] = useState<number | null>(null);
 
-  const handleActivate = async (seasonId: number, seasonLabel: string) => {
+  const handleActivate = async (seasonId: number) => {
     setActivatingId(seasonId);
     try {
       // L'API gère automatiquement la désactivation de l'ancienne saison active
       const response = await fetch(`/api/seasons/${seasonId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isActive: true }),
+        body: JSON.stringify({ status: SEASON_STATUS.ACTIVE }),
       });
 
       if (response.ok) {
@@ -34,10 +35,6 @@ export default function SeasonsPage() {
     {
       key: 'label',
       label: 'Season',
-    },
-    {
-      key: 'years',
-      label: 'Years',
       render: (season: any) => `${season.startYear}-${season.endYear}`,
     },
     {
@@ -46,27 +43,22 @@ export default function SeasonsPage() {
       render: (season: any) => `€${season.membershipAmount}`,
     },
     {
-      key: 'registrations',
-      label: 'Registrations',
-      render: (season: any) => season._count?.registrations || 0,
-    },
-    {
-      key: 'isActive',
+      key: 'status',
       label: 'Status',
       render: (season: any) => (
-        <StatusBadge status={season.isActive ? 'active' : 'inactive'} />
+        <StatusBadge status={season.status} type='season' />
       ),
     },
     {
       key: 'actions',
       label: 'Actions',
       render: (season: any) => (
-        !season.isActive && (
+        season.status === SEASON_STATUS.INACTIVE && (
           <Button
             size="sm"
             onClick={(e) => {
               e.stopPropagation();
-              handleActivate(season.id, season.label);
+              handleActivate(season.id);
             }}
             disabled={activatingId === season.id}
           >

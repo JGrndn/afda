@@ -2,38 +2,42 @@ import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/generated/prisma/client'
 import { extractScalarFields } from '@/lib/utils';
 import { QueryOptions } from '@/lib/hooks/query';
+import { mapSeason, mapSeasons } from '../mappers/season.mapper';
+import { Season } from '../types/season';
+import { SEASON_STATUS } from '../schemas/season';
 
 export const seasonService = {
   async getAll(
     options?: QueryOptions<Prisma.SeasonOrderByWithRelationInput> & {
-      isActive?: boolean;
+      status?: string;
     }
-  ) {
-    const { filters = {}, orderBy, isActive } = options || {};
+  ) : Promise<Season[]> {
+    const { filters = {}, orderBy } = options || {};
     
     const where: Prisma.SeasonWhereInput = {
       ...filters,
-      ...(isActive !== undefined && { isActive }),
     };
-    
     const finalOrderBy = orderBy || { startYear: 'desc' as const };
-    
-    return prisma.season.findMany({
+    const db = await prisma.season.findMany({
       where,
       orderBy: finalOrderBy,
     });
+
+    return mapSeasons(db);
   },
 
-  async getById(id: number){
-    return prisma.season.findUnique({
+  async getById(id: number) : Promise<Season | null> {
+    const db = await prisma.season.findUnique({
       where : { id : id }
     });
+    return db ? mapSeason(db) : null;
   },
 
-  async getActive(){
-    return prisma.season.findFirst({
-      where : { isActive : true}
+  async getActive(): Promise<Season | null>{
+    const db =  await prisma.season.findFirst({
+      where : { status : SEASON_STATUS.ACTIVE}
     });
+    return db ? mapSeason(db) : null;
   },
 
   async create(data: Prisma.SeasonCreateInput){
@@ -41,14 +45,14 @@ export const seasonService = {
   },
 
   async update(id: number, data:Prisma.SeasonUpdateInput){
-    if (data.isActive === true){
+    if (data.status === SEASON_STATUS.ACTIVE){
       // one active season only
       await prisma.season.updateMany({
         where : {
-          isActive: true, 
+          status : SEASON_STATUS.ACTIVE, 
           NOT: { id: id }
         },
-        data : { isActive :false }
+        data : { status : SEASON_STATUS.INACTIVE }
       });
     }
     const cleanData = extractScalarFields(data) as Prisma.SeasonUpdateInput;
@@ -61,12 +65,12 @@ export const seasonService = {
   async setActive(id: number){
     // one active season only
     await prisma.season.updateMany({
-      where : { isActive : true },
-      data : { isActive :false },
+      where : { status : SEASON_STATUS.ACTIVE },
+      data : { status : SEASON_STATUS.INACTIVE },
     });
     return prisma.season.update({
       where : { id : id },
-      data : { isActive : true },
+      data : { status : SEASON_STATUS.ACTIVE },
     });
   },
 

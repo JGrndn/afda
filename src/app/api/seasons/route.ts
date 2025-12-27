@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { seasonService } from '@/lib/services/season';
 import { parseQueryParams } from '@/lib/hooks/apiHelper';
+import { SEASON_STATUS } from '@/lib/schemas/season';
 
 export async function GET(request: Request) {
   try {
@@ -8,14 +9,13 @@ export async function GET(request: Request) {
     const options = parseQueryParams(request);
     
     // Filtre spécifique pour isActive
-    const isActive = searchParams.has('isActive') 
-      ? searchParams.get('isActive') === 'true'
+    const isActive = searchParams.has('status') 
+      ? searchParams.get('status') === SEASON_STATUS.ACTIVE
       : undefined;
     
     // ✅ Déléguer TOUT au service
     const seasons = await seasonService.getAll({
       ...options,
-      isActive,
     });
     
     return NextResponse.json(seasons);

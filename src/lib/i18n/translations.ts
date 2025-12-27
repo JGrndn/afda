@@ -1,4 +1,4 @@
-import type { SeasonStatus } from '@/lib/schemas/enums';
+import type { SeasonStatus } from '@/lib/schemas/season';
 
 // Season Status
 export const SEASON_STATUS_TRANSLATIONS: Record<SeasonStatus, string> = {
