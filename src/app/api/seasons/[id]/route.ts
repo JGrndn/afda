@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { seasonService } from '@/lib/services/season';
+import { seasonService } from '@/lib/services/seasons.service';
 
 export async function GET(
   { params }: { params: Promise<{ id: string }> }

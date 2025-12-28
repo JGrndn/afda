@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSeasons } from '@/hooks/seasons';
 import { DataTable, Button, StatusBadge } from '@/components/ui';
-import { SEASON_STATUS } from '@/lib/schemas/season';
+import { SEASON_STATUS } from '@/lib/schemas/season.schema';
 
 export default function SeasonsPage() {
   const router = useRouter();

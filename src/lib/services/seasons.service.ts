@@ -2,9 +2,9 @@ import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/generated/prisma/client'
 import { extractScalarFields } from '@/lib/utils';
 import { QueryOptions } from '@/lib/hooks/query';
-import { mapSeason, mapSeasons } from '../mappers/season.mapper';
-import { Season } from '../types/season';
-import { SEASON_STATUS } from '../schemas/season';
+import { mapSeason, mapSeasons, toSeasonDTO } from '@/lib/mappers/season.mapper';
+import { Season } from '@/lib/types/season.type';
+import { SEASON_STATUS } from '@/lib/schemas/season.schema';
 
 export const seasonService = {
   async getAll(
@@ -41,7 +41,8 @@ export const seasonService = {
   },
 
   async create(data: Prisma.SeasonCreateInput){
-    return prisma.season.create({data});
+    const result = await prisma.season.create({data});
+    return toSeasonDTO(result);
   },
 
   async update(id: number, data:Prisma.SeasonUpdateInput){
