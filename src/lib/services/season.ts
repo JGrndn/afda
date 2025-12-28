@@ -13,7 +13,7 @@ export const seasonService = {
     }
   ) : Promise<Season[]> {
     const { filters = {}, orderBy } = options || {};
-    
+
     const where: Prisma.SeasonWhereInput = {
       ...filters,
     };

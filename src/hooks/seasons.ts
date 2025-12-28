@@ -7,10 +7,7 @@ interface UseSeasonsOptions {
   sortDirection?: 'asc' | 'desc';
 }
 
-export function useSeasons(options: UseSeasonsOptions = {
-  sortBy: 'startYear',
-  sortDirection: 'desc'
-}) {
+export function useSeasons(options: UseSeasonsOptions = {}) {
   const {status, sortBy, sortDirection } = options;
 
   return useResource<Season>('/api/seasons', {
