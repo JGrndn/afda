@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSeasons } from '@/hooks/seasons';
+import { useSeasons, useSeasonMutations } from '@/hooks/seasons';
 import { DataTable, Button, StatusBadge } from '@/components/ui';
 import { SEASON_STATUS } from '@/lib/schemas/season.schema';
+import { updateSeason } from '@/actions/seasons.actions';
 
 export default function SeasonsPage() {
   const router = useRouter();
@@ -15,15 +16,8 @@ export default function SeasonsPage() {
     setActivatingId(seasonId);
     try {
       // L'API gère automatiquement la désactivation de l'ancienne saison active
-      const response = await fetch(`/api/seasons/${seasonId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: SEASON_STATUS.ACTIVE }),
-      });
-
-      if (response.ok) {
-        await mutate(); // Rafraîchir la liste
-      }
+      await updateSeason(seasonId, {status: SEASON_STATUS.ACTIVE});
+      await mutate();
     } catch (error) {
       console.error('Error activating season:', error);
     } finally {
@@ -34,17 +28,17 @@ export default function SeasonsPage() {
   const columns = [
     {
       key: 'label',
-      label: 'Season',
+      label: 'Saison',
       render: (season: any) => `${season.startYear}-${season.endYear}`,
     },
     {
       key: 'membershipAmount',
-      label: 'Membership',
-      render: (season: any) => `€${season.membershipAmount}`,
+      label: 'Adhésion',
+      render: (season: any) => `${season.membershipAmount} €`,
     },
     {
       key: 'status',
-      label: 'Status',
+      label: 'Statut',
       render: (season: any) => (
         <StatusBadge status={season.status} type='season' />
       ),
@@ -62,7 +56,7 @@ export default function SeasonsPage() {
             }}
             disabled={activatingId === season.id}
           >
-            {activatingId === season.id ? 'Activating...' : 'Activate'}
+            {activatingId === season.id ? 'Activation...' : 'Activer'}
           </Button>
         )
       ),
@@ -72,9 +66,9 @@ export default function SeasonsPage() {
   return (
     <div className="container mx-auto p-6">
       <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Seasons</h1>
+        <h1 className="text-3xl font-bold">Saisons</h1>
         <Button onClick={() => router.push('/seasons/new')}>
-          Add Season
+          Nouvelle Saison
         </Button>
       </div>
 
@@ -83,7 +77,7 @@ export default function SeasonsPage() {
         columns={columns}
         onRowClick={(season) => router.push(`/seasons/${season.id}`)}
         isLoading={isLoading}
-        emptyMessage="No seasons found"
+        emptyMessage="Aucune donnée"
       />
     </div>
   );

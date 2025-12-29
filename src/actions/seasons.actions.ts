@@ -4,7 +4,6 @@ import { Prisma } from '@/generated/prisma/client'
 import { seasonService } from '@/lib/services/seasons.service';
 
 export async function createSeason(data: Prisma.SeasonCreateInput) {
-  console.log('execute action')
   return seasonService.create(data);
 }
 

@@ -5,6 +5,7 @@ import { QueryOptions } from '@/lib/hooks/query';
 import { mapSeason, mapSeasons, toSeasonDTO } from '@/lib/mappers/season.mapper';
 import { Season } from '@/lib/types/season.type';
 import { SEASON_STATUS } from '@/lib/schemas/season.schema';
+import { DomainError } from '../errors/domain-error';
 
 export const seasonService = {
   async getAll(
@@ -41,8 +42,17 @@ export const seasonService = {
   },
 
   async create(data: Prisma.SeasonCreateInput){
-    const result = await prisma.season.create({data});
-    return toSeasonDTO(result);
+    try{
+      const result = await prisma.season.create({data});
+      return toSeasonDTO(result);
+    } catch(error: unknown){
+        const e = error as any;
+        if (e?.code === 'P2002'){
+          throw new DomainError('Une saison pour ces années existe déjà', 'SEASON_ALREADY_EXISTS');
+        }
+
+      throw error; // à gérer au fur et à mesure que les cas se produisent
+    }
   },
 
   async update(id: number, data:Prisma.SeasonUpdateInput){
@@ -57,22 +67,11 @@ export const seasonService = {
       });
     }
     const cleanData = extractScalarFields(data) as Prisma.SeasonUpdateInput;
-    return prisma.season.update({
+    const result = await prisma.season.update({
       where: { id : id },
       data : cleanData
     });
-  },
-
-  async setActive(id: number){
-    // one active season only
-    await prisma.season.updateMany({
-      where : { status : SEASON_STATUS.ACTIVE },
-      data : { status : SEASON_STATUS.INACTIVE },
-    });
-    return prisma.season.update({
-      where : { id : id },
-      data : { status : SEASON_STATUS.ACTIVE },
-    });
+    return toSeasonDTO(result);
   },
 
   async delete(id: number){

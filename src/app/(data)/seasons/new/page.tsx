@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { SeasonForm } from '@/components/season/SeasonForm';
 import { useSeasonMutations } from '@/hooks/seasons';
+import { ErrorMessage } from '@/components/ui';
 
 export default function NewSeasonPage() {
   const router = useRouter();
@@ -17,11 +18,7 @@ export default function NewSeasonPage() {
 
   return (
     <div className="container mx-auto p-6 max-w-4xl">
-      {error && (
-        <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
-          {error}
-        </div>
-      )}
+      {error && <ErrorMessage error={error}/>}
       <SeasonForm
         onSubmit={handleSubmit}
         onCancel={() => router.push('/seasons')}
