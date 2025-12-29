@@ -20,6 +20,39 @@ model Season {
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")        
 
+  workshopPrices    WorkshopPrice[]
+
   @@unique([startYear, endYear])
   @@map("seasons")
+}
+
+model WorkshopPrice {
+  id          Int      @id @default(autoincrement())
+  workshopId  Int      @map("workshop_id")
+  seasonId    Int      @map("season_id")
+  amount      Decimal  @db.Decimal(10, 2)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  workshop    Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  season      Season   @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  @@unique([workshopId, seasonId])
+  @@map("workshop_prices")
+}
+
+model Workshop {
+  id                      Int      @id @default(autoincrement())
+  name                    String   @db.VarChar(100)
+  description             String?  @db.Text
+  status                  String   @default("active")
+  allowMultiple           Boolean  @default(false) @map("allow_multiple")
+  maxPerMember            Int?     @map("max_per_member")
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @default(now()) @updatedAt @map("updated_at")
+
+  workshopPrices          WorkshopPrice[]
+
+  @@unique([name])
+  @@map("workshops")
 }
