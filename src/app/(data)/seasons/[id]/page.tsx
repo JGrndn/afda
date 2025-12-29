@@ -2,7 +2,7 @@
 
 import { SeasonForm } from "@/components/season/SeasonForm";
 import { Button, Card, ErrorMessage, StatusBadge } from "@/components/ui";
-import { useSeason, useSeasonMutations } from "@/hooks/seasons";
+import { useSeason, useSeasonActions } from "@/hooks/seasons";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -14,7 +14,7 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
   const seasonId = parseInt(resolvedParams.id);
   const { season, isLoading: seasonLoading, mutate } = useSeason(seasonId);
 
-  const { update, remove, isLoading: mutationLoading, error } = useSeasonMutations();
+  const { update, remove, isLoading: mutationLoading, error } = useSeasonActions();
   const [isEditing, setIsEditing] = useState(false);
 
   const handleUpdate = async (data: any) => {

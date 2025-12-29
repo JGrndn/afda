@@ -42,7 +42,7 @@ export function useSeason(id: number){
   };
 }
 
-export function useSeasonMutations(){
+export function useSeasonActions(){
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 

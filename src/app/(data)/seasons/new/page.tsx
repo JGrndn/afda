@@ -2,12 +2,12 @@
 
 import { useRouter } from 'next/navigation';
 import { SeasonForm } from '@/components/season/SeasonForm';
-import { useSeasonMutations } from '@/hooks/seasons';
+import { useSeasonActions } from '@/hooks/seasons';
 import { ErrorMessage } from '@/components/ui';
 
 export default function NewSeasonPage() {
   const router = useRouter();
-  const { create, isLoading, error } = useSeasonMutations();
+  const { create, isLoading, error } = useSeasonActions();
 
   const handleSubmit = async (data: any) => {
     const result = await create(data);
