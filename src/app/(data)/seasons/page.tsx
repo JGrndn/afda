@@ -2,26 +2,41 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSeasons, useSeasonMutations } from '@/hooks/seasons';
-import { DataTable, Button, StatusBadge } from '@/components/ui';
+import { useSeasons } from '@/hooks/seasons';
+import { DataTable, Button, StatusBadge, ErrorMessage } from '@/components/ui';
 import { SEASON_STATUS } from '@/lib/schemas/season.schema';
 import { updateSeason } from '@/actions/seasons.actions';
+import { Season } from '@/generated/prisma';
 
 export default function SeasonsPage() {
   const router = useRouter();
   const { data:seasons, isLoading, mutate } = useSeasons();
   const [activatingId, setActivatingId] = useState<number | null>(null);
+  const [error, setError] = useState<Error | null>(null);
 
   const handleActivate = async (seasonId: number) => {
     setActivatingId(seasonId);
+    setError(null);
     try {
       // L'API gère automatiquement la désactivation de l'ancienne saison active
       await updateSeason(seasonId, {status: SEASON_STATUS.ACTIVE});
       await mutate();
-    } catch (error) {
-      console.error('Error activating season:', error);
+    } catch (error:any) {
+      setError(error);
     } finally {
       setActivatingId(null);
+    }
+  };
+
+  const handleRowSave = async(seasonId:number, input:Partial<Season>) => {
+    setError(null);
+    try{
+      console.log(input);
+      await updateSeason(seasonId, input);
+      await mutate();
+    } catch(error:any){
+      setError(error);
+      throw error;
     }
   };
 
@@ -35,6 +50,7 @@ export default function SeasonsPage() {
       key: 'membershipAmount',
       label: 'Adhésion',
       render: (season: any) => `${season.membershipAmount} €`,
+      editable:true
     },
     {
       key: 'status',
@@ -71,10 +87,12 @@ export default function SeasonsPage() {
           Nouvelle Saison
         </Button>
       </div>
-
+      {error && <ErrorMessage error={error}/>}
       <DataTable
         data={seasons}
         columns={columns}
+        isEditable={true}
+        onRowSave={handleRowSave}
         onRowClick={(season) => router.push(`/seasons/${season.id}`)}
         isLoading={isLoading}
         emptyMessage="Aucune donnée"

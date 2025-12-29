@@ -109,7 +109,7 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
               <div>
                 <dt className="text-sm font-medium text-gray-500">Montant Adhésion</dt>
                 <dd className="mt-1 text-sm text-gray-900 font-semibold">
-                  {Number(season.membershipAmount).toFixed(2)} €
+                  {Number(season.membershipAmount)} €
                 </dd>
               </div>
               <div>

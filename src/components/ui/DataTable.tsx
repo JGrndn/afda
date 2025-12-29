@@ -19,8 +19,9 @@ interface Column<T> {
 interface DataTableProps<T> {
   data: T[];
   columns: Column<T>[];
+  isEditable?:boolean;
   onRowClick?: (item: T) => void;
-  onRowSave?: (item: T) => Promise<void>;
+  onRowSave?: (id: number, item: Partial<T>) => Promise<void>;
   emptyMessage?: string;
   isLoading?: boolean;
   idKey?: keyof T;
@@ -29,6 +30,7 @@ interface DataTableProps<T> {
 export function DataTable<T extends Record<string, any>>({
   data,
   columns,
+  isEditable = false,
   onRowClick,
   onRowSave,
   emptyMessage = 'Aucune donnée disponible',
@@ -37,13 +39,27 @@ export function DataTable<T extends Record<string, any>>({
 }: DataTableProps<T>) {
   const [editingId, setEditingId] = useState<any>(null);
   const [editedData, setEditedData] = useState<Partial<T>>({});
+  const [originalData, setOriginalData] = useState<T|null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
   const handleEdit = (item: T) => {
     setEditingId(item[idKey]);
+    setOriginalData(item);
     setEditedData({ ...item });
     setErrors({});
+  };
+
+  const getUpdatedFields = () => {
+    if (!originalData) return editedData;
+
+    const result: Partial<T> = {};
+    (Object.keys(editedData) as (keyof T)[]).forEach((key) => {
+      if (editedData[key] !== originalData[key]) {
+        result[key] = editedData[key];
+      }
+    });
+    return result;
   };
 
   const handleCancel = () => {
@@ -87,7 +103,7 @@ export function DataTable<T extends Record<string, any>>({
     if (onRowSave) {
       setSaving(true);
       try {
-        await onRowSave(editedData as T);
+        await onRowSave(editingId, getUpdatedFields() as T);
         setEditingId(null);
         setEditedData({});
         setErrors({});
@@ -129,9 +145,9 @@ export function DataTable<T extends Record<string, any>>({
                 {col.label}
               </th>
             ))}
-            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+            {isEditable && (<th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
               Actions
-            </th>
+            </th>)}
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
@@ -175,7 +191,7 @@ export function DataTable<T extends Record<string, any>>({
                     )}
                   </td>
                 ))}
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                {isEditable && (<td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   {isEditing ? (
                     <div className="flex justify-end gap-2">
                       <button
@@ -208,7 +224,7 @@ export function DataTable<T extends Record<string, any>>({
                       <Edit2 className="h-5 w-5" />
                     </button>
                   )}
-                </td>
+                </td>)}
               </tr>
             );
           })}
