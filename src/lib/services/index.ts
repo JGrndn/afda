@@ -1,1 +1,1 @@
-export { seasonService } from './season'
+export { seasonService } from './seasons.service'

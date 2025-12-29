@@ -12,9 +12,9 @@ async function main(){
   console.log('✅ Database cleaned');
   
   const seasonsData : Prisma.SeasonCreateInput[] = [
-    { startYear: 2023, endYear: 2024, isActive: false, membershipAmount: 10, totalDonations: 0 },
-    { startYear: 2024, endYear: 2025, isActive: false, membershipAmount: 20, discountPercent: 5, totalDonations: 0 },
-    { startYear: 2025, endYear: 2026, isActive: true, membershipAmount: 50, discountPercent:10, totalDonations: 0 },
+    { startYear: 2023, endYear: 2024, status: 'inactive', membershipAmount: 10, totalDonations: 0 },
+    { startYear: 2024, endYear: 2025, status: 'inactive', membershipAmount: 20, discountPercent: 5, totalDonations: 0 },
+    { startYear: 2025, endYear: 2026, status: 'active', membershipAmount: 50, discountPercent:10, totalDonations: 0 },
   ];
   const seasons = await prisma.season.createManyAndReturn({data : seasonsData });
   console.log('✅ Seasons created');
