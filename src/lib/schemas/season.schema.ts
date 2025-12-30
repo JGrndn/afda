@@ -1,13 +1,8 @@
 import { z } from 'zod';
-
-export const SEASON_STATUS = {
-  ACTIVE: 'active',
-  INACTIVE: 'inactive',
-} as const;
+import { SEASON_STATUS, SeasonStatus } from '../domain/season.status';
 
 // Season status
-export const SeasonStatusSchema = z.enum(Object.values(SEASON_STATUS));
-export type SeasonStatus = z.infer<typeof SeasonStatusSchema>;
+export const SeasonStatusSchema = z.enum(Object.values(SEASON_STATUS) as [SeasonStatus, ...SeasonStatus[]]);
 
 // Helpers pour obtenir toutes les valeurs (utile pour les selects)
 export const SEASON_STATUS_OPTIONS = SeasonStatusSchema.options;

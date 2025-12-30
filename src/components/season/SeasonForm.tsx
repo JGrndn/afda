@@ -2,17 +2,18 @@
 
 import { useState } from 'react';
 import { GenericForm, FormField } from '@/components/ui';
-import { SEASON_STATUS } from '@/lib/schemas/season.schema';
+import { SEASON_STATUS } from '@/lib/domain/season.status';
+import type { CreateSeasonInput, UpdateSeasonInput } from '@/lib/schemas/season.input';
 
 interface SeasonFormProps {
-  initialData?: any;
-  onSubmit: (data: any) => Promise<void>;
+  initialData?: Partial<CreateSeasonInput>;
+  onSubmit: (data: CreateSeasonInput) => Promise<void>;
   onCancel?: () => void;
   isLoading?: boolean;
 }
 
 export function SeasonForm({ initialData, onSubmit, onCancel, isLoading }: SeasonFormProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CreateSeasonInput>({
     startYear: new Date().getFullYear(),
     endYear: new Date().getFullYear() + 1,
     status: SEASON_STATUS.INACTIVE,
@@ -21,8 +22,11 @@ export function SeasonForm({ initialData, onSubmit, onCancel, isLoading }: Seaso
     ...initialData,
   });
 
-  const updateField = (field: string, value: any) => {
-    setFormData((prev:any) => ({ ...prev, [field]: value }));
+  function updateField<K extends keyof CreateSeasonInput>(
+    field: K,
+    value: CreateSeasonInput[K]
+  ) {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

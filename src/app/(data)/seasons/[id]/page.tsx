@@ -1,12 +1,13 @@
 'use client'
 
-import { SeasonForm } from "@/components/season/SeasonForm";
-import { Button, Card, ErrorMessage, StatusBadge } from "@/components/ui";
-import { useSeason, useSeasonActions } from "@/hooks/seasons";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { use, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { SeasonForm } from "@/components/season/SeasonForm";
+import { useSeason, useSeasonActions } from "@/hooks/seasons";
+import { Button, Card, ErrorMessage, StatusBadge } from "@/components/ui";
+import { UpdateSeasonInput } from "@/lib/schemas/season.input";
 
 export default function SeasonDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -17,20 +18,16 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
   const { update, remove, isLoading: mutationLoading, error } = useSeasonActions();
   const [isEditing, setIsEditing] = useState(false);
 
-  const handleUpdate = async (data: any) => {
-    const result = await update(seasonId, data);
-    if (result) {
-      setIsEditing(false);
-      mutate();
-    }
+  const handleUpdate = async (data: UpdateSeasonInput) => {
+    await update(seasonId, data);
+    setIsEditing(false);
+    mutate();
   };
 
   const handleDelete = async () => {
     if (confirm('Are you sure you want to delete this season? This will also delete all related registrations.')) {
-      const result = await remove(seasonId);
-      if (result) {
-        router.push('/seasons');
-      }
+      await remove(seasonId);
+      router.push('/seasons');
     }
   };
 
@@ -97,10 +94,6 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
           <Card title="Season Information">
             <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <dt className="text-sm font-medium text-gray-500">Label</dt>
-                <dd className="mt-1 text-sm text-gray-900">{season.label}</dd>
-              </div>
-              <div>
                 <dt className="text-sm font-medium text-gray-500">Period</dt>
                 <dd className="mt-1 text-sm text-gray-900">
                   {season.startYear} - {season.endYear}
@@ -110,12 +103,6 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
                 <dt className="text-sm font-medium text-gray-500">Montant Adhésion</dt>
                 <dd className="mt-1 text-sm text-gray-900 font-semibold">
                   {Number(season.membershipAmount)} €
-                </dd>
-              </div>
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Statut</dt>
-                <dd className="mt-1">
-                  <StatusBadge type='season' status={season.status} />
                 </dd>
               </div>
               <div>
