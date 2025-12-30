@@ -1,5 +1,5 @@
 import type { Season as PrismaSeason } from '@/generated/prisma/client';
-import type { SeasonDTO } from '@/lib/dto/season.type';
+import type { SeasonDTO } from '@/lib/dto/season.dto';
 import { SeasonStatusSchema } from '@/lib/schemas/season.schema';
 
 export function toSeasonsDTO(seasons: PrismaSeason[]) : SeasonDTO[]{

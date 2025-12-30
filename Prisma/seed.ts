@@ -18,11 +18,46 @@ async function main(){
   ];
   const seasons = await prisma.season.createManyAndReturn({data : seasonsData });
   console.log('✅ Seasons created');
+
+  const workshopsData : Prisma.WorkshopCreateInput[] = [
+    { name: 'Théâtre', description:'Silence on joue !', status: 'active', allowMultiple: false },
+    { name: 'Musique', description:'Ca souffle, ça gratte, et ça fait du bruit', status: 'active', allowMultiple: false },
+    { name: 'Cuisine', description:'Ca mijote, tant qu\'on ne fait pas un rougail avec de la Morteau', status: 'active', allowMultiple: false },
+    { name: 'Photographie', description:'"Je vais prendre une photo mentale !"', status: 'active', allowMultiple: false },
+    { name: 'Impro', description:'On parle beaucoup', status: 'active', allowMultiple: true, maxPerMember: 3 },
+  ];
+  const workshops = await prisma.workshop.createManyAndReturn({data: workshopsData});
+  console.log('✅ Workshops created');
+
+  const pricesData : Prisma.WorkshopPriceCreateManyInput[] = [
+    // Season 2023-2024
+    { workshopId: workshops[0].id, seasonId: seasons[0].id, amount: 110 }, // Théâtre
+    { workshopId: workshops[1].id, seasonId: seasons[0].id, amount: 90 },  // Musique
+    { workshopId: workshops[2].id, seasonId: seasons[0].id, amount: 140 }, // Cuisine
+    { workshopId: workshops[3].id, seasonId: seasons[0].id, amount: 80 },  // Photographie
+    { workshopId: workshops[4].id, seasonId: seasons[0].id, amount: 70 },  // Impro
+    
+    // Season 2024-2025 (active)
+    { workshopId: workshops[0].id, seasonId: seasons[1].id, amount: 120 }, // Théâtre
+    { workshopId: workshops[1].id, seasonId: seasons[1].id, amount: 100 }, // Musique
+    { workshopId: workshops[2].id, seasonId: seasons[1].id, amount: 150 }, // Cuisine
+    { workshopId: workshops[3].id, seasonId: seasons[1].id, amount: 85 },  // Photographie
+    { workshopId: workshops[4].id, seasonId: seasons[1].id, amount: 75 },  // Impro
+        
+    // Season 2025-2026 (future)
+    { workshopId: workshops[0].id, seasonId: seasons[2].id, amount: 130 }, // Théâtre
+    { workshopId: workshops[1].id, seasonId: seasons[2].id, amount: 110 }, // Musique
+    { workshopId: workshops[2].id, seasonId: seasons[2].id, amount: 160 }, // Cuisine
+  ];
+  await prisma.workshopPrice.createManyAndReturn({ data: pricesData });
+  console.log('✅ Workshop Prices created');
 }
 
 async function clearDatabase(){
   await prisma.$transaction([
     prisma.season.deleteMany(),
+    prisma.workshop.deleteMany(),
+    prisma.workshopPrice.deleteMany(),
   ]);
 }
 

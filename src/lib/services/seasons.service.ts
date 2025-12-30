@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/generated/prisma/client'
 import { QueryOptions } from '@/lib/hooks/query';
 import { toSeasonDTO, toSeasonsDTO } from '@/lib/mappers/season.mapper';
-import { SeasonDTO } from '@/lib/dto/season.type';
+import { SeasonDTO } from '@/lib/dto/season.dto';
 import { DomainError } from '../errors/domain-error';
 import { CreateSeasonInput, UpdateSeasonInput } from '../schemas/season.input';
 import { SEASON_STATUS } from '../domain/season.status';
