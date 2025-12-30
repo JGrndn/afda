@@ -6,8 +6,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
-    const season = await seasonService.getById(parseInt(id));
+    const season = await seasonService.getById(parseInt(params.id));
     if (!season) {
       return NextResponse.json({ error: 'Season not found' }, { status: 404 });
     }

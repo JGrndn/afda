@@ -1,20 +1,19 @@
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/generated/prisma/client'
-import { extractScalarFields } from '@/lib/utils';
 import { QueryOptions } from '@/lib/hooks/query';
-import { mapSeason, mapSeasons, toSeasonDTO } from '@/lib/mappers/season.mapper';
-import { Season } from '@/lib/types/season.type';
-import { SEASON_STATUS } from '@/lib/schemas/season.schema';
+import { toSeasonDTO, toSeasonsDTO } from '@/lib/mappers/season.mapper';
+import { SeasonDTO } from '@/lib/dto/season.type';
 import { DomainError } from '../errors/domain-error';
+import { CreateSeasonInput, UpdateSeasonInput } from '../schemas/season.input';
+import { SEASON_STATUS } from '../domain/season.status';
 
 export const seasonService = {
   async getAll(
     options?: QueryOptions<Prisma.SeasonOrderByWithRelationInput> & {
       status?: string;
     }
-  ) : Promise<Season[]> {
+  ) : Promise<SeasonDTO[]> {
     const { filters = {}, orderBy } = options || {};
-
     const where: Prisma.SeasonWhereInput = {
       ...filters,
     };
@@ -23,26 +22,33 @@ export const seasonService = {
       where,
       orderBy: finalOrderBy,
     });
-
-    return mapSeasons(db);
+    return toSeasonsDTO(db);
   },
 
-  async getById(id: number) : Promise<Season | null> {
+  async getById(id: number) : Promise<SeasonDTO | null> {
     const db = await prisma.season.findUnique({
       where : { id : id }
     });
-    return db ? mapSeason(db) : null;
+    return db ? toSeasonDTO(db) : null;
   },
 
-  async getActive(): Promise<Season | null>{
+  async getActive(): Promise<SeasonDTO | null>{
     const db =  await prisma.season.findFirst({
       where : { status : SEASON_STATUS.ACTIVE}
     });
-    return db ? mapSeason(db) : null;
+    return db ? toSeasonDTO(db) : null;
   },
 
-  async create(data: Prisma.SeasonCreateInput){
+  async create(input: CreateSeasonInput): Promise<SeasonDTO> {
+    if (input.startYear >= input.endYear){
+      throw new DomainError(`L'année de début doit être antérieure à l'année de fin`, 'INVALID_SEASON_STARTYEAR_ENDYEAR');
+    }
     try{
+      const data = {
+        ...input,
+        membershipAmount: new Prisma.Decimal(input.membershipAmount),
+        status: input.status
+      };
       const result = await prisma.season.create({data});
       return toSeasonDTO(result);
     } catch(error: unknown){
@@ -50,13 +56,12 @@ export const seasonService = {
         if (e?.code === 'P2002'){
           throw new DomainError('Une saison pour ces années existe déjà', 'SEASON_ALREADY_EXISTS');
         }
-
       throw error; // à gérer au fur et à mesure que les cas se produisent
     }
   },
 
-  async update(id: number, data:Prisma.SeasonUpdateInput){
-    if (data.status === SEASON_STATUS.ACTIVE){
+  async update(id: number, input:UpdateSeasonInput) : Promise<SeasonDTO>{
+    if (input.status === SEASON_STATUS.ACTIVE){
       // one active season only
       await prisma.season.updateMany({
         where : {
@@ -66,10 +71,15 @@ export const seasonService = {
         data : { status : SEASON_STATUS.INACTIVE }
       });
     }
-    const cleanData = extractScalarFields(data) as Prisma.SeasonUpdateInput;
+    const data = {
+      ...input,
+      ...(input.membershipAmount && {
+        membershipAmount: new Prisma.Decimal(input.membershipAmount),
+      }),
+    };
     const result = await prisma.season.update({
       where: { id : id },
-      data : cleanData
+      data : data
     });
     return toSeasonDTO(result);
   },
