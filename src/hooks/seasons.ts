@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useResource } from "@/lib/hooks/useResources";
-import { createSeason, updateSeason, deleteSeason } from "@/actions/seasons.actions";
+import { createSeason, updateSeason, deleteSeason } from "@/app/seasons/seasons.actions";
 import useSWR from "swr";
-import { SeasonDTO } from "@/lib/dto/season.type";
+import { SeasonDTO } from "@/lib/dto/season.dto";
 import { CreateSeasonInput, UpdateSeasonInput } from "@/lib/schemas/season.input";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());

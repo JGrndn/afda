@@ -1,6 +1,6 @@
 'use server';
 
-import { SeasonDTO } from '@/lib/dto/season.type';
+import { SeasonDTO } from '@/lib/dto/season.dto';
 import { CreateSeasonInput, CreateSeasonSchema, UpdateSeasonInput, UpdateSeasonSchema } from '@/lib/schemas/season.input';
 import { seasonService } from '@/lib/services/seasons.service';
 
