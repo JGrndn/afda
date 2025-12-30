@@ -1,5 +1,6 @@
 export { FormField } from './FormField'
 export { DataTable } from './DataTable'
+export type { Column } from './DataTable'
 export { Button } from './Button'
 export { StatusBadge } from './StatusBadge'
 export { Card } from './Card'

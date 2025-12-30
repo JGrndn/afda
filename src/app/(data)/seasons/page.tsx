@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSeasons, useSeasonActions } from '@/hooks/seasons';
-import { DataTable, Button, StatusBadge, ErrorMessage } from '@/components/ui';
+import { DataTable, Button, StatusBadge, ErrorMessage, Column } from '@/components/ui';
 import { SeasonDTO } from '@/lib/dto/season.type';
 import { SEASON_STATUS } from '@/lib/domain/season.status';
 import { UpdateSeasonInput } from '@/lib/schemas/season.input';
@@ -32,7 +32,6 @@ export default function SeasonsPage() {
   const handleRowSave = async(seasonId:number, input:UpdateSeasonInput) => {
     setError(null);
     try{
-      console.log(input);
       await update(seasonId, input);
       await mutate();
     } catch(error:any){
@@ -41,18 +40,19 @@ export default function SeasonsPage() {
     }
   };
 
-  const columns = [
+  const columns : Column<SeasonDTO>[]= [
     {
-      key: 'label',
+      type: 'computed',
       label: 'Saison',
       render: (season: SeasonDTO) => `${season.startYear}-${season.endYear}`,
     },
     {
+      type: 'field',
       key: 'membershipAmount',
-      label: 'Adhésion',
-      render: (season: SeasonDTO) => `${season.membershipAmount} €`,
+      label: 'Adhésion (€)',
     },
     {
+      type: 'field',
       key: 'status',
       label: 'Statut',
       render: (season: SeasonDTO) => (
@@ -60,7 +60,7 @@ export default function SeasonsPage() {
       ),
     },
     {
-      key: 'actions',
+      type: 'action',
       label: 'Actions',
       render: (season: SeasonDTO) => (
         season.status === SEASON_STATUS.INACTIVE && (
@@ -88,11 +88,9 @@ export default function SeasonsPage() {
         </Button>
       </div>
       {error && <ErrorMessage error={error}/>}
-      <DataTable
+      <DataTable<SeasonDTO>
         data={seasons}
         columns={columns}
-        isEditable={true}
-        onRowSave={handleRowSave}
         onRowClick={(season) => router.push(`/seasons/${season.id}`)}
         isLoading={isLoading}
         emptyMessage="Aucune donnée"

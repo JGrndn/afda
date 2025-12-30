@@ -1,120 +1,49 @@
-import { ReactNode, useState } from 'react';
-import { FormField } from '@/components/ui';
-import { Check, Edit2, X } from 'lucide-react';
+import { ReactNode } from 'react';
 
-interface Column<T> {
-  key: string;
+type FieldColumn<T, K extends keyof T> = {
+  type: 'field';
+  key: K;
   label: string;
   render?: (item: T) => ReactNode;
-  editable?: boolean;
-  editor?: (props: {
-    value: any;
-    onChange: (value: any) => void;
-    row: T;
-    error?: string;
-  }) => ReactNode;
-  validator?: (value: any, row: T) => string | null;
 }
 
-interface DataTableProps<T> {
-  data: T[];
+type ComputedColumn<T> = {
+  type: 'computed';
+  label: string;
+  render: (item: T) => ReactNode;
+};
+
+type ActionColumn<T> = {
+  type: 'action';
+  label: string;
+  render: (item: T) => ReactNode;
+}
+
+export type Column<T> =
+  | FieldColumn<T, keyof T>
+  | ComputedColumn<T>
+  | ActionColumn<T>;
+
+interface DataTableProps<
+  T extends Record<string, unknown>
+> {
+  data?: T[];
   columns: Column<T>[];
-  isEditable?:boolean;
-  onRowClick?: (item: T) => void;
-  onRowSave?: (id: number, item: Partial<T>) => Promise<void>;
-  emptyMessage?: string;
   isLoading?: boolean;
-  idKey?: keyof T;
+  emptyMessage?: string;
+  onRowClick?: (item: T) => void;
 }
 
-export function DataTable<T extends Record<string, any>>({
+export function DataTable<
+  T extends Record<string, unknown>
+>({
   data,
   columns,
-  isEditable = false,
-  onRowClick,
-  onRowSave,
+  isLoading = false,
   emptyMessage = 'Aucune donnée disponible',
-  isLoading,
-  idKey = 'id' as keyof T,
+  onRowClick,
 }: DataTableProps<T>) {
-  const [editingId, setEditingId] = useState<any>(null);
-  const [editedData, setEditedData] = useState<Partial<T>>({});
-  const [originalData, setOriginalData] = useState<T|null>(null)
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [saving, setSaving] = useState(false);
-
-  const handleEdit = (item: T) => {
-    setEditingId(item[idKey]);
-    setOriginalData(item);
-    setEditedData({ ...item });
-    setErrors({});
-  };
-
-  const getUpdatedFields = () => {
-    if (!originalData) return editedData;
-
-    const result: Partial<T> = {};
-    (Object.keys(editedData) as (keyof T)[]).forEach((key) => {
-      if (editedData[key] !== originalData[key]) {
-        result[key] = editedData[key];
-      }
-    });
-    return result;
-  };
-
-  const handleCancel = () => {
-    setEditingId(null);
-    setEditedData({});
-    setErrors({});
-  };
-
-  const handleCellChange = (key: string, value: any) => {
-    const newData = { ...editedData, [key]: value };
-    setEditedData(newData);
-    
-    // Valider le champ
-    const column = columns.find(col => col.key === key);
-    if (column?.validator) {
-      const error = column.validator(value, newData as T);
-      setErrors(prev => ({
-        ...prev,
-        [key]: error || ''
-      }));
-    }
-  };
-
-  const handleSave = async () => {
-    // Validation globale
-    const newErrors: Record<string, string> = {};
-    columns.forEach(col => {
-      if (col.validator && col.editable) {
-        const error = col.validator(editedData[col.key], editedData as T);
-        if (error) {
-          newErrors[col.key] = error;
-        }
-      }
-    });
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    if (onRowSave) {
-      setSaving(true);
-      try {
-        await onRowSave(editingId, getUpdatedFields() as T);
-        setEditingId(null);
-        setEditedData({});
-        setErrors({});
-      } catch (error) {
-        console.error('Erreur lors de la sauvegarde:', error);
-      } finally {
-        setSaving(false);
-      }
-    }
-  };
-
+  
   if (isLoading) {
     return (
       <div className="bg-white shadow-md rounded-lg p-8 text-center">
@@ -124,7 +53,7 @@ export function DataTable<T extends Record<string, any>>({
     );
   }
 
-  if (data.length === 0) {
+  if (!data?.length) {
     return (
       <div className="bg-white shadow-md rounded-lg p-8 text-center text-gray-500">
         {emptyMessage}
@@ -137,94 +66,40 @@ export function DataTable<T extends Record<string, any>>({
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
-            {columns.map((col) => (
+            {columns.map((col, i) => (
               <th
-                key={col.key}
+                key={i}
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
                 {col.label}
               </th>
             ))}
-            {isEditable && (<th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Actions
-            </th>)}
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {data.map((item) => {
-            const isEditing = editingId === item[idKey];
-            const displayData = isEditing ? editedData : item;
-
+          {data.map((item, rowIndex) => {
             return (
               <tr
-                key={item[idKey]}
-                className={`${
-                  isEditing ? 'bg-blue-50' : onRowClick ? 'hover:bg-gray-50' : ''
-                }`}
+                key={`row_${rowIndex}`}
+                className={`${onRowClick ? 'hover:bg-gray-50' : ''}`}
+                onClick={() => onRowClick?.(item)}
               >
-                {columns.map((col) => (
-                  <td
-                    key={col.key}
-                    className="px-6 py-4 text-sm text-gray-900"
-                    onClick={() => !isEditing && onRowClick?.(item)}
-                  >
-                    {isEditing && col.editable ? (
-                      col.editor ? (
-                        col.editor({
-                          value: displayData[col.key],
-                          onChange: (value) => handleCellChange(col.key, value),
-                          row: displayData as T,
-                          error: errors[col.key]
-                        })
-                      ) : (
-                        <FormField
-                          compact
-                          value={displayData[col.key]}
-                          onChange={(value) => handleCellChange(col.key, value)}
-                          error={errors[col.key]}
-                        />
-                      )
-                    ) : (
-                      <div className="whitespace-nowrap">
-                        {col.render ? col.render(displayData as T) : displayData[col.key]}
-                      </div>
-                    )}
-                  </td>
-                ))}
-                {isEditable && (<td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  {isEditing ? (
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={handleSave}
-                        disabled={saving}
-                        className="text-green-600 hover:text-green-900 disabled:opacity-50"
-                        title="Sauvegarder"
-                      >
-                        {saving ? (
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div>
-                        ) : (
-                          <Check className="h-5 w-5" />
-                        )}
-                      </button>
-                      <button
-                        onClick={handleCancel}
-                        disabled={saving}
-                        className="text-red-600 hover:text-red-900 disabled:opacity-50"
-                        title="Annuler"
-                      >
-                        <X className="h-5 w-5" />
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => handleEdit(item)}
-                      className="text-blue-600 hover:text-blue-900"
-                      title="Éditer"
+                {columns.map((col, colIndex) => {
+                  return(
+                    <td
+                      key={`cell_${rowIndex}_${colIndex}`}
+                      className="px-6 py-4 text-sm text-gray-900"
                     >
-                      <Edit2 className="h-5 w-5" />
-                    </button>
+                      <div className="whitespace-nowrap">
+                        {col.type === 'field' ? (
+                          col.render ? col.render(item) : String(item[col.key])
+                        ) : (
+                          col.render(item)
+                        )}
+                      </div>
+                    </td>
                   )}
-                </td>)}
+                )}
               </tr>
             );
           })}
