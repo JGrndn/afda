@@ -2,15 +2,16 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSeasons } from '@/hooks/seasons';
+import { useSeasons, useSeasonActions } from '@/hooks/seasons';
 import { DataTable, Button, StatusBadge, ErrorMessage } from '@/components/ui';
-import { SEASON_STATUS } from '@/lib/schemas/season.schema';
-import { updateSeason } from '@/actions/seasons.actions';
-import { Season } from '@/generated/prisma';
+import { SeasonDTO } from '@/lib/dto/season.type';
+import { SEASON_STATUS } from '@/lib/domain/season.status';
+import { UpdateSeasonInput } from '@/lib/schemas/season.input';
 
 export default function SeasonsPage() {
   const router = useRouter();
   const { data:seasons, isLoading, mutate } = useSeasons();
+  const { update, isLoading: isUpdating } = useSeasonActions();
   const [activatingId, setActivatingId] = useState<number | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
@@ -19,7 +20,7 @@ export default function SeasonsPage() {
     setError(null);
     try {
       // L'API gère automatiquement la désactivation de l'ancienne saison active
-      await updateSeason(seasonId, {status: SEASON_STATUS.ACTIVE});
+      await update(seasonId, {status: SEASON_STATUS.ACTIVE});
       await mutate();
     } catch (error:any) {
       setError(error);
@@ -28,11 +29,11 @@ export default function SeasonsPage() {
     }
   };
 
-  const handleRowSave = async(seasonId:number, input:Partial<Season>) => {
+  const handleRowSave = async(seasonId:number, input:UpdateSeasonInput) => {
     setError(null);
     try{
       console.log(input);
-      await updateSeason(seasonId, input);
+      await update(seasonId, input);
       await mutate();
     } catch(error:any){
       setError(error);
@@ -44,25 +45,24 @@ export default function SeasonsPage() {
     {
       key: 'label',
       label: 'Saison',
-      render: (season: any) => `${season.startYear}-${season.endYear}`,
+      render: (season: SeasonDTO) => `${season.startYear}-${season.endYear}`,
     },
     {
       key: 'membershipAmount',
       label: 'Adhésion',
-      render: (season: any) => `${season.membershipAmount} €`,
-      editable:true
+      render: (season: SeasonDTO) => `${season.membershipAmount} €`,
     },
     {
       key: 'status',
       label: 'Statut',
-      render: (season: any) => (
+      render: (season: SeasonDTO) => (
         <StatusBadge status={season.status} type='season' />
       ),
     },
     {
       key: 'actions',
       label: 'Actions',
-      render: (season: any) => (
+      render: (season: SeasonDTO) => (
         season.status === SEASON_STATUS.INACTIVE && (
           <Button
             size="sm"

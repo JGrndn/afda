@@ -3,10 +3,11 @@ import { seasonService } from '@/lib/services/seasons.service';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const season = await seasonService.getById(parseInt(params.id));
+    const { id } = await params;
+    const season = await seasonService.getById(parseInt(id));
     if (!season) {
       return NextResponse.json({ error: 'Season not found' }, { status: 404 });
     }
