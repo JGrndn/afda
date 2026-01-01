@@ -49,8 +49,30 @@ async function main(){
     { workshopId: workshops[1].id, seasonId: seasons[2].id, amount: 110 }, // Musique
     { workshopId: workshops[2].id, seasonId: seasons[2].id, amount: 160 }, // Cuisine
   ];
-  await prisma.workshopPrice.createManyAndReturn({ data: pricesData });
+  const workshopPrices = await prisma.workshopPrice.createManyAndReturn({ data: pricesData });
   console.log('✅ Workshop Prices created');
+
+  const familyData : Prisma.FamilyCreateManyInput[] = [
+    { name: 'Dupont', address: '', phone : '', email : 'famille.dupont@mail.com' },
+    { name: 'Martin', address: '', phone : '', email : 'famille.martin@mail.com' },
+    { name: 'Durant', address: '', phone : '', email : 'famille.durant@mail.com' },
+  ];
+  const families = await prisma.family.createManyAndReturn({ data: familyData });
+  console.log('✅ Families created');
+  const memberData : Prisma.MemberCreateManyInput[] = [
+    // famille Dupont
+    { familyId: families[0].id, lastName: 'Dupont', firstName: 'Jean', isMinor: true, email: '', phone: '', guardianLastName: 'Dupont', guardianFirstName: 'Sabine', guardianPhone: '', guardianEmail: '' },
+    { familyId: families[0].id, lastName: 'Dupont', firstName: 'Louis', isMinor: true, email: '', phone: '', guardianLastName: 'Dupont', guardianFirstName: 'Sabine', guardianPhone: '', guardianEmail: '' },
+    { familyId: families[0].id, lastName: 'Dupont', firstName: 'Sabine', isMinor: false, email: '', phone: '', guardianLastName: '', guardianFirstName: '', guardianPhone: '', guardianEmail: '' },
+    // Famille Martin
+    { familyId: families[1].id, lastName: 'Martin', firstName: 'Pierre', isMinor: false, email: '', phone: '', guardianLastName: '', guardianFirstName: '', guardianPhone: '', guardianEmail: '' },
+    { familyId: families[1].id, lastName: 'Pêcheur', firstName: 'Julie', isMinor: false, email: '', phone: '', guardianLastName: '', guardianFirstName: '', guardianPhone: '', guardianEmail: '' },
+    { familyId: families[1].id, lastName: 'Martin-Pêcheur', firstName: 'Clément', isMinor: true, email: '', phone: '', guardianLastName: 'Martin', guardianFirstName: 'Pierre', guardianPhone: '', guardianEmail: '' },
+    // Famille Durant
+    { familyId: families[2].id, lastName: 'Durant', firstName: 'Kevin', isMinor: true, email: '', phone: '', guardianLastName: '', guardianFirstName: '', guardianPhone: '', guardianEmail: '' },
+  ];
+  const members = await prisma.member.createManyAndReturn({data: memberData});
+  console.log('✅ Members created');
 }
 
 async function clearDatabase(){
