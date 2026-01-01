@@ -17,3 +17,7 @@ export type MemberDTO = {
 export type MemberWithFamilyDTO = MemberDTO & {
   familyName: string | null;
 };
+
+export type MemberWithFullDetailsDTO = MemberWithFamilyDTO & {
+  
+};

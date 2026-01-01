@@ -9,24 +9,14 @@ import { CreateMemberInput, UpdateMemberInput } from '../schemas/member.input';
 export const memberService = {
   async getAll(
     options?: QueryOptions<Prisma.MemberOrderByWithRelationInput> & {
-      includeFamily?: boolean;
-      familyId?: number;
-      isMinor?: boolean;
       search?: string;
     }
-  ): Promise<MemberDTO[] | MemberWithFamilyDTO[]> {
-    const { filters = {}, orderBy, includeFamily, familyId, isMinor, search } = options || {};
-    
-    const { includeFamily: _, ...prismaFilters } = filters as any;
+  ): Promise<MemberWithFamilyDTO[]> {
+    const { filters = {}, orderBy, search } = options || {};
+  
     const where: Prisma.MemberWhereInput = {
-      ...prismaFilters,
+      ...filters,
     };
-    if (familyId !== undefined) {
-      where.familyId = familyId;
-    }
-    if (isMinor !== undefined) {
-      where.isMinor = isMinor;
-    }
     if (search) {
       where.OR = [
         { lastName: { contains: search, mode: 'insensitive' } },
@@ -34,26 +24,16 @@ export const memberService = {
         { email: { contains: search, mode: 'insensitive' } },
       ];
     }
-
     const finalOrderBy = orderBy || { lastName: 'asc' as const, firstName: 'asc' as const };
-    
-    if (includeFamily) {
-      const members = await prisma.member.findMany({
-        where,
-        orderBy: finalOrderBy,
-        include: {
-          family: true,
-        },
-      });
-      return members.map(toMemberWithFamilyDTO);
-    }
-    
     const members = await prisma.member.findMany({
       where,
       orderBy: finalOrderBy,
+      include: {
+        family: true,
+      },
     });
+    return members.map(toMemberWithFamilyDTO);
     
-    return toMembersDTO(members);
   },
 
   async getById(id: number): Promise<MemberDTO | null> {
@@ -61,28 +41,6 @@ export const memberService = {
       where: { id },
     });
     return member ? toMemberDTO(member) : null;
-  },
-
-  async getByIdWithFamily(id: number): Promise<MemberWithFamilyDTO | null> {
-    const member = await prisma.member.findUnique({
-      where: { id },
-      include: {
-        family: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    });
-    return member ? toMemberWithFamilyDTO(member) : null;
-  },
-
-  async getByFamily(familyId: number): Promise<MemberDTO[]> {
-    const members = await prisma.member.findMany({
-      where: { familyId },
-      orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }],
-    });
-    return toMembersDTO(members);
   },
 
   async create(input: CreateMemberInput): Promise<MemberDTO> {

@@ -4,35 +4,22 @@ import { useState } from 'react';
 import useSWR from 'swr';
 import { useResource } from '@/lib/hooks/useResources';
 import { createMember, updateMember, deleteMember } from '@/app/members/members.actions';
-import { MemberDTO, MemberWithFamilyDTO } from '@/lib/dto/member.dto';
+import { MemberDTO, MemberWithFamilyDTO, MemberWithFullDetailsDTO } from '@/lib/dto/member.dto';
 import { CreateMemberInput, UpdateMemberInput } from '@/lib/schemas/member.input';
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 interface UseMembersOptions {
-  includeFamily?: boolean;
-  familyId?: number;
-  isMinor?: boolean;
   search?: string;
   sortBy?: 'lastName' | 'firstName';
   sortDirection?: 'asc' | 'desc';
 }
 
 export function useMembers(options: UseMembersOptions = {}) {
-  const { includeFamily, familyId, isMinor, search, sortBy, sortDirection } = options;
+  const { search, sortBy, sortDirection } = options;
 
   const filters: Record<string, any> = {};
-  if (includeFamily) {
-    filters.includeFamily = 'true';
-  }
-  if (familyId !== undefined) {
-    filters.familyId = familyId;
-  }
-  if (isMinor !== undefined) {
-    filters.isMinor = isMinor;
-  }
-
-  return useResource<MemberDTO | MemberWithFamilyDTO>('/api/members', {
+  return useResource<MemberWithFamilyDTO>('/api/members', {
     filters,
     search,
     sort: sortBy && sortDirection
@@ -42,12 +29,12 @@ export function useMembers(options: UseMembersOptions = {}) {
   });
 }
 
-export function useMember(id: number, includeFamily: boolean = false) {
+export function useMember(id: number) {
   const url = id
-    ? `/api/members/${id}${includeFamily ? '?includeFamily=true' : ''}`
+    ? `/api/members/${id}`
     : null;
 
-  const { data, error, isLoading, mutate } = useSWR<MemberDTO | MemberWithFamilyDTO>(
+  const { data, error, isLoading, mutate } = useSWR<MemberWithFullDetailsDTO>(
     url,
     fetcher
   );

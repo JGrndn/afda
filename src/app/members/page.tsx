@@ -5,16 +5,14 @@ import { useRouter } from 'next/navigation';
 import { useMembers, useMemberActions } from '@/hooks/member';
 import { DataTable, Button, ErrorMessage, Column, FormField } from '@/components/ui';
 import { MemberWithFamilyDTO } from '@/lib/dto/member.dto';
+import { Trash2 } from 'lucide-react';
 
 export default function MembersPage() {
   const router = useRouter();
   const [search, setSearch] = useState('');
-  const [isMinorFilter, setIsMinorFilter] = useState<boolean | undefined>(undefined);
   
   const { data: members, isLoading, mutate } = useMembers({ 
-    includeFamily: true,
     search,
-    isMinor: isMinorFilter,
   });
   
   const { remove, error } = useMemberActions();
@@ -76,18 +74,16 @@ export default function MembersPage() {
       render: (member) => (
         <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
           <Button
-            size="sm"
-            onClick={() => router.push(`/members/${member.id}`)}
-          >
-            Voir
-          </Button>
-          <Button
-            size="sm"
+            size="icon"
             variant="danger"
             onClick={() => handleDelete(member.id)}
             disabled={deletingId === member.id}
           >
-            {deletingId === member.id ? 'Suppression...' : 'Supprimer'}
+            {deletingId === member.id ? (
+              'Suppression...'
+            ) : (
+              <Trash2 className="w-5 h-5 transition-transform group-hover:scale-110"/>
+            )}
           </Button>
         </div>
       ),
@@ -113,19 +109,6 @@ export default function MembersPage() {
             value={search}
             onChange={setSearch}
             placeholder="Nom, prénom, email..."
-            compact
-          />
-          <FormField
-            label="Statut"
-            name="isMinor"
-            type="select"
-            value={isMinorFilter === undefined ? '' : isMinorFilter.toString()}
-            onChange={(v) => setIsMinorFilter(v === '' ? undefined : v === 'true')}
-            options={[
-              { value: '', label: 'Tous' },
-              { value: 'false', label: 'Majeurs' },
-              { value: 'true', label: 'Mineurs' },
-            ]}
             compact
           />
         </div>

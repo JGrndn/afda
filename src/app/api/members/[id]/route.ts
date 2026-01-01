@@ -8,11 +8,8 @@ export async function GET(
   try {
     const { id } = await params;
     const { searchParams } = new URL(request.url);
-    const includeFamily = searchParams.get('includeFamily') === 'true';
 
-    const member = includeFamily
-      ? await memberService.getByIdWithFamily(parseInt(id))
-      : await memberService.getById(parseInt(id));
+    const member = await memberService.getById(parseInt(id));
 
     if (!member) {
       return NextResponse.json({ error: 'Member not found' }, { status: 404 });

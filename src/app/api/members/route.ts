@@ -5,17 +5,9 @@ import { parseQueryParams } from '@/lib/hooks/apiHelper';
 export async function GET(request: Request) {
   try {
     const options = parseQueryParams(request);
-    const { searchParams } = new URL(request.url);
     
-    const includeFamily = searchParams.get('includeFamily') === 'true';
-    const familyId = searchParams.get('familyId');
-    const isMinor = searchParams.get('isMinor');
-
     const members = await memberService.getAll({
       ...options,
-      includeFamily,
-      familyId: familyId ? parseInt(familyId) : undefined,
-      isMinor: isMinor !== null ? isMinor === 'true' : undefined,
     });
 
     return NextResponse.json(members);
