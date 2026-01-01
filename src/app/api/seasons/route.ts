@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { seasonService } from '@/lib/services/seasons.service';
+import { seasonService } from '@/lib/services/season.service';
 import { parseQueryParams } from '@/lib/hooks/apiHelper';
 import { SeasonStatusSchema } from '@/lib/schemas/season.schema';
 

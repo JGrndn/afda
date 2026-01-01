@@ -21,6 +21,7 @@ model Season {
   updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")        
 
   workshopPrices    WorkshopPrice[]
+  memberships       Membership[]
 
   @@unique([startYear, endYear])
   @@map("seasons")
@@ -55,4 +56,60 @@ model Workshop {
 
   @@unique([name])
   @@map("workshops")
+}
+
+model Family {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(100)
+  address     String?  @db.Text
+  phone       String?  @db.VarChar(20)
+  email       String?  @db.VarChar(255)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  members     Member[]
+
+  @@map("families")
+}
+
+model Member {
+  id                  Int      @id @default(autoincrement())
+  familyId            Int?     @map("family_id")
+  lastName            String   @map("last_name") @db.VarChar(100)
+  firstName           String   @map("first_name") @db.VarChar(100)
+  isMinor             Boolean  @default(false) @map("is_minor")
+  email               String?  @db.VarChar(255)
+  phone               String?  @db.VarChar(20)
+  guardianLastName    String?  @map("guardian_last_name") @db.VarChar(100)
+  guardianFirstName   String?  @map("guardian_first_name") @db.VarChar(100)
+  guardianPhone       String?  @map("guardian_phone") @db.VarChar(20)
+  guardianEmail       String?  @map("guardian_email") @db.VarChar(255)
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at")
+
+  family              Family?         @relation(fields: [familyId], references: [id], onDelete: SetNull)
+  memberships         Membership[]
+
+  @@index([familyId])
+  @@index([lastName, firstName])
+  @@map("members")
+}
+
+model Membership {
+  id              Int      @id @default(autoincrement())
+  memberId        Int      @map("member_id")
+  seasonId        Int      @map("season_id")
+  amount          Decimal  @db.Decimal(10, 2)
+  status          String   @default("pending") @db.VarChar(20)
+  membershipDate  DateTime @default(now()) @map("membership_date") @db.Date
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
+
+  member          Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  season          Season   @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, seasonId])
+  @@index([memberId])
+  @@index([seasonId])
+  @@map("memberships")
 }

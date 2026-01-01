@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { SeasonForm } from "@/components/season/SeasonForm";
-import { useSeason, useSeasonActions } from "@/hooks/seasons";
+import { useSeason, useSeasonActions } from "@/hooks/season";
 import { Button, Card, ErrorMessage, StatusBadge } from "@/components/ui";
 import { UpdateSeasonInput } from "@/lib/schemas/season.input";
 
