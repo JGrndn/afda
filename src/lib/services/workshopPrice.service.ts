@@ -1,8 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/generated/prisma/client';
-import { QueryOptions } from '@/lib/hooks/query';
-import { toWorkshopPriceDTO } from '@/lib/mappers/workshop.mapper';
-import { WorkshopPriceDTO, WorkshopPriceWithDetailsDTO } from '@/lib/dto/workshop.dto';
+import { toWorkshopPriceDTO } from '@/lib/mappers/workshopPrice.mapper';
+import { WorkshopPriceDTO } from '@/lib/dto/workshopPrice.dto';
 import { DomainError } from '../errors/domain-error';
 import { CreateWorkshopPriceInput, UpdateWorkshopPriceInput } from '../schemas/workshop.input';
 

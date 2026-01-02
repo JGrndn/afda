@@ -3,20 +3,18 @@
 import { use, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Trash2 } from 'lucide-react';
+import { ArrowLeft, Pencil, Trash2 } from 'lucide-react';
 import { WorkshopForm } from '@/components/workshop/WorkshopForm';
 import { WorkshopPriceForm } from '@/components/workshop/WorkshopPriceForm';
 import { useWorkshop, useWorkshopActions, useWorkshopPriceActions } from '@/hooks/workshop';
-import { useWorkshopPrices } from '@/hooks/workshop';
 import { Button, Card, ErrorMessage, DataTable, Column, StatusBadge } from '@/components/ui';
 import { UpdateWorkshopInput, CreateWorkshopPriceInput } from '@/lib/schemas/workshop.input';
-import { WorkshopPriceDTO, WorkshopPriceWithDetailsDTO } from '@/lib/dto/workshop.dto';
+import { WorkshopPriceWithSeasonInfoDTO } from '@/lib/dto/workshopPrice.dto';
 
 export default function WorkshopDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const resolvedParams = use(params);
   const workshopId = parseInt(resolvedParams.id);
-
   const { workshop, isLoading: workshopLoading, mutate } = useWorkshop(workshopId);
 
   const { update, remove, isLoading: mutationLoading, error } = useWorkshopActions();
@@ -34,9 +32,7 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
 
   const handleDelete = async () => {
     if (
-      confirm(
-        'Êtes-vous sûr de vouloir supprimer cet atelier ? Tous les prix associés seront également supprimés.'
-      )
+      confirm('Êtes-vous sûr de vouloir supprimer cet atelier ? Tous les prix associés seront également supprimés.')
     ) {
       await remove(workshopId);
       router.push('/workshops');
@@ -46,7 +42,6 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
   const handleAddPrice = async (data: CreateWorkshopPriceInput) => {
     await createPrice(data);
     setIsAddingPrice(false);
-    mutate();
     mutate();
   };
 
@@ -58,7 +53,6 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
     setDeletingPriceId(priceId);
     try {
       await removePrice(priceId);
-      mutate();
       mutate();
     } catch (error) {
       console.error('Failed to delete price:', error);
@@ -85,7 +79,7 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
     );
   }
 
-  const priceColumns: Column<WorkshopPriceWithDetailsDTO>[] = [
+  const priceColumns: Column<WorkshopPriceWithSeasonInfoDTO>[] = [
     {
       type: 'computed',
       label: 'Saison',
@@ -129,7 +123,7 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
       <div className="mb-6 flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-3">
-            {workshop.name}
+            Atelier : {workshop.name}
             <StatusBadge type="workshop" status={workshop.status} />
           </h1>
           <p className="text-gray-600 mt-1">
@@ -141,9 +135,8 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
         <div className="flex gap-2">
           {!isEditing && (
             <>
-              <Button onClick={() => setIsEditing(true)}>Modifier</Button>
+              <Button onClick={() => setIsEditing(true)} Icon={Pencil} />
               <Button variant="danger" onClick={handleDelete} Icon={Trash2}/>
-                
             </>
           )}
         </div>
@@ -160,7 +153,7 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
         />
       ) : (
         <div className="space-y-6">
-          <Card title="Informations">
+          <Card title="Détails">
             <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <dt className="text-sm font-medium text-gray-500">Nom</dt>
@@ -203,9 +196,10 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
                 onCancel={() => setIsAddingPrice(false)}
               />
             ) : (
-              <DataTable<WorkshopPriceWithDetailsDTO>
+              <DataTable<WorkshopPriceWithSeasonInfoDTO>
                 data={workshop.prices}
                 columns={priceColumns}
+                
                 emptyMessage="Aucun tarif défini"
               />
             )}

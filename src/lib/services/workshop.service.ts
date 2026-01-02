@@ -49,7 +49,12 @@ export const workshopService = {
       include : {
         workshopPrices: {
           include:{
-            season:true
+            season:true,
+          },
+          orderBy: {
+            season:{
+              startYear: 'desc'
+            }
           },
         },
       }

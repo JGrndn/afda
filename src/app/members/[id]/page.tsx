@@ -3,7 +3,7 @@
 import { use, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Pencil, Trash2 } from 'lucide-react';
 import { MemberForm } from '@/components/member/MemberForm';
 import { useMember, useMemberActions } from '@/hooks/member';
 import { Button, Card, ErrorMessage } from '@/components/ui';
@@ -65,16 +65,16 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
             {member.firstName} {member.lastName}
           </h1>
           <p className="text-gray-600 mt-1">
-            {member.isMinor ? 'Mineur' : 'Majeur'}
+            <span className={`px-2 py-1 text-xs rounded ${member.isMinor ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
+              {member.isMinor ? 'Mineur' : 'Majeur'}
+            </span>
           </p>
         </div>
         <div className="flex gap-2">
           {!isEditing && (
             <>
-              <Button onClick={() => setIsEditing(true)}>Modifier</Button>
-              <Button variant="danger" onClick={handleDelete}>
-                Supprimer
-              </Button>
+              <Button onClick={() => setIsEditing(true)} Icon={Pencil}/>
+              <Button variant="danger" onClick={handleDelete} Icon={Trash2} />
             </>
           )}
         </div>
@@ -91,7 +91,7 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
         />
       ) : (
         <div className="space-y-6">
-          <Card title="Informations personnelles">
+          <Card title="Détails">
             <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <dt className="text-sm font-medium text-gray-500">Nom</dt>
@@ -122,19 +122,11 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
                   ) : '-'}
                 </dd>
               </div>
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Statut</dt>
-                <dd className="mt-1">
-                  <span className={`px-2 py-1 text-xs rounded ${member.isMinor ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
-                    {member.isMinor ? 'Mineur' : 'Majeur'}
-                  </span>
-                </dd>
-              </div>
             </dl>
           </Card>
 
           {member.isMinor && (
-            <Card title="Informations du tuteur légal">
+            <Card title="Représentant légal">
               <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <dt className="text-sm font-medium text-gray-500">Nom</dt>

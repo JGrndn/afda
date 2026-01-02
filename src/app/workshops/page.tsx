@@ -6,7 +6,7 @@ import { useWorkshops, useWorkshopActions } from '@/hooks/workshop';
 import { DataTable, Button, ErrorMessage, Column, StatusBadge, FormField } from '@/components/ui';
 import { WorkshopDTO } from '@/lib/dto/workshop.dto';
 import { WORKSHOP_STATUS, WorkshopStatus } from '@/lib/domain/workshop.status';
-import { Trash2 } from 'lucide-react';
+import { ListPlus, Trash2 } from 'lucide-react';
 
 export default function WorkshopsPage() {
   const router = useRouter();
@@ -88,7 +88,7 @@ export default function WorkshopsPage() {
     <div className="container mx-auto p-6">
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-3xl font-bold">Ateliers</h1>
-        <Button onClick={() => router.push('/workshops/new')}>Nouvel Atelier</Button>
+        <Button onClick={() => router.push('/workshops/new')} Icon={ListPlus}/>
       </div>
 
       {/* Filtres */}
@@ -107,6 +107,7 @@ export default function WorkshopsPage() {
             label="Statut"
             name="status"
             type="select"
+            placeholder='Filtrer...'
             value={statusFilter || ''}
             onChange={(v) => setStatusFilter(v ? (v as WorkshopStatus) : undefined)}
             options={[

@@ -1,5 +1,5 @@
 import { NavItem } from "@/components/navigation/navigation.types";
-import { Calendar, UserRound, Users } from "lucide-react";
+import { Calendar, Drama, UserRound, Users } from "lucide-react";
 
 
 export const navItems: NavItem[] = [
@@ -8,6 +8,12 @@ export const navItems: NavItem[] = [
     label: "Saisons",
     icon: Calendar,
     href: "/seasons"
+  },
+  {
+    id: "list-workshops",
+    label: "Ateliers",
+    icon: Drama,
+    href: "/workshops"
   },
   {
     id: "list-members",

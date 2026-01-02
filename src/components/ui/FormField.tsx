@@ -37,7 +37,6 @@ export function FormField({
     }
   };
 
-
   const inputClasses = `${compact ? '' : 'mt-1'} block w-full rounded-md shadow-sm ${
     error 
       ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
@@ -72,7 +71,7 @@ export function FormField({
           disabled={disabled}
           className={inputClasses}
         >
-          <option value="">Sélectionner...</option>
+          <option value="">{placeholder ? placeholder : 'Sélectionner...'}</option>
           {options?.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
