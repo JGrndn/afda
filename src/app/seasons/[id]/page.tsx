@@ -3,11 +3,15 @@
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { SeasonForm } from "@/components/season/SeasonForm";
 import { useSeason, useSeasonActions } from "@/hooks/season";
-import { Button, Card, ErrorMessage, StatusBadge } from "@/components/ui";
+import { Button, Card, Column, DataTable, ErrorMessage, StatusBadge } from "@/components/ui";
 import { UpdateSeasonInput } from "@/lib/schemas/season.input";
+import { useWorkshopPriceActions } from "@/hooks/workshop";
+import { CreateWorkshopPriceInput } from "@/lib/schemas/workshop.input";
+import { WorkshopPriceForm } from "@/components/workshop/WorkshopPriceForm";
+import { WorkshopPriceWithWorkshopInfoDTO } from "@/lib/dto/workshopPrice.dto";
 
 export default function SeasonDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -16,7 +20,11 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
   const { season, isLoading: seasonLoading, mutate } = useSeason(seasonId);
 
   const { update, remove, isLoading: mutationLoading, error } = useSeasonActions();
+  const { create: createPrice, remove: removePrice } = useWorkshopPriceActions()
+
   const [isEditing, setIsEditing] = useState(false);
+  const [isAddingPrice, setIsAddingPrice] = useState(false);
+  const [deletingPriceId, setDeletingPriceId] = useState<number | null>(null);
 
   const handleUpdate = async (data: UpdateSeasonInput) => {
     await update(seasonId, data);
@@ -25,9 +33,31 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
   };
 
   const handleDelete = async () => {
-    if (confirm('Are you sure you want to delete this season? This will also delete all related registrations.')) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cet atelier ? Tous les prix associés seront également supprimés.')) {
       await remove(seasonId);
       router.push('/seasons');
+    }
+  };
+
+  const handleAddPrice = async (data: CreateWorkshopPriceInput) => {
+    await createPrice(data);
+    setIsAddingPrice(false);
+    mutate();
+  };
+
+  const handleDeletePrice = async (priceId: number) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce prix ?')) {
+      return;
+    }
+
+    setDeletingPriceId(priceId);
+    try {
+      await removePrice(priceId);
+      mutate();
+    } catch (error) {
+      console.error('Failed to delete price:', error);
+    } finally {
+      setDeletingPriceId(null);
     }
   };
 
@@ -48,6 +78,37 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
       </div>
     );
   }
+
+  const priceColumns: Column<WorkshopPriceWithWorkshopInfoDTO>[] = [
+    {
+      type: 'computed',
+      label: 'Atelier',
+      render: (price) => `${price.workshopName}` || '-',
+    },
+    {
+      type: 'field',
+      key: 'amount',
+      label: 'Prix (€)',
+      render: (price) => `${price.amount} €`,
+    },
+    {
+      type: 'action',
+      label: 'Actions',
+      render: (price) => (
+        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+          <Button
+            size="sm"
+            variant="danger"
+            onClick={() => handleDeletePrice(price.id)}
+            disabled={deletingPriceId === price.id}
+            Icon={Trash2}
+          >
+            {deletingPriceId === price.id ? 'Suppression...' : ''}
+          </Button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="container mx-auto p-6 max-w-6xl">
@@ -71,10 +132,8 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
         <div className="flex gap-2">
           {!isEditing && (
             <>
-              <Button onClick={() => setIsEditing(true)}>Modifier</Button>
-              <Button variant="danger" onClick={handleDelete}>
-                Supprimer
-              </Button>
+              <Button onClick={() => setIsEditing(true)} Icon={Pencil}/>
+              <Button variant="danger" onClick={handleDelete} Icon={Trash2} />
             </>
           )}
         </div>
@@ -112,6 +171,32 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
                 </dd>
               </div>
             </dl>
+          </Card>
+
+          <Card
+            title="Ateliers de la saison"
+            actions={
+              !isAddingPrice && (
+                <Button size="sm" onClick={() => setIsAddingPrice(true)}>
+                  Ajouter un tarif
+                </Button>
+              )
+            }
+          >
+            {isAddingPrice ? (
+              <WorkshopPriceForm
+                initialData={{ seasonId }}
+                workshopId={seasonId}
+                onSubmit={handleAddPrice}
+                onCancel={() => setIsAddingPrice(false)}
+              />
+            ) : (
+              <DataTable<WorkshopPriceWithWorkshopInfoDTO>
+                data={season.prices}
+                columns={priceColumns}
+                emptyMessage="Aucun tarif défini"
+              />
+            )}
           </Card>
 
         </div>

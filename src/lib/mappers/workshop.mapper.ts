@@ -1,7 +1,9 @@
-import type { Workshop as PrismaWorkshop, WorkshopPrice as PrismaWorkshopPrice, Season as PrismaSeason } from '@/generated/prisma/client';
-import type { WorkshopDTO, WorkshopPriceDTO, WorkshopPriceWithDetailsDTO, WorkshopWithPricesAndSeasonDTO } from '@/lib/dto/workshop.dto';
+import type { Workshop as PrismaWorkshop } from '@/generated/prisma/client';
+import type { WorkshopDTO, WorkshopWithPricesAndSeasonDTO } from '@/lib/dto/workshop.dto';
 import { WorkshopStatusSchema } from '@/lib/schemas/workshop.schema';
 import { PrismaWorkshopWithPricesAndSeason } from '../services/workshop.service';
+import { toWorkshopPricesWithSeasonInfoDTO } from './workshopPrice.mapper';
+
 
 export function toWorkshopDTO(workshop: PrismaWorkshop): WorkshopDTO {
   return {
@@ -20,37 +22,9 @@ export function toWorkshopsDTO(workshops: PrismaWorkshop[]): WorkshopDTO[] {
   return workshops.map(toWorkshopDTO);
 }
 
-export function toWorkshopPriceDTO(price: PrismaWorkshopPrice): WorkshopPriceDTO {
-  return {
-    id: price.id,
-    workshopId: price.workshopId,
-    seasonId: price.seasonId,
-    amount: price.amount.toNumber(),
-    createdAt: price.createdAt,
-    updatedAt: price.updatedAt,
-  };
-}
-
-export function toWorkshopPriceWithDetailsDTO(price: PrismaWorkshopPrice & {season:PrismaSeason}): WorkshopPriceWithDetailsDTO {
-  return {
-    id: price.id,
-    workshopId: price.workshopId,
-    seasonId: price.seasonId,
-    seasonStart : price.season.startYear,
-    seasonEnd : price.season.endYear,
-    amount: price.amount.toNumber(),
-    createdAt: price.createdAt,
-    updatedAt: price.updatedAt,
-  };
-}
-
-export function toWorkshopPricesWithDetailsDTO(prices: (PrismaWorkshopPrice & {season: PrismaSeason })[]): WorkshopPriceWithDetailsDTO[] {
-  return prices.map(toWorkshopPriceWithDetailsDTO);
-}
-
 export function toWorkshopWithPricesAndSeasonDTO(workshop: PrismaWorkshopWithPricesAndSeason): WorkshopWithPricesAndSeasonDTO {
   return {
     ...toWorkshopDTO(workshop),
-    prices: workshop.workshopPrices ? toWorkshopPricesWithDetailsDTO(workshop.workshopPrices) : [],
+    prices: toWorkshopPricesWithSeasonInfoDTO(workshop.workshopPrices),
   };
 }

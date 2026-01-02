@@ -1,8 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/generated/prisma/client'
 import { QueryOptions } from '@/lib/hooks/query';
-import { toSeasonDTO, toSeasonsDTO } from '@/lib/mappers/season.mapper';
-import { SeasonDTO } from '@/lib/dto/season.dto';
+import { toSeasonDTO, toSeasonsDTO, toSeasonWithPricesAndWorkshopDTO } from '@/lib/mappers/season.mapper';
+import { SeasonDTO, SeasonWithPricesAndWorkshopDTO } from '@/lib/dto/season.dto';
 import { DomainError } from '../errors/domain-error';
 import { CreateSeasonInput, UpdateSeasonInput } from '../schemas/season.input';
 import { SEASON_STATUS } from '../domain/season.status';
@@ -25,11 +25,18 @@ export const seasonService = {
     return toSeasonsDTO(db);
   },
 
-  async getById(id: number) : Promise<SeasonDTO | null> {
-    const db = await prisma.season.findUnique({
-      where : { id : id }
+  async getById(id: number) : Promise<SeasonWithPricesAndWorkshopDTO | null> {
+    const season : PrismaSeasonWithPricesAndWorkshop | null = await prisma.season.findUnique({
+      where : { id : id },
+      include : {
+        workshopPrices : {
+          include : {
+            workshop : true
+          }
+        }
+      }
     });
-    return db ? toSeasonDTO(db) : null;
+    return season ? toSeasonWithPricesAndWorkshopDTO(season) : null;
   },
 
   async getActive(): Promise<SeasonDTO | null>{
@@ -90,3 +97,14 @@ export const seasonService = {
     })
   }
 };
+
+export type PrismaSeasonWithPricesAndWorkshop =
+  Prisma.SeasonGetPayload<{
+    include: {
+      workshopPrices: {
+        include: {
+          workshop: true;
+        };
+      };
+    };
+  }>;

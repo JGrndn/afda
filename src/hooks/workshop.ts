@@ -11,7 +11,7 @@ import {
   updateWorkshopPrice,
   deleteWorkshopPrice,
 } from '@/app/workshops/workshops.actions';
-import { WorkshopDTO, WorkshopPriceDTO, WorkshopWithPricesAndSeasonDTO } from '@/lib/dto/workshop.dto';
+import { WorkshopDTO, WorkshopWithPricesAndSeasonDTO } from '@/lib/dto/workshop.dto';
 import {
   CreateWorkshopInput,
   UpdateWorkshopInput,
@@ -19,6 +19,7 @@ import {
   UpdateWorkshopPriceInput,
 } from '@/lib/schemas/workshop.input';
 import { WorkshopStatus } from '@/lib/domain/workshop.status';
+import { WorkshopPriceDTO } from '@/lib/dto/workshopPrice.dto';
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 

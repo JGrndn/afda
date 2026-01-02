@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useResource } from "@/lib/hooks/useResources";
 import { createSeason, updateSeason, deleteSeason } from "@/app/seasons/seasons.actions";
 import useSWR from "swr";
-import { SeasonDTO } from "@/lib/dto/season.dto";
+import { SeasonDTO, SeasonWithPricesAndWorkshopDTO } from "@/lib/dto/season.dto";
 import { CreateSeasonInput, UpdateSeasonInput } from "@/lib/schemas/season.input";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -29,7 +29,7 @@ export function useSeasons(options: UseSeasonsOptions = {}) {
 }
 
 export function useSeason(id: number){
-    const { data, error, isLoading, mutate } = useSWR<SeasonDTO>(
+    const { data, error, isLoading, mutate } = useSWR<SeasonWithPricesAndWorkshopDTO>(
     id ? `/api/seasons/${id}` : null,
     fetcher
   );
