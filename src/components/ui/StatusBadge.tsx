@@ -1,4 +1,4 @@
-import type { SeasonStatus } from '@/lib/schemas/season.schema';
+import { SeasonStatus } from '@/lib/domain/season.status';
 import {
   translateSeasonStatus
 } from '@/lib/i18n/translations';

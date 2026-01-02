@@ -14,7 +14,7 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
   const resolvedParams = use(params);
   const memberId = parseInt(resolvedParams.id);
   
-  const { member, isLoading: memberLoading, mutate } = useMember(memberId, true);
+  const { member, isLoading: memberLoading, mutate } = useMember(memberId);
   const { update, remove, isLoading: mutationLoading, error } = useMemberActions();
   const [isEditing, setIsEditing] = useState(false);
 
