@@ -1,8 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/generated/prisma/client';
 import { QueryOptions } from '@/lib/hooks/query';
-import { toMemberDTO, toMembersDTO, toMemberWithFamilyDTO } from '@/lib/mappers/member.mapper';
-import { MemberDTO, MemberWithFamilyDTO } from '@/lib/dto/member.dto';
+import { toMemberDTO, toMemberWithFamilyNameDTO, toMemberWithFullDetailsDTO } from '@/lib/mappers/member.mapper';
+import { MemberDTO, MemberWithFamilyNameDTO, MemberWithFullDetailsDTO } from '@/lib/dto/member.dto';
 import { DomainError } from '../errors/domain-error';
 import { CreateMemberInput, UpdateMemberInput } from '../schemas/member.input';
 
@@ -11,7 +11,7 @@ export const memberService = {
     options?: QueryOptions<Prisma.MemberOrderByWithRelationInput> & {
       search?: string;
     }
-  ): Promise<MemberWithFamilyDTO[]> {
+  ): Promise<MemberWithFamilyNameDTO[]> {
     const { filters = {}, orderBy, search } = options || {};
   
     const where: Prisma.MemberWhereInput = {
@@ -25,22 +25,25 @@ export const memberService = {
       ];
     }
     const finalOrderBy = orderBy || { lastName: 'asc' as const, firstName: 'asc' as const };
-    const members = await prisma.member.findMany({
+    const members : PrismaMemberWithFamily[] = await prisma.member.findMany({
       where,
       orderBy: finalOrderBy,
       include: {
         family: true,
       },
     });
-    return members.map(toMemberWithFamilyDTO);
+    return members.map(toMemberWithFamilyNameDTO);
     
   },
 
-  async getById(id: number): Promise<MemberDTO | null> {
-    const member = await prisma.member.findUnique({
+  async getById(id: number): Promise<MemberWithFullDetailsDTO | null> {
+    const member: PrismaMemberWithFullDetails | null = await prisma.member.findUnique({
       where: { id },
+      include: {
+        family: true
+      }
     });
-    return member ? toMemberDTO(member) : null;
+    return member ? toMemberWithFullDetailsDTO(member) : null;
   },
 
   async create(input: CreateMemberInput): Promise<MemberDTO> {
@@ -102,3 +105,17 @@ export const memberService = {
     }
   },
 };
+
+export type PrismaMemberWithFamily =
+  Prisma.MemberGetPayload<{
+    include: {
+      family: true
+    };
+  }>;
+
+export type PrismaMemberWithFullDetails =
+  Prisma.MemberGetPayload<{
+    include: {
+      family: true
+    };
+  }>;
