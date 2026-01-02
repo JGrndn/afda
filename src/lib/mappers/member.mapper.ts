@@ -1,5 +1,7 @@
-import type { Member as PrismaMember } from '@/generated/prisma/client';
-import type { MemberDTO, MemberWithFamilyDTO } from '@/lib/dto/member.dto';
+import type { Member as PrismaMember, Family as PrismaFamily } from '@/generated/prisma/client';
+import type { MemberDTO, MemberWithFamilyNameDTO, MemberWithFullDetailsDTO,  } from '@/lib/dto/member.dto';
+import { PrismaMemberWithFamily, PrismaMemberWithFullDetails } from '../services/member.service';
+import { toFamilyDTO } from './family.mapper';
 
 export function toMemberDTO(member: PrismaMember): MemberDTO {
   return {
@@ -23,11 +25,16 @@ export function toMembersDTO(members: PrismaMember[]): MemberDTO[] {
   return members.map(toMemberDTO);
 }
 
-export function toMemberWithFamilyDTO(
-  member: PrismaMember & { family?: { name: string } | null }
-): MemberWithFamilyDTO {
+export function toMemberWithFamilyNameDTO(member: PrismaMemberWithFamily) : MemberWithFamilyNameDTO {
   return {
     ...toMemberDTO(member),
-    familyName: member.family?.name ?? null,
+    familyName:member.family?.name || ''
+  }
+}
+
+export function toMemberWithFullDetailsDTO(member: PrismaMemberWithFullDetails): MemberWithFullDetailsDTO {
+  return {
+    ...toMemberDTO(member),
+    family: member.family ? toFamilyDTO(member.family) : null,
   };
 }
