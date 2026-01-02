@@ -1,11 +1,14 @@
 import { SeasonStatus } from '@/lib/domain/season.status';
+import { WorkshopStatus } from '@/lib/domain/workshop.status';
 import {
-  translateSeasonStatus
+  translateSeasonStatus,
+  translateWorkshopStatus
 } from '@/lib/i18n/translations';
 
 type StatusBadgeProps = 
-  | { type: 'generic'; status: string; className?: string; }
-  | { type: 'season'; status: SeasonStatus; className?: string; };
+  | { type: 'generic', status: string, className?: string, }
+  | { type: 'season', status: SeasonStatus, className?: string, }
+  | { type: 'workshop', status: WorkshopStatus, className?: string };
 
 const COLOR_CLASSES:any = {
   yellow: 'bg-yellow-100 text-yellow-800',
@@ -18,6 +21,10 @@ export const SEASON_STATUS_COLORS: Record<SeasonStatus, string> = {
   inactive: 'red',
   active: 'green',
 };
+export const WORKSHOP_STATUS_COLORS: Record<WorkshopStatus, string> = {
+  inactive: 'red',
+  active:'green',
+}
 
 export function StatusBadge(props: StatusBadgeProps) {
   const { className = ''} = props;
@@ -28,6 +35,10 @@ export function StatusBadge(props: StatusBadgeProps) {
     case 'season':
       label = translateSeasonStatus(props.status);
       color = SEASON_STATUS_COLORS[props.status];
+      break;
+    case 'workshop':
+      label = translateWorkshopStatus(props.status);
+      color = WORKSHOP_STATUS_COLORS[props.status];
       break;
     default:
       label = props.status;

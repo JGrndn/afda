@@ -4,7 +4,7 @@ import { ReactNode, ButtonHTMLAttributes } from 'react';
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
   size?: 'sm' | 'md' | 'lg' | 'icon';
-  children: ReactNode;
+  children?: ReactNode;
   isLoading?: boolean;
   Icon?: LucideIcon;
   iconPosition?: 'left' | 'right';

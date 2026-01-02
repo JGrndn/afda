@@ -60,8 +60,6 @@ async function main(){
   const families = await prisma.family.createManyAndReturn({ data: familyData });
   console.log('✅ Families created');
 
-  console.log(families);
-
   const memberData : Prisma.MemberCreateManyInput[] = [
     // famille Dupont
     { familyId: families[0].id, lastName: 'Dupont', firstName: 'Jean', isMinor: true, email: '', phone: '', guardianLastName: 'Dupont', guardianFirstName: 'Sabine', guardianPhone: '', guardianEmail: '' },
