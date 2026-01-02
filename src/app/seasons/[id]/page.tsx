@@ -150,10 +150,10 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
         />
       ) : (
         <div className="space-y-6">
-          <Card title="Season Information">
+          <Card title="Détails">
             <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <dt className="text-sm font-medium text-gray-500">Period</dt>
+                <dt className="text-sm font-medium text-gray-500">Periode</dt>
                 <dd className="mt-1 text-sm text-gray-900">
                   {season.startYear} - {season.endYear}
                 </dd>
@@ -186,7 +186,7 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
             {isAddingPrice ? (
               <WorkshopPriceForm
                 initialData={{ seasonId }}
-                workshopId={seasonId}
+                seasonId={seasonId}
                 onSubmit={handleAddPrice}
                 onCancel={() => setIsAddingPrice(false)}
               />

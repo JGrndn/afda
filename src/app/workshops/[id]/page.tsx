@@ -123,7 +123,7 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
       <div className="mb-6 flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-3">
-            {workshop.name}
+            Atelier : {workshop.name}
             <StatusBadge type="workshop" status={workshop.status} />
           </h1>
           <p className="text-gray-600 mt-1">
@@ -153,7 +153,7 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
         />
       ) : (
         <div className="space-y-6">
-          <Card title="Informations">
+          <Card title="Détails">
             <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <dt className="text-sm font-medium text-gray-500">Nom</dt>
@@ -199,6 +199,7 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
               <DataTable<WorkshopPriceWithSeasonInfoDTO>
                 data={workshop.prices}
                 columns={priceColumns}
+                
                 emptyMessage="Aucun tarif défini"
               />
             )}

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useMembers, useMemberActions } from '@/hooks/member';
 import { DataTable, Button, ErrorMessage, Column, FormField } from '@/components/ui';
 import { MemberWithFamilyDTO } from '@/lib/dto/member.dto';
-import { Trash2 } from 'lucide-react';
+import { Trash2, UserRoundPlus } from 'lucide-react';
 
 export default function MembersPage() {
   const router = useRouter();
@@ -93,9 +93,7 @@ export default function MembersPage() {
     <div className="container mx-auto p-6">
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-3xl font-bold">Membres</h1>
-        <Button onClick={() => router.push('/members/new')}>
-          Nouveau Membre
-        </Button>
+        <Button onClick={() => router.push('/members/new')} Icon={UserRoundPlus}/>
       </div>
 
       {/* Filtres */}

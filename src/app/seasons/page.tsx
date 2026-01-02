@@ -7,6 +7,7 @@ import { DataTable, Button, StatusBadge, ErrorMessage, Column } from '@/componen
 import { SeasonDTO } from '@/lib/dto/season.dto';
 import { SEASON_STATUS } from '@/lib/domain/season.status';
 import { UpdateSeasonInput } from '@/lib/schemas/season.input';
+import { CalendarPlus, CalendarPlus2 } from 'lucide-react';
 
 export default function SeasonsPage() {
   const router = useRouter();
@@ -83,9 +84,7 @@ export default function SeasonsPage() {
     <div className="container mx-auto p-6">
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-3xl font-bold">Saisons</h1>
-        <Button onClick={() => router.push('/seasons/new')}>
-          Nouvelle Saison
-        </Button>
+        <Button onClick={() => router.push('/seasons/new')} Icon={CalendarPlus}/>
       </div>
       {error && <ErrorMessage error={error}/>}
       <DataTable<SeasonDTO>

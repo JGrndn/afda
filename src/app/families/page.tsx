@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useFamilies, useFamilyActions } from '@/hooks/family';
 import { DataTable, Button, ErrorMessage, Column } from '@/components/ui';
 import { FamilyDTO } from '@/lib/dto/family.dto';
-import { Trash2 } from 'lucide-react';
+import { Trash2, UserRoundPlus } from 'lucide-react';
 
 export default function FamiliesPage() {
   const router = useRouter();
@@ -70,9 +70,7 @@ export default function FamiliesPage() {
     <div className="container mx-auto p-6">
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-3xl font-bold">Familles</h1>
-        <Button onClick={() => router.push('/families/new')}>
-          Nouvelle Famille
-        </Button>
+        <Button onClick={() => router.push('/families/new')} Icon={UserRoundPlus}/>
       </div>
 
       {error && <ErrorMessage error={error} />}

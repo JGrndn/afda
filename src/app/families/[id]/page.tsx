@@ -3,7 +3,7 @@
 import { use, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Pencil, Trash2} from 'lucide-react';
 import { FamilyForm } from '@/components/family/FamilyForm';
 import { useFamily, useFamilyActions } from '@/hooks/family';
 import { Button, Card, ErrorMessage, DataTable, Column } from '@/components/ui';
@@ -87,14 +87,12 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
       </Link>
 
       <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-3xl font-bold">{family.name}</h1>
+        <h1 className="text-3xl font-bold">Famille : {family.name}</h1>
         <div className="flex gap-2">
           {!isEditing && (
             <>
-              <Button onClick={() => setIsEditing(true)}>Modifier</Button>
-              <Button variant="danger" onClick={handleDelete}>
-                Supprimer
-              </Button>
+              <Button onClick={() => setIsEditing(true)} Icon={Pencil} />
+              <Button variant="danger" onClick={handleDelete} Icon={Trash2} />
             </>
           )}
         </div>
@@ -129,7 +127,7 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
           </Card>
 
           <Card 
-            title="Membres"
+            title="Membres de la famille"
             actions={
               <Button size="sm" onClick={() => router.push(`/members/new?familyId=${familyId}`)}>
                 Ajouter un membre
