@@ -1,3 +1,5 @@
+import { MemberDTO } from "./member.dto";
+
 export type FamilyDTO = {
   id: number;
   name: string;
@@ -8,6 +10,6 @@ export type FamilyDTO = {
   updatedAt: Date;
 };
 
-export type FamilyWithMembersDTO = FamilyDTO & {
-  memberCount: number;
+export type FamilyWithFullDetailsDTO = FamilyDTO & {
+  members: MemberDTO[] | null;
 };

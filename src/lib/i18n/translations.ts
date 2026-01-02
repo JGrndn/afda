@@ -1,4 +1,4 @@
-import type { SeasonStatus } from '@/lib/schemas/season.schema';
+import { SeasonStatus } from "../domain/season.status";
 
 // Season Status
 export const SEASON_STATUS_TRANSLATIONS: Record<SeasonStatus, string> = {

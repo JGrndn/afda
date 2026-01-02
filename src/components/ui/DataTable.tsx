@@ -27,7 +27,7 @@ export type Column<T> =
 interface DataTableProps<
   T extends Record<string, unknown>
 > {
-  data?: T[];
+  data?: T[] | null;
   columns: Column<T>[];
   isLoading?: boolean;
   emptyMessage?: string;

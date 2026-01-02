@@ -78,12 +78,11 @@ export default function MembersPage() {
             variant="danger"
             onClick={() => handleDelete(member.id)}
             disabled={deletingId === member.id}
+            Icon={Trash2}
           >
             {deletingId === member.id ? (
               'Suppression...'
-            ) : (
-              <Trash2 className="w-5 h-5 transition-transform group-hover:scale-110"/>
-            )}
+            ) : ''}
           </Button>
         </div>
       ),

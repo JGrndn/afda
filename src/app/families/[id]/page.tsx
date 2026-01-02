@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { FamilyForm } from '@/components/family/FamilyForm';
 import { useFamily, useFamilyActions } from '@/hooks/family';
-import { useMembers } from '@/hooks/member';
 import { Button, Card, ErrorMessage, DataTable, Column } from '@/components/ui';
 import { UpdateFamilyInput } from '@/lib/schemas/family.input';
 import { MemberDTO } from '@/lib/dto/member.dto';
@@ -16,8 +15,7 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
   const resolvedParams = use(params);
   const familyId = parseInt(resolvedParams.id);
   
-  const { family, isLoading: familyLoading, mutate } = useFamily(familyId, true);
-  const { data: members, isLoading: membersLoading } = useMembers({ familyId });
+  const { family, isLoading: familyLoading, mutate } = useFamily(familyId);
   const { update, remove, isLoading: mutationLoading, error } = useFamilyActions();
   const [isEditing, setIsEditing] = useState(false);
 
@@ -139,10 +137,9 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
             }
           >
             <DataTable<MemberDTO>
-              data={members}
+              data={family.members}
               columns={memberColumns}
               onRowClick={(member) => router.push(`/members/${member.id}`)}
-              isLoading={membersLoading}
               emptyMessage="Aucun membre dans cette famille"
             />
           </Card>

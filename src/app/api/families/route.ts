@@ -6,11 +6,9 @@ export async function GET(request: Request) {
   try {
     const options = parseQueryParams(request);
     const { searchParams } = new URL(request.url);
-    const includeMemberCount = searchParams.get('includeMemberCount') === 'true';
 
     const families = await familyService.getAll({
       ...options,
-      includeMemberCount,
     });
 
     return NextResponse.json(families);
