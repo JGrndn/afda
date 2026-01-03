@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft, Pencil, Trash2 } from 'lucide-react';
 import { WorkshopForm } from '@/components/workshop/WorkshopForm';
 import { WorkshopPriceForm } from '@/components/workshop/WorkshopPriceForm';
-import { useWorkshop, useWorkshopActions, useWorkshopPriceActions } from '@/hooks/workshop';
+import { useWorkshop, useWorkshopActions, useWorkshopPriceActions } from '@/hooks/workshop.hook';
 import { Button, Card, ErrorMessage, DataTable, Column, StatusBadge } from '@/components/ui';
 import { UpdateWorkshopInput, CreateWorkshopPriceInput } from '@/lib/schemas/workshop.input';
 import { WorkshopPriceWithSeasonInfoDTO } from '@/lib/dto/workshopPrice.dto';

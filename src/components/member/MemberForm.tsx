@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { GenericForm, FormField } from '@/components/ui';
-import { useFamilies } from '@/hooks/family';
+import { useFamilies } from '@/hooks/family.hook';
 import type { CreateMemberInput } from '@/lib/schemas/member.input';
 
 interface MemberFormProps {

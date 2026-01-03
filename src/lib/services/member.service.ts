@@ -40,7 +40,13 @@ export const memberService = {
     const member: PrismaMemberWithFullDetails | null = await prisma.member.findUnique({
       where: { id },
       include: {
-        family: true
+        family: true,
+        memberships: true,
+        registrations: {
+          include:{
+            workshop:true
+          }
+        }
       }
     });
     return member ? toMemberWithFullDetailsDTO(member) : null;
@@ -116,6 +122,12 @@ export type PrismaMemberWithFamily =
 export type PrismaMemberWithFullDetails =
   Prisma.MemberGetPayload<{
     include: {
-      family: true
+      family: true,
+      memberships: true,
+      registrations: {
+        include:{
+          workshop:true
+        }
+      }
     };
   }>;

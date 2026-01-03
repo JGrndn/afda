@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useMembers, useMemberActions } from '@/hooks/member';
+import { useMembers, useMemberActions } from '@/hooks/member.hook';
 import { DataTable, Button, ErrorMessage, Column, FormField } from '@/components/ui';
 import { MemberWithFamilyDTO } from '@/lib/dto/member.dto';
 import { Trash2, UserRoundPlus } from 'lucide-react';

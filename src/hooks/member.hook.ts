@@ -4,7 +4,7 @@ import { useState } from 'react';
 import useSWR from 'swr';
 import { useResource } from '@/lib/hooks/useResources';
 import { createMember, updateMember, deleteMember } from '@/app/members/members.actions';
-import { MemberDTO, MemberWithFamilyDTO, MemberWithFullDetailsDTO } from '@/lib/dto/member.dto';
+import { MemberDTO, MemberWithFamilyNameDTO, MemberWithFullDetailsDTO } from '@/lib/dto/member.dto';
 import { CreateMemberInput, UpdateMemberInput } from '@/lib/schemas/member.input';
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -19,7 +19,7 @@ export function useMembers(options: UseMembersOptions = {}) {
   const { search, sortBy, sortDirection } = options;
 
   const filters: Record<string, any> = {};
-  return useResource<MemberWithFamilyDTO>('/api/members', {
+  return useResource<MemberWithFamilyNameDTO>('/api/members', {
     filters,
     search,
     sort: sortBy && sortDirection

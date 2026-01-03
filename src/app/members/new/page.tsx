@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { MemberForm } from '@/components/member/MemberForm';
-import { useMemberActions } from '@/hooks/member';
+import { useMemberActions } from '@/hooks/member.hook';
 import { ErrorMessage } from '@/components/ui';
 import type { CreateMemberInput } from '@/lib/schemas/member.input';
 

@@ -55,7 +55,7 @@ async function main(){
   const familyData : Prisma.FamilyCreateManyInput[] = [
     { name: 'Dupont', address: '', phone : '', email : 'famille.dupont@mail.com' },
     { name: 'Martin', address: '', phone : '', email : 'famille.martin@mail.com' },
-    { name: 'Durant', address: '', phone : '', email : 'famille.durant@mail.com' },
+    { name: 'Etch', address: '', phone : '', email : 'famille.etch@mail.com' },
   ];
   const families = await prisma.family.createManyAndReturn({ data: familyData });
   console.log('✅ Families created');
@@ -69,8 +69,8 @@ async function main(){
     { familyId: families[1].id, lastName: 'Martin', firstName: 'Pierre', isMinor: false, email: '', phone: '', guardianLastName: '', guardianFirstName: '', guardianPhone: '', guardianEmail: '' },
     { familyId: families[1].id, lastName: 'Pêcheur', firstName: 'Julie', isMinor: false, email: '', phone: '', guardianLastName: '', guardianFirstName: '', guardianPhone: '', guardianEmail: '' },
     { familyId: families[1].id, lastName: 'Martin-Pêcheur', firstName: 'Clément', isMinor: true, email: '', phone: '', guardianLastName: 'Martin', guardianFirstName: 'Pierre', guardianPhone: '', guardianEmail: '' },
-    // Famille Durant
-    { familyId: families[2].id, lastName: 'Durant', firstName: 'Kevin', isMinor: true, email: '', phone: '', guardianLastName: '', guardianFirstName: '', guardianPhone: '', guardianEmail: '' },
+    // Famille Etch
+    { familyId: families[2].id, lastName: 'Etch', firstName: 'Fifi', isMinor: true, email: '', phone: '', guardianLastName: '', guardianFirstName: '', guardianPhone: '', guardianEmail: '' },
   ];
   const members = await prisma.member.createManyAndReturn({data: memberData});
   console.log('✅ Members created');
@@ -95,7 +95,7 @@ async function main(){
   const memberships = await prisma.membership.createManyAndReturn({ data: membershipData });
   console.log('✅ Memberships created');
 
-  const registrationsData : Prisma.WorkshopRegistrationCreateManyInput[] = [
+  const registrationsData : Prisma.RegistrationCreateManyInput[] = [
     // 2023/2024
     //    membre de la famille Dupont (memberid : 0 | 1)
     { memberId: members[0].id, seasonId: seasons[0].id, workshopId: workshops[0].id, appliedPrice: 110, discountPercent: seasons[0].discountPercent, quantity: 1 },
@@ -118,10 +118,11 @@ async function main(){
     { memberId: members[3].id, seasonId: seasons[2].id, workshopId: workshops[0].id, appliedPrice: 130, discountPercent: seasons[2].discountPercent, quantity: 1 },
     { memberId: members[3].id, seasonId: seasons[2].id, workshopId: workshops[1].id, appliedPrice: 117, discountPercent: seasons[2].discountPercent, quantity: 1 },
     { memberId: members[4].id, seasonId: seasons[2].id, workshopId: workshops[0].id, appliedPrice: 130, discountPercent: seasons[2].discountPercent, quantity: 1 },
-    //    membre de la famille Durant (memberid : 6 )
+    //    membre de la famille Etc (memberid : 6 )
     { memberId: members[6].id, seasonId: seasons[2].id, workshopId: workshops[0].id, appliedPrice: 130, discountPercent: seasons[2].discountPercent, quantity: 1 },
+    { memberId: members[6].id, seasonId: seasons[2].id, workshopId: workshops[2].id, appliedPrice: 160, discountPercent: seasons[2].discountPercent, quantity: 1 },
   ];
-  const registrations = await prisma.workshopRegistration.createManyAndReturn({ data: registrationsData });
+  const registrations = await prisma.registration.createManyAndReturn({ data: registrationsData });
   console.log('✅ Workshop registrations created');
 }
 
@@ -129,7 +130,7 @@ async function main(){
 async function clearDatabase(){
   await prisma.$transaction([
     prisma.membership.deleteMany(),
-    prisma.workshopRegistration.deleteMany(),
+    prisma.registration.deleteMany(),
     prisma.season.deleteMany(),
     prisma.workshop.deleteMany(),
     prisma.workshopPrice.deleteMany(),

@@ -22,7 +22,7 @@ model Season {
 
   workshopPrices    WorkshopPrice[]
   memberships       Membership[]
-  workshopRegistrations WorkshopRegistration[]
+  registrations     Registration[]
 
   @@unique([startYear, endYear])
   @@map("seasons")
@@ -54,7 +54,7 @@ model Workshop {
   updatedAt               DateTime @default(now()) @updatedAt @map("updated_at")
 
   workshopPrices          WorkshopPrice[]
-  workshopRegistrations   WorkshopRegistration[]
+  registrations           Registration[]
 
   @@unique([name])
   @@map("workshops")
@@ -91,7 +91,7 @@ model Member {
 
   family              Family?         @relation(fields: [familyId], references: [id], onDelete: SetNull)
   memberships         Membership[]
-  workshopRegistrations WorkshopRegistration[]
+  registrations       Registration[]
 
   @@index([familyId])
   @@index([lastName, firstName])
@@ -118,7 +118,7 @@ model Membership {
   @@map("memberships")
 }
 
-model WorkshopRegistration {
+model Registration {
   id                Int      @id @default(autoincrement())
   memberId          Int      @map("member_id")
   seasonId          Int      @map("season_id")
@@ -138,5 +138,5 @@ model WorkshopRegistration {
   @@index([memberId])
   @@index([seasonId])
   @@index([workshopId])
-  @@map("workshop_registrations")
+  @@map("registrations")
 }

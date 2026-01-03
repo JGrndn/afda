@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { FamilyForm } from '@/components/family/FamilyForm';
-import { useFamilyActions } from '@/hooks/family';
+import { useFamilyActions } from '@/hooks/family.hook';
 import { ErrorMessage } from '@/components/ui';
 import type { CreateFamilyInput } from '@/lib/schemas/family.input';
 

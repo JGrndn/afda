@@ -1,4 +1,6 @@
 import { FamilyDTO } from "./family.dto";
+import { MembershipDTO } from "./membership.dto";
+import { RegistrationWithWorkshopDetailsDTO } from "./registration.dto";
 
 export type MemberDTO = {
   id: number;
@@ -22,4 +24,6 @@ export type MemberWithFamilyNameDTO = MemberDTO & {
 
 export type MemberWithFullDetailsDTO = MemberDTO & {
   family: FamilyDTO | null;
+  registrations: RegistrationWithWorkshopDetailsDTO[] | null;
+  memberships: MembershipDTO[] | null;
 };

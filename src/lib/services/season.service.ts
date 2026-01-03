@@ -39,13 +39,6 @@ export const seasonService = {
     return season ? toSeasonWithPricesAndWorkshopDTO(season) : null;
   },
 
-  async getActive(): Promise<SeasonDTO | null>{
-    const db =  await prisma.season.findFirst({
-      where : { status : SEASON_STATUS.ACTIVE}
-    });
-    return db ? toSeasonDTO(db) : null;
-  },
-
   async create(input: CreateSeasonInput): Promise<SeasonDTO> {
     if (input.startYear >= input.endYear){
       throw new DomainError(`L'année de début doit être antérieure à l'année de fin`, 'INVALID_SEASON_STARTYEAR_ENDYEAR');
