@@ -22,6 +22,7 @@ model Season {
 
   workshopPrices    WorkshopPrice[]
   memberships       Membership[]
+  registrations     Registration[]
 
   @@unique([startYear, endYear])
   @@map("seasons")
@@ -53,6 +54,7 @@ model Workshop {
   updatedAt               DateTime @default(now()) @updatedAt @map("updated_at")
 
   workshopPrices          WorkshopPrice[]
+  registrations           Registration[]
 
   @@unique([name])
   @@map("workshops")
@@ -89,6 +91,7 @@ model Member {
 
   family              Family?         @relation(fields: [familyId], references: [id], onDelete: SetNull)
   memberships         Membership[]
+  registrations       Registration[]
 
   @@index([familyId])
   @@index([lastName, firstName])
@@ -99,6 +102,7 @@ model Membership {
   id              Int      @id @default(autoincrement())
   memberId        Int      @map("member_id")
   seasonId        Int      @map("season_id")
+  familyOrder     Int      @default(1) @map("family_order")
   amount          Decimal  @db.Decimal(10, 2)
   status          String   @default("pending") @db.VarChar(20)
   membershipDate  DateTime @default(now()) @map("membership_date") @db.Date
@@ -112,4 +116,27 @@ model Membership {
   @@index([memberId])
   @@index([seasonId])
   @@map("memberships")
+}
+
+model Registration {
+  id                Int      @id @default(autoincrement())
+  memberId          Int      @map("member_id")
+  seasonId          Int      @map("season_id")
+  workshopId        Int      @map("workshop_id")
+  quantity          Int      @default(1)
+  totalPrice        Decimal  @map("total_price") @db.Decimal(10, 2)
+  discountPercent   Decimal  @default(0) @map("discount_percent") @db.Decimal(5, 2)
+  registrationDate  DateTime @default(now()) @map("registration_date") @db.Date
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")
+
+  member            Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  season            Season   @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  workshop          Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, seasonId, workshopId])
+  @@index([memberId])
+  @@index([seasonId])
+  @@index([workshopId])
+  @@map("registrations")
 }

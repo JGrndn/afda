@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { WorkshopStatusSchema } from './workshop.schema';
+import { WorkshopStatusSchema } from '@/lib/schemas/workshop.schema';
 
 export const CreateWorkshopSchema = z.object({
   name: z.string().min(1, "Le nom est requis").max(100),

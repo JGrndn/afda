@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { WorkshopForm } from '@/components/workshop/WorkshopForm';
-import { useWorkshopActions } from '@/hooks/workshop';
+import { useWorkshopActions } from '@/hooks/workshop.hook';
 import { ErrorMessage } from '@/components/ui';
 import type { CreateWorkshopInput } from '@/lib/schemas/workshop.input';
 

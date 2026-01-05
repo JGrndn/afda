@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { GenericForm, FormField } from '@/components/ui';
-import { useWorkshops } from '@/hooks/workshop';
-import { useSeasons } from '@/hooks/season';
+import { useWorkshops } from '@/hooks/workshop.hook';
+import { useSeasons } from '@/hooks/season.hook';
 import type { CreateWorkshopPriceInput } from '@/lib/schemas/workshop.input';
 
 interface WorkshopPriceFormProps {

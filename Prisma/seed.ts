@@ -37,17 +37,18 @@ async function main(){
     { workshopId: workshops[3].id, seasonId: seasons[0].id, amount: 80 },  // Photographie
     { workshopId: workshops[4].id, seasonId: seasons[0].id, amount: 70 },  // Impro
     
-    // Season 2024-2025 (active)
+    // Season 2024-2025
     { workshopId: workshops[0].id, seasonId: seasons[1].id, amount: 120 }, // Théâtre
     { workshopId: workshops[1].id, seasonId: seasons[1].id, amount: 100 }, // Musique
     { workshopId: workshops[2].id, seasonId: seasons[1].id, amount: 150 }, // Cuisine
     { workshopId: workshops[3].id, seasonId: seasons[1].id, amount: 85 },  // Photographie
     { workshopId: workshops[4].id, seasonId: seasons[1].id, amount: 75 },  // Impro
         
-    // Season 2025-2026 (future)
+    // Season 2025-2026 (active)
     { workshopId: workshops[0].id, seasonId: seasons[2].id, amount: 130 }, // Théâtre
     { workshopId: workshops[1].id, seasonId: seasons[2].id, amount: 110 }, // Musique
     { workshopId: workshops[2].id, seasonId: seasons[2].id, amount: 160 }, // Cuisine
+    { workshopId: workshops[4].id, seasonId: seasons[2].id, amount: 140 },  // Impro
   ];
   const workshopPrices = await prisma.workshopPrice.createManyAndReturn({ data: pricesData });
   console.log('✅ Workshop Prices created');
@@ -55,7 +56,7 @@ async function main(){
   const familyData : Prisma.FamilyCreateManyInput[] = [
     { name: 'Dupont', address: '', phone : '', email : 'famille.dupont@mail.com' },
     { name: 'Martin', address: '', phone : '', email : 'famille.martin@mail.com' },
-    { name: 'Durant', address: '', phone : '', email : 'famille.durant@mail.com' },
+    { name: 'Etch', address: '', phone : '', email : 'famille.etch@mail.com' },
   ];
   const families = await prisma.family.createManyAndReturn({ data: familyData });
   console.log('✅ Families created');
@@ -69,15 +70,68 @@ async function main(){
     { familyId: families[1].id, lastName: 'Martin', firstName: 'Pierre', isMinor: false, email: '', phone: '', guardianLastName: '', guardianFirstName: '', guardianPhone: '', guardianEmail: '' },
     { familyId: families[1].id, lastName: 'Pêcheur', firstName: 'Julie', isMinor: false, email: '', phone: '', guardianLastName: '', guardianFirstName: '', guardianPhone: '', guardianEmail: '' },
     { familyId: families[1].id, lastName: 'Martin-Pêcheur', firstName: 'Clément', isMinor: true, email: '', phone: '', guardianLastName: 'Martin', guardianFirstName: 'Pierre', guardianPhone: '', guardianEmail: '' },
-    // Famille Durant
-    { familyId: families[2].id, lastName: 'Durant', firstName: 'Kevin', isMinor: true, email: '', phone: '', guardianLastName: '', guardianFirstName: '', guardianPhone: '', guardianEmail: '' },
+    // Famille Etch
+    { familyId: families[2].id, lastName: 'Etch', firstName: 'Fifi', isMinor: false, email: '', phone: '', guardianLastName: '', guardianFirstName: '', guardianPhone: '', guardianEmail: '' },
   ];
   const members = await prisma.member.createManyAndReturn({data: memberData});
   console.log('✅ Members created');
+  
+  const membershipData : Prisma.MembershipCreateManyInput[] = [
+    // 2023/2024
+    { memberId: members[0].id, seasonId: seasons[0].id, amount: seasons[0].membershipAmount, familyOrder:1 },
+    { memberId: members[1].id, seasonId: seasons[0].id, amount: seasons[0].membershipAmount, familyOrder:2 },
+    { memberId: members[3].id, seasonId: seasons[0].id, amount: seasons[0].membershipAmount, familyOrder:1 },
+    { memberId: members[5].id, seasonId: seasons[0].id, amount: seasons[0].membershipAmount, familyOrder:2 },
+    // 2024/2025
+    { memberId: members[0].id, seasonId: seasons[1].id, amount: seasons[1].membershipAmount, familyOrder:1 },
+    { memberId: members[2].id, seasonId: seasons[1].id, amount: seasons[1].membershipAmount, familyOrder:2 },
+    { memberId: members[3].id, seasonId: seasons[1].id, amount: seasons[1].membershipAmount, familyOrder:1 },
+    // 2025/2026
+    { memberId: members[0].id, seasonId: seasons[2].id, amount: seasons[2].membershipAmount, familyOrder:1 },
+    { memberId: members[1].id, seasonId: seasons[2].id, amount: seasons[2].membershipAmount, familyOrder:2 },
+    { memberId: members[3].id, seasonId: seasons[2].id, amount: seasons[2].membershipAmount, familyOrder:1 },
+    { memberId: members[4].id, seasonId: seasons[2].id, amount: seasons[2].membershipAmount, familyOrder:2 },
+    { memberId: members[6].id, seasonId: seasons[2].id, amount: seasons[2].membershipAmount, familyOrder:1 },
+  ];
+  const memberships = await prisma.membership.createManyAndReturn({ data: membershipData });
+  console.log('✅ Memberships created');
+
+  const registrationsData : Prisma.RegistrationCreateManyInput[] = [
+    // 2023/2024
+    //    membre de la famille Dupont (memberid : 0 | 1)
+    { memberId: members[0].id, seasonId: seasons[0].id, workshopId: workshops[0].id, totalPrice: 110, discountPercent: 0, quantity: 1 },
+    { memberId: members[0].id, seasonId: seasons[0].id, workshopId: workshops[1].id, totalPrice: 90, discountPercent: 0, quantity: 1 },
+    { memberId: members[1].id, seasonId: seasons[0].id, workshopId: workshops[0].id, totalPrice: 99, discountPercent: seasons[0].discountPercent, quantity: 1 },
+    //    membre de la famille Martin (memberid : 3 | 5)
+    { memberId: members[3].id, seasonId: seasons[0].id, workshopId: workshops[0].id, totalPrice: 110, discountPercent: 0, quantity: 1 },
+    { memberId: members[5].id, seasonId: seasons[0].id, workshopId: workshops[3].id, totalPrice: 72, discountPercent: seasons[0].discountPercent, quantity: 1 },
+    // 2024/2025
+    //    membre de la famille Dupont (memberid : 0 | 2)
+    { memberId: members[0].id, seasonId: seasons[1].id, workshopId: workshops[0].id, totalPrice: 110, discountPercent: 0, quantity: 1 },
+    { memberId: members[2].id, seasonId: seasons[1].id, workshopId: workshops[0].id, totalPrice: 104.5, discountPercent: seasons[1].discountPercent, quantity: 1 },
+    //    membre de la famille Martin (memberid : 3 )
+    { memberId: members[3].id, seasonId: seasons[1].id, workshopId: workshops[0].id, totalPrice: 110, discountPercent: 0, quantity: 1 },
+    // 2025/2026
+    //    membre de la famille Dupont (memberid : 0 | 1)
+    { memberId: members[0].id, seasonId: seasons[2].id, workshopId: workshops[0].id, totalPrice: 110, discountPercent: 0, quantity: 1 },
+    { memberId: members[1].id, seasonId: seasons[2].id, workshopId: workshops[0].id, totalPrice: 99, discountPercent: seasons[2].discountPercent, quantity: 1 },
+    //    membre de la famille Martin (memberid : 3 | 4)
+    { memberId: members[3].id, seasonId: seasons[2].id, workshopId: workshops[0].id, totalPrice: 130, discountPercent: 0, quantity: 1 },
+    { memberId: members[3].id, seasonId: seasons[2].id, workshopId: workshops[1].id, totalPrice: 117, discountPercent: 0, quantity: 1 },
+    { memberId: members[4].id, seasonId: seasons[2].id, workshopId: workshops[0].id, totalPrice: 130, discountPercent: seasons[2].discountPercent, quantity: 1 },
+    //    membre de la famille Etc (memberid : 6 )
+    { memberId: members[6].id, seasonId: seasons[2].id, workshopId: workshops[0].id, totalPrice: 130, discountPercent: 0, quantity: 1 },
+    { memberId: members[6].id, seasonId: seasons[2].id, workshopId: workshops[2].id, totalPrice: 160, discountPercent: 0, quantity: 1 },
+  ];
+  const registrations = await prisma.registration.createManyAndReturn({ data: registrationsData });
+  console.log('✅ Workshop registrations created');
 }
+
 
 async function clearDatabase(){
   await prisma.$transaction([
+    prisma.membership.deleteMany(),
+    prisma.registration.deleteMany(),
     prisma.season.deleteMany(),
     prisma.workshop.deleteMany(),
     prisma.workshopPrice.deleteMany(),

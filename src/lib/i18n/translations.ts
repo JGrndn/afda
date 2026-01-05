@@ -1,3 +1,4 @@
+import { MembershipStatus } from "../domain/membership.status";
 import { SeasonStatus } from "../domain/season.status";
 import { WorkshopStatus } from "../domain/workshop.status";
 
@@ -9,7 +10,12 @@ export const SEASON_STATUS_TRANSLATIONS: Record<SeasonStatus, string> = {
 export const WORKSHOP_STATUS_TRANSLATIONS: Record<WorkshopStatus, string> = {
   active: 'Actif',
   inactive: 'Inactif'
-}
+};
+export const MEMBERSHIP_STATUS_TRANSLATIONS: Record<MembershipStatus, string> = {
+  pending: "En cours",
+  paid: "Payé",
+  cancelled: "Annulé"
+};
 
 // Helper générique pour traduire
 export function translate<T extends string>(
@@ -25,4 +31,7 @@ export const translateSeasonStatus = (status: SeasonStatus) => {
 }
 export const translateWorkshopStatus = (status: WorkshopStatus) => {
   return translate(status, WORKSHOP_STATUS_TRANSLATIONS);
+}
+export const translateMembershipStatus = (status:MembershipStatus) => {
+  return translate(status, MEMBERSHIP_STATUS_TRANSLATIONS);
 }

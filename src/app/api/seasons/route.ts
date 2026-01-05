@@ -8,7 +8,6 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const options = parseQueryParams(request, { status:SeasonStatusSchema});
 
-    // ✅ Déléguer TOUT au service
     const seasons = await seasonService.getAll({
       ...options,
     });

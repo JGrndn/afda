@@ -1,4 +1,4 @@
-import { MemberDTO } from "./member.dto";
+import { MemberDTO } from "@/lib/dto/member.dto";
 
 export type FamilyDTO = {
   id: number;

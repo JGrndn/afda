@@ -1,21 +1,16 @@
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/generated/prisma/client';
 import { QueryOptions } from '@/lib/hooks/query';
-import {
-  toWorkshopDTO,
-  toWorkshopsDTO,
-  toWorkshopWithPricesAndSeasonDTO,
-} from '@/lib/mappers/workshop.mapper';
+import { toWorkshopDTO, toWorkshopsDTO, toWorkshopWithPricesAndSeasonDTO } from '@/lib/mappers/workshop.mapper';
 import { WorkshopDTO, WorkshopWithPricesAndSeasonDTO } from '@/lib/dto/workshop.dto';
-import { DomainError } from '../errors/domain-error';
-import { CreateWorkshopInput, UpdateWorkshopInput } from '../schemas/workshop.input';
-import { WorkshopStatus } from '../domain/workshop.status';
+import { DomainError } from '@/lib/errors/domain-error';
+import { CreateWorkshopInput, UpdateWorkshopInput } from '@/lib/schemas/workshop.input';
+import { WorkshopStatus } from '@/lib/domain/workshop.status';
 
 export const workshopService = {
   async getAll(
     options?: QueryOptions<Prisma.WorkshopOrderByWithRelationInput> & {
       status?: WorkshopStatus;
-      seasonId?: number;
       search?: string;
     }
   ): Promise<WorkshopDTO[]> {

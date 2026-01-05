@@ -3,8 +3,8 @@ import { Prisma } from '@/generated/prisma/client';
 import { QueryOptions } from '@/lib/hooks/query';
 import { toMemberDTO, toMemberWithFamilyNameDTO, toMemberWithFullDetailsDTO } from '@/lib/mappers/member.mapper';
 import { MemberDTO, MemberWithFamilyNameDTO, MemberWithFullDetailsDTO } from '@/lib/dto/member.dto';
-import { DomainError } from '../errors/domain-error';
-import { CreateMemberInput, UpdateMemberInput } from '../schemas/member.input';
+import { DomainError } from '@/lib/errors/domain-error';
+import { CreateMemberInput, UpdateMemberInput } from '@/lib/schemas/member.input';
 
 export const memberService = {
   async getAll(
@@ -40,7 +40,20 @@ export const memberService = {
     const member: PrismaMemberWithFullDetails | null = await prisma.member.findUnique({
       where: { id },
       include: {
-        family: true
+        family: true,
+        memberships: {
+          orderBy: {
+            season: {startYear: 'desc'}
+          },
+          include: {
+            season:true
+          }
+        },
+        registrations: {
+          include:{
+            workshop:true
+          }
+        }
       }
     });
     return member ? toMemberWithFullDetailsDTO(member) : null;
@@ -116,6 +129,16 @@ export type PrismaMemberWithFamily =
 export type PrismaMemberWithFullDetails =
   Prisma.MemberGetPayload<{
     include: {
-      family: true
+      family: true,
+      memberships: {
+        include: {
+          season : true
+        }
+      },
+      registrations: {
+        include:{
+          workshop:true
+        }
+      }
     };
   }>;

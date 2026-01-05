@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { SeasonForm } from '@/components/season/SeasonForm';
-import { useSeasonActions } from '@/hooks/season';
+import { useSeasonActions } from '@/hooks/season.hook';
 import { ErrorMessage } from '@/components/ui';
 import type { CreateSeasonInput } from '@/lib/schemas/season.input';
 

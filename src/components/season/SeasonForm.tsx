@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { GenericForm, FormField } from '@/components/ui';
 import { SEASON_STATUS } from '@/lib/domain/season.status';
-import type { CreateSeasonInput, UpdateSeasonInput } from '@/lib/schemas/season.input';
+import type { CreateSeasonInput } from '@/lib/schemas/season.input';
 
 interface SeasonFormProps {
   initialData?: Partial<CreateSeasonInput>;

@@ -2,8 +2,8 @@ import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/generated/prisma/client';
 import { toWorkshopPriceDTO } from '@/lib/mappers/workshopPrice.mapper';
 import { WorkshopPriceDTO } from '@/lib/dto/workshopPrice.dto';
-import { DomainError } from '../errors/domain-error';
-import { CreateWorkshopPriceInput, UpdateWorkshopPriceInput } from '../schemas/workshop.input';
+import { DomainError } from '@/lib/errors/domain-error';
+import { CreateWorkshopPriceInput, UpdateWorkshopPriceInput } from '@/lib/schemas/workshop.input';
 
 export const workshopPriceService = {
   async create(input: CreateWorkshopPriceInput): Promise<WorkshopPriceDTO> {

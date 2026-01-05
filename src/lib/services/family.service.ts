@@ -3,8 +3,8 @@ import { Prisma } from '@/generated/prisma/client';
 import { QueryOptions } from '@/lib/hooks/query';
 import { toFamilyDTO, toFamiliesDTO, toFamilyWithFullDetailsDTO } from '@/lib/mappers/family.mapper';
 import { FamilyDTO } from '@/lib/dto/family.dto';
-import { DomainError } from '../errors/domain-error';
-import { CreateFamilyInput, UpdateFamilyInput } from '../schemas/family.input';
+import { DomainError } from '@/lib/errors/domain-error';
+import { CreateFamilyInput, UpdateFamilyInput } from '@/lib/schemas/family.input';
 
 export const familyService = {
   async getAll(

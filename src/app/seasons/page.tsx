@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSeasons, useSeasonActions } from '@/hooks/season';
+import { useSeasons, useSeasonActions } from '@/hooks/season.hook';
 import { DataTable, Button, StatusBadge, ErrorMessage, Column } from '@/components/ui';
 import { SeasonDTO } from '@/lib/dto/season.dto';
 import { SEASON_STATUS } from '@/lib/domain/season.status';
 import { UpdateSeasonInput } from '@/lib/schemas/season.input';
-import { CalendarPlus, CalendarPlus2 } from 'lucide-react';
+import { CalendarPlus } from 'lucide-react';
 
 export default function SeasonsPage() {
   const router = useRouter();

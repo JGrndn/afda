@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Pencil, Trash2} from 'lucide-react';
 import { FamilyForm } from '@/components/family/FamilyForm';
-import { useFamily, useFamilyActions } from '@/hooks/family';
+import { useFamily, useFamilyActions } from '@/hooks/family.hook';
 import { Button, Card, ErrorMessage, DataTable, Column } from '@/components/ui';
 import { UpdateFamilyInput } from '@/lib/schemas/family.input';
 import { MemberDTO } from '@/lib/dto/member.dto';

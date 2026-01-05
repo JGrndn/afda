@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useWorkshops, useWorkshopActions } from '@/hooks/workshop';
+import { useWorkshops, useWorkshopActions } from '@/hooks/workshop.hook';
 import { DataTable, Button, ErrorMessage, Column, StatusBadge, FormField } from '@/components/ui';
 import { WorkshopDTO } from '@/lib/dto/workshop.dto';
 import { WORKSHOP_STATUS, WorkshopStatus } from '@/lib/domain/workshop.status';

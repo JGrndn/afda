@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SEASON_STATUS, SeasonStatus } from '../domain/season.status';
+import { SEASON_STATUS, SeasonStatus } from '@/lib/domain/season.status';
 
 // Season status
 export const SeasonStatusSchema = z.enum(Object.values(SEASON_STATUS) as [SeasonStatus, ...SeasonStatus[]]);

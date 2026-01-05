@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { SeasonForm } from "@/components/season/SeasonForm";
-import { useSeason, useSeasonActions } from "@/hooks/season";
+import { useSeason, useSeasonActions } from "@/hooks/season.hook";
 import { Button, Card, Column, DataTable, ErrorMessage, StatusBadge } from "@/components/ui";
 import { UpdateSeasonInput } from "@/lib/schemas/season.input";
-import { useWorkshopPriceActions } from "@/hooks/workshop";
+import { useWorkshopPriceActions } from "@/hooks/workshopPrice.hook";
 import { CreateWorkshopPriceInput } from "@/lib/schemas/workshop.input";
 import { WorkshopPriceForm } from "@/components/workshop/WorkshopPriceForm";
 import { WorkshopPriceWithWorkshopInfoDTO } from "@/lib/dto/workshopPrice.dto";
+import { MembershipDTO, MembershipWithMemberDTO } from "@/lib/dto/membership.dto";
 
 export default function SeasonDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -83,7 +84,7 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
     {
       type: 'computed',
       label: 'Atelier',
-      render: (price) => `${price.workshopName}` || '-',
+      render: (price) => `${price.workshop.name}` || '-',
     },
     {
       type: 'field',
@@ -108,6 +109,23 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
         </div>
       ),
     },
+  ];
+
+  const membershipColumns: Column<MembershipWithMemberDTO>[] = [
+    {
+      type: 'field',
+      key: "memberName",
+      label:'Membre'
+    },
+    {
+      type: 'field',
+      key: 'status',
+      label: 'Adhésion',
+      render: (v: MembershipDTO) => (
+        <StatusBadge status={v.status} type='membership' />
+      )
+    }
+    // ajouter une colonne avec le nombre d'inscriptionx aux ateliers ?
   ];
 
   return (
@@ -197,6 +215,16 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
                 emptyMessage="Aucun tarif défini"
               />
             )}
+          </Card>
+
+          <Card
+            title="Membres de la saison"
+          >
+            <DataTable<MembershipWithMemberDTO>
+              data={season.memberships}
+              columns={membershipColumns}
+              emptyMessage="Aucun membre"
+            /> 
           </Card>
 
         </div>

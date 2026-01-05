@@ -1,5 +1,4 @@
 // EN PREVISION D'UN FUTUR REFACTORING AVEC TOUTES LES ACTIONS
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
