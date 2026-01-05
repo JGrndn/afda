@@ -3,12 +3,20 @@
 import { use, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Pencil, Trash2} from 'lucide-react';
+import { ArrowLeft, Pencil, Plus, Trash2} from 'lucide-react';
 import { FamilyForm } from '@/components/family/FamilyForm';
 import { useFamily, useFamilyActions } from '@/hooks/family.hook';
-import { Button, Card, ErrorMessage, DataTable, Column } from '@/components/ui';
+import { Button, Card, ErrorMessage, DataTable, Column, StatusBadge } from '@/components/ui';
 import { UpdateFamilyInput } from '@/lib/schemas/family.input';
 import { MemberDTO } from '@/lib/dto/member.dto';
+import { PaymentDTO } from '@/lib/dto/payment.dto';
+import { CreatePaymentInput, UpdatePaymentInput } from '@/lib/schemas/payment.input';
+import { usePaymentActions, usePayments } from '@/hooks/payment.hook';
+import { useSeasons } from '@/hooks/season.hook';
+import { SEASON_STATUS } from '@/lib/domain/season.enum';
+import { updatePayment } from '@/app/payments/payments.actions';
+import { FamilyBalanceCard } from '@/components/payment/FamilyBalanceCard';
+import { PaymentForm } from '@/components/payment/PaymentForm';
 
 export default function FamilyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -19,6 +27,25 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
   const { update, remove, isLoading: mutationLoading, error } = useFamilyActions();
   const [isEditing, setIsEditing] = useState(false);
 
+  const { data: seasons } = useSeasons();
+  const activeSeason = seasons?.find((s) => s.status === SEASON_STATUS.ACTIVE);
+
+  // Récupérer les paiements de la famille pour la saison active
+  const {
+    data: payments,
+    isLoading: paymentsLoading,
+    mutate: mutatePayments,
+  } = usePayments({
+    familyId,
+    seasonId: activeSeason?.id,
+  });
+
+  const { create: createPayment, remove: removePayment } = usePaymentActions();
+
+  const [editingPaymentId, setEditingPaymentId] = useState<number | null>(null);
+  const [deletingPaymentId, setDeletingPaymentId] = useState<number | null>(null);
+  const [isAddingPayment, setIsAddingPayment] = useState(false);
+
   const handleUpdate = async (data: UpdateFamilyInput) => {
     await update(familyId, data);
     setIsEditing(false);
@@ -26,9 +53,52 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
   };
 
   const handleDelete = async () => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette famille ? Tous les membres associés seront également supprimés.')) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette famille ? Tous les membres et paiements associés seront également supprimés.')) {
       await remove(familyId);
       router.push('/families');
+    }
+  };
+
+   const handleAddPayment = async (data: CreatePaymentInput) => {
+    await createPayment(data);
+    setIsAddingPayment(false);
+    mutatePayments();
+  };
+
+  const handleCashPayment = async (paymentId: number) => {
+    try {
+      await updatePayment(paymentId, {
+        cashingDate: new Date(), // Mettre la date d'aujourd'hui
+      });
+      mutatePayments();
+    } catch (error) {
+      console.error('Failed to cash payment:', error);
+    }
+  };
+
+  const handleEditPayment = async (paymentId: number, data: UpdatePaymentInput) => {
+    try {
+      await updatePayment(paymentId, data);
+      setEditingPaymentId(null);
+      mutatePayments();
+    } catch (error) {
+      console.error('Failed to update payment:', error);
+    }
+  };
+
+  const handleDeletePayment = async (paymentId: number) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce paiement ?')) {
+      return;
+    }
+
+    setDeletingPaymentId(paymentId);
+    try {
+      await removePayment(paymentId);
+      mutatePayments();
+    } catch (error) {
+      console.error('Failed to delete payment:', error);
+    } finally {
+      setDeletingPaymentId(null);
     }
   };
 
@@ -73,6 +143,77 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
       key: 'isMinor',
       label: 'Statut',
       render: (member) => member.isMinor ? 'Mineur' : 'Majeur',
+    },
+  ];
+
+  const paymentColumns: Column<PaymentDTO>[] = [
+    {
+      type: 'field',
+      key: 'amount',
+      label: 'Montant',
+      render: (payment) => `${payment.amount.toFixed(2)} €`,
+    },
+    {
+      type: 'field',
+      key: 'paymentType',
+      label: 'Type',
+      render: (payment) => {
+        const types: Record<string, string> = {
+          cash: 'Espèces',
+          check: 'Chèque',
+          transfer: 'Virement',
+          card: 'Carte',
+        };
+        return types[payment.paymentType] || payment.paymentType;
+      },
+    },
+    {
+      type: 'field',
+      key: 'paymentDate',
+      label: 'Date paiement',
+      render: (payment) => new Date(payment.paymentDate).toLocaleDateString('fr-FR'),
+    },
+    {
+      type: 'field',
+      key: 'cashingDate',
+      label: 'Date encaissement',
+      render: (payment) =>
+        payment.cashingDate ? new Date(payment.cashingDate).toLocaleDateString('fr-FR') : '-',
+    },
+    {
+      type: 'field',
+      key: 'status',
+      label: 'Statut',
+      render: (payment) => <StatusBadge type="payment" status={payment.status} />,
+    },
+    {
+      type: 'field',
+      key: 'reference',
+      label: 'Référence',
+      render: (payment) => payment.reference || '-',
+    },
+    {
+      type: 'action',
+      label: 'Actions',
+      render: (payment) => (
+        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+          {payment.status === 'pending' && payment.paymentType === 'check' && (
+            <Button size="sm" onClick={() => handleCashPayment(payment.id)}>
+              Encaisser
+            </Button>
+          )}
+          <Button
+            size="sm"
+            variant="danger"
+            onClick={() => {
+              return handleDeletePayment(payment.id);
+            }}
+            disabled={deletingPaymentId === payment.id}
+          >
+            {deletingPaymentId === payment.id ? 'Suppression...' : 'Supprimer'}
+          </Button>
+        </div>
+      ),
     },
   ];
 
@@ -132,6 +273,7 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
               <Button size="sm" onClick={() => router.push(`/members/new?familyId=${familyId}`)}>
                 Ajouter un membre
               </Button>
+              // ajouter le composer plutôt que la redirection vers la page
             }
           >
             <DataTable<MemberDTO>
@@ -141,6 +283,54 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
               emptyMessage="Aucun membre dans cette famille"
             />
           </Card>
+
+          {/* ajouter la carte pour la gestion des paiements */}
+            {activeSeason && (
+            <FamilyBalanceCard familyId={familyId} seasonId={activeSeason.id} />
+          )}
+
+          {/* Paiements */}
+          {activeSeason && (
+            <Card
+              title={`Paiements - ${activeSeason.startYear}-${activeSeason.endYear}`}
+              actions={
+                !isAddingPayment &&
+                !editingPaymentId && (
+                  <Button size="sm" onClick={() => setIsAddingPayment(true)}>
+                    <Plus className="w-4 h-4 mr-1" />
+                    Ajouter un paiement
+                  </Button>
+                )
+              }
+            >
+              {isAddingPayment ? (
+                <PaymentForm
+                  familyId={familyId}
+                  seasonId={activeSeason.id}
+                  onSubmit={handleAddPayment}
+                  onCancel={() => setIsAddingPayment(false)}
+                />
+              ) : editingPaymentId ? (
+                <PaymentForm
+                  familyId={familyId}
+                  seasonId={activeSeason.id}
+                  initialData={payments?.find((p) => p.id === editingPaymentId)}
+                  onSubmit={(data) => {
+                    return handleEditPayment(editingPaymentId, data);
+                  }}
+                  onCancel={() => setEditingPaymentId(null)}
+                />
+              ) : (
+                <DataTable<PaymentDTO>
+                  data={payments as PaymentDTO[]}
+                  columns={paymentColumns}
+                  isLoading={paymentsLoading}
+                  emptyMessage="Aucun paiement enregistré"
+                />
+              )}
+            </Card>
+          )}
+
         </div>
       )}
     </div>

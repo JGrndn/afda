@@ -6,7 +6,7 @@ import { useResource } from '@/lib/hooks/useResources';
 import { createWorkshop, updateWorkshop, deleteWorkshop } from '@/app/workshops/workshops.actions';
 import { WorkshopDTO, WorkshopWithPricesAndSeasonDTO } from '@/lib/dto/workshop.dto';
 import { CreateWorkshopInput, UpdateWorkshopInput } from '@/lib/schemas/workshop.input';
-import { WorkshopStatus } from '@/lib/domain/workshop.status';
+import { WorkshopStatus } from '@/lib/domain/workshop.enum';
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 

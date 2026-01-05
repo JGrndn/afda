@@ -1,6 +1,7 @@
-import { MembershipStatus } from "../domain/membership.status";
-import { SeasonStatus } from "../domain/season.status";
-import { WorkshopStatus } from "../domain/workshop.status";
+import { MembershipStatus } from "../domain/membership.enum";
+import { PaymentStatus } from "../domain/payment.enum";
+import { SeasonStatus } from "../domain/season.enum";
+import { WorkshopStatus } from "../domain/workshop.enum";
 
 // Season Status
 export const SEASON_STATUS_TRANSLATIONS: Record<SeasonStatus, string> = {
@@ -15,6 +16,11 @@ export const MEMBERSHIP_STATUS_TRANSLATIONS: Record<MembershipStatus, string> = 
   pending: "En cours",
   paid: "Payé",
   cancelled: "Annulé"
+};
+export const PAYMENT_STATUS_TRANSLATIONS: Record<PaymentStatus, string> = {
+  pending: "En attente",
+  cancelled: "Annulé",
+  completed: "Payé"
 };
 
 // Helper générique pour traduire
@@ -34,4 +40,7 @@ export const translateWorkshopStatus = (status: WorkshopStatus) => {
 }
 export const translateMembershipStatus = (status:MembershipStatus) => {
   return translate(status, MEMBERSHIP_STATUS_TRANSLATIONS);
+}
+export const translatePaymentStatus = (status: PaymentStatus) => {
+  return translate(status, PAYMENT_STATUS_TRANSLATIONS);
 }

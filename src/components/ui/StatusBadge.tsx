@@ -1,19 +1,22 @@
-import { SeasonStatus } from '@/lib/domain/season.status';
-import { WorkshopStatus } from '@/lib/domain/workshop.status';
+import { SeasonStatus } from '@/lib/domain/season.enum';
+import { WorkshopStatus } from '@/lib/domain/workshop.enum';
 import { MembershipStatus
 
- } from '@/lib/domain/membership.status';
+ } from '@/lib/domain/membership.enum';
 import {
   translateMembershipStatus,
   translateSeasonStatus,
-  translateWorkshopStatus
+  translateWorkshopStatus,
+  translatePaymentStatus
 } from '@/lib/i18n/translations';
+import { PaymentStatus } from '@/lib/domain/payment.enum';
 
 type StatusBadgeProps = 
   | { type: 'generic', status: string, className?: string, }
   | { type: 'season', status: SeasonStatus, className?: string, }
   | { type: 'workshop', status: WorkshopStatus, className?: string }
-  | { type: 'membership', status: MembershipStatus, className?: string};
+  | { type: 'membership', status: MembershipStatus, className?: string}
+  | { type: 'payment', status: PaymentStatus, className?: string };
 
 const COLOR_CLASSES:any = {
   yellow: 'bg-yellow-100 text-yellow-800',
@@ -35,6 +38,11 @@ export const MEMBERSHIP_STATUS_COLORS: Record<MembershipStatus, string> = {
   paid: 'green',
   cancelled: 'red'
 }
+export const PAYMENT_STATUS_COLORS: Record<PaymentStatus, string> = {
+  pending: 'yellow',
+  cancelled: 'red',
+  completed: 'green'
+}
 
 export function StatusBadge(props: StatusBadgeProps) {
   const { className = ''} = props;
@@ -53,6 +61,10 @@ export function StatusBadge(props: StatusBadgeProps) {
     case 'membership':
       label = translateMembershipStatus(props.status);
       color = MEMBERSHIP_STATUS_COLORS[props.status];
+      break;
+    case 'payment':
+      label = translatePaymentStatus(props.status);
+      color = PAYMENT_STATUS_COLORS[props.status];
       break;
     default:
       label = props.status;

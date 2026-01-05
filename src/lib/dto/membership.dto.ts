@@ -1,4 +1,4 @@
-import { MembershipStatus } from '@/lib/domain/membership.status';
+import { MembershipStatus } from '@/lib/domain/membership.enum';
 import { SeasonDTO } from './season.dto';
 
 export type MembershipDTO = {

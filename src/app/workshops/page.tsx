@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useWorkshops, useWorkshopActions } from '@/hooks/workshop.hook';
 import { DataTable, Button, ErrorMessage, Column, StatusBadge, FormField } from '@/components/ui';
 import { WorkshopDTO } from '@/lib/dto/workshop.dto';
-import { WORKSHOP_STATUS, WorkshopStatus } from '@/lib/domain/workshop.status';
+import { WORKSHOP_STATUS, WorkshopStatus } from '@/lib/domain/workshop.enum';
 import { ListPlus, Trash2 } from 'lucide-react';
 
 export default function WorkshopsPage() {

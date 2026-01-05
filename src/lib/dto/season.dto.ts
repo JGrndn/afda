@@ -1,4 +1,4 @@
-import { SeasonStatus } from "@/lib/domain/season.status";
+import { SeasonStatus } from "@/lib/domain/season.enum";
 import { WorkshopPriceWithWorkshopInfoDTO } from "@/lib/dto/workshopPrice.dto";
 import { MembershipWithMemberDTO } from "@/lib/dto/membership.dto";
 

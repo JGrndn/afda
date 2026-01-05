@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { GenericForm, FormField } from '@/components/ui';
 import { useMembers } from '@/hooks/member.hook';
 import { useSeasons } from '@/hooks/season.hook';
-import { MEMBERSHIP_STATUS } from '@/lib/domain/membership.status';
+import { MEMBERSHIP_STATUS } from '@/lib/domain/membership.enum';
 import type { CreateMembershipInput } from '@/lib/schemas/membership.input';
 
 interface MembershipFormProps {

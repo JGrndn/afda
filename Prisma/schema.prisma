@@ -23,6 +23,7 @@ model Season {
   workshopPrices    WorkshopPrice[]
   memberships       Membership[]
   registrations     Registration[]
+  payments          Payment[]
 
   @@unique([startYear, endYear])
   @@map("seasons")
@@ -70,6 +71,7 @@ model Family {
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
   members     Member[]
+  payments    Payment[]
 
   @@map("families")
 }
@@ -139,4 +141,27 @@ model Registration {
   @@index([seasonId])
   @@index([workshopId])
   @@map("registrations")
+}
+
+model Payment {
+  id            Int       @id @default(autoincrement())
+  familyId      Int       @map("family_id")
+  seasonId      Int       @map("season_id")
+  amount        Decimal   @db.Decimal(10, 2)
+  paymentType   String    @map("payment_type") @db.VarChar(20)  // cash, check, transfer, card
+  paymentDate   DateTime  @map("payment_date") @db.Date
+  cashingDate   DateTime? @map("cashing_date") @db.Date
+  status        String    @default("pending") @db.VarChar(20)  // pending, completed, cancelled
+  reference     String?   @db.VarChar(50)
+  notes         String?   @db.Text
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  family        Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  season        Season    @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+  @@index([seasonId])
+  @@index([status])
+  @@map("payments")
 }

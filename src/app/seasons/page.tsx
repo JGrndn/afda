@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useSeasons, useSeasonActions } from '@/hooks/season.hook';
 import { DataTable, Button, StatusBadge, ErrorMessage, Column } from '@/components/ui';
 import { SeasonDTO } from '@/lib/dto/season.dto';
-import { SEASON_STATUS } from '@/lib/domain/season.status';
+import { SEASON_STATUS } from '@/lib/domain/season.enum';
 import { UpdateSeasonInput } from '@/lib/schemas/season.input';
 import { CalendarPlus } from 'lucide-react';
 
