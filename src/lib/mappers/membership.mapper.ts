@@ -1,9 +1,5 @@
 import type { Membership as PrismaMembership } from '@/generated/prisma/client';
-import type {
-  MembershipDTO,
-  MembershipWithDetailsDTO,
-  MembershipSummaryDTO,
-} from '@/lib/dto/membership.dto';
+import type { MembershipDTO, MembershipWithDetailsDTO, MembershipSummaryDTO } from '@/lib/dto/membership.dto';
 import { MembershipStatusSchema } from '@/lib/schemas/membership.schema';
 
 export function toMembershipDTO(membership: PrismaMembership): MembershipDTO {

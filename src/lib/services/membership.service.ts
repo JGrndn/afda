@@ -1,20 +1,11 @@
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/generated/prisma/client';
 import { QueryOptions } from '@/lib/hooks/query';
-import {
-  toMembershipDTO,
-  toMembershipsDTO,
-  toMembershipWithDetailsDTO,
-  toMembershipSummaryDTO,
-} from '@/lib/mappers/membership.mapper';
-import {
-  MembershipDTO,
-  MembershipWithDetailsDTO,
-  MembershipSummaryDTO,
-} from '@/lib/dto/membership.dto';
-import { DomainError } from '../errors/domain-error';
-import { CreateMembershipInput, UpdateMembershipInput } from '../schemas/membership.input';
-import { MembershipStatus } from '../domain/membership.status';
+import { toMembershipDTO, toMembershipsDTO, toMembershipWithDetailsDTO, toMembershipSummaryDTO } from '@/lib/mappers/membership.mapper';
+import { MembershipDTO, MembershipWithDetailsDTO, MembershipSummaryDTO } from '@/lib/dto/membership.dto';
+import { DomainError } from '@/lib/errors/domain-error';
+import { CreateMembershipInput, UpdateMembershipInput } from '@/lib/schemas/membership.input';
+import { MembershipStatus } from '@/lib/domain/membership.status';
 
 export const membershipService = {
   async getAll(

@@ -1,9 +1,9 @@
 import type { Member as PrismaMember } from '@/generated/prisma/client';
 import type { MemberDTO, MemberWithFamilyNameDTO, MemberWithFullDetailsDTO,  } from '@/lib/dto/member.dto';
-import { PrismaMemberWithFamily, PrismaMemberWithFullDetails } from '../services/member.service';
-import { toFamilyDTO } from './family.mapper';
-import { toMembershipsDTO } from './membership.mapper';
-import { toRegistrationsWithWorkshopDetailsDTO } from './registration.mapper';
+import { PrismaMemberWithFamily, PrismaMemberWithFullDetails } from '@/lib/services/member.service';
+import { toFamilyDTO } from '@/lib/mappers/family.mapper';
+import { toMembershipsDTO } from '@/lib/mappers/membership.mapper';
+import { toRegistrationsWithWorkshopDetailsDTO } from '@/lib/mappers/registration.mapper';
 
 export function toMemberDTO(member: PrismaMember): MemberDTO {
   return {

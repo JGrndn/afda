@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMembers, useMemberActions } from '@/hooks/member.hook';
 import { DataTable, Button, ErrorMessage, Column, FormField } from '@/components/ui';
-import { MemberWithFamilyDTO } from '@/lib/dto/member.dto';
+import { MemberWithFamilyNameDTO } from '@/lib/dto/member.dto';
 import { Trash2, UserRoundPlus } from 'lucide-react';
 
 export default function MembersPage() {
@@ -34,7 +34,7 @@ export default function MembersPage() {
     }
   };
 
-  const columns: Column<MemberWithFamilyDTO>[] = [
+  const columns: Column<MemberWithFamilyNameDTO>[] = [
     {
       type: 'computed',
       label: 'Nom',
@@ -113,8 +113,8 @@ export default function MembersPage() {
 
       {error && <ErrorMessage error={error} />}
 
-      <DataTable<MemberWithFamilyDTO>
-        data={members as MemberWithFamilyDTO[]}
+      <DataTable<MemberWithFamilyNameDTO>
+        data={members as MemberWithFamilyNameDTO[]}
         columns={columns}
         onRowClick={(member) => router.push(`/members/${member.id}`)}
         isLoading={isLoading}

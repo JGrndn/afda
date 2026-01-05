@@ -1,4 +1,4 @@
-import { MembershipStatus } from '../domain/membership.status';
+import { MembershipStatus } from '@/lib/domain/membership.status';
 
 export type MembershipDTO = {
   id: number;

@@ -1,5 +1,5 @@
 import z from "zod";
-import { SeasonStatusSchema } from "./season.schema";
+import { SeasonStatusSchema } from "@/lib/schemas/season.schema";
 
 export const CreateSeasonSchema = z.object({
   startYear: z.number().int(),

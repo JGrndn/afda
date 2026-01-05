@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { MembershipStatusSchema } from './membership.schema';
-import { MEMBERSHIP_STATUS } from '../domain/membership.status';
+import { MembershipStatusSchema } from '@/lib/schemas/membership.schema';
+import { MEMBERSHIP_STATUS } from '@/lib/domain/membership.status';
 
 export const CreateMembershipSchema = z.object({
   memberId: z.number().int().positive(),

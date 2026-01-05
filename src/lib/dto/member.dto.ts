@@ -1,6 +1,6 @@
-import { FamilyDTO } from "./family.dto";
-import { MembershipDTO } from "./membership.dto";
-import { RegistrationWithWorkshopDetailsDTO } from "./registration.dto";
+import { FamilyDTO } from "@/lib/dto/family.dto";
+import { MembershipDTO } from "@/lib/dto/membership.dto";
+import { RegistrationWithWorkshopDetailsDTO } from "@/lib/dto/registration.dto";
 
 export type MemberDTO = {
   id: number;

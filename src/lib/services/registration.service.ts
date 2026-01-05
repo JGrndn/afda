@@ -1,93 +1,11 @@
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/generated/prisma/client';
-import { QueryOptions } from '@/lib/hooks/query';
-import {
-  toRegistrationDTO,
-  toRegistrationsDTO,
-  toRegistrationWithDetailsDTO,
-} from '@/lib/mappers/registration.mapper';
-import {
-  RegistrationDTO,
-  RegistrationWithDetailsDTO,
-} from '@/lib/dto/registration.dto';
-import { DomainError } from '../errors/domain-error';
-import {
-  CreateRegistrationInput,
-  UpdateRegistrationInput,
-} from '../schemas/registration.input';
+import { toRegistrationDTO } from '@/lib/mappers/registration.mapper';
+import { RegistrationDTO } from '@/lib/dto/registration.dto';
+import { DomainError } from '@/lib/errors/domain-error';
+import { CreateRegistrationInput, UpdateRegistrationInput } from '@/lib/schemas/registration.input';
 
 export const registrationService = {
-  async getAll(
-    options?: QueryOptions<Prisma.RegistrationOrderByWithRelationInput> & {
-      includeDetails?: boolean;
-      memberId?: number;
-      seasonId?: number;
-      workshopId?: number;
-    }
-  ): Promise<RegistrationDTO[] | RegistrationWithDetailsDTO[]> {
-    const { filters = {}, orderBy, includeDetails, memberId, seasonId, workshopId } =
-      options || {};
-
-    const { includeDetails: _, ...prismaFilters } = filters as any;
-
-    const where: Prisma.RegistrationWhereInput = {
-      ...prismaFilters,
-    };
-
-    if (memberId !== undefined) {
-      where.memberId = memberId;
-    }
-
-    if (seasonId !== undefined) {
-      where.seasonId = seasonId;
-    }
-
-    if (workshopId !== undefined) {
-      where.workshopId = workshopId;
-    }
-
-    const finalOrderBy = orderBy || { registrationDate: 'desc' as const };
-
-    if (includeDetails) {
-      const regs = await prisma.registration.findMany({
-        where,
-        orderBy: finalOrderBy,
-        include: {
-          member: { select: { firstName: true, lastName: true } },
-          workshop: { select: { name: true } },
-          season: { select: { startYear: true, endYear: true } },
-        },
-      });
-      return regs.map(toRegistrationWithDetailsDTO);
-    }
-
-    const regs = await prisma.registration.findMany({
-      where,
-      orderBy: finalOrderBy,
-    });
-
-    return toRegistrationsDTO(regs);
-  },
-
-  async getById(id: number): Promise<RegistrationDTO | null> {
-    const reg = await prisma.registration.findUnique({
-      where: { id },
-    });
-    return reg ? toRegistrationDTO(reg) : null;
-  },
-
-  async getByIdWithDetails(id: number): Promise<RegistrationWithDetailsDTO | null> {
-    const reg = await prisma.registration.findUnique({
-      where: { id },
-      include: {
-        member: { select: { firstName: true, lastName: true } },
-        workshop: { select: { name: true } },
-        season: { select: { startYear: true, endYear: true } },
-      },
-    });
-    return reg ? toRegistrationWithDetailsDTO(reg) : null;
-  },
-
   async create(input: CreateRegistrationInput): Promise<RegistrationDTO> {
     try {
       // Vérifier que la membership existe

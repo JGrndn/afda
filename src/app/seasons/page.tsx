@@ -7,7 +7,7 @@ import { DataTable, Button, StatusBadge, ErrorMessage, Column } from '@/componen
 import { SeasonDTO } from '@/lib/dto/season.dto';
 import { SEASON_STATUS } from '@/lib/domain/season.status';
 import { UpdateSeasonInput } from '@/lib/schemas/season.input';
-import { CalendarPlus, CalendarPlus2 } from 'lucide-react';
+import { CalendarPlus } from 'lucide-react';
 
 export default function SeasonsPage() {
   const router = useRouter();

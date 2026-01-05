@@ -1,4 +1,4 @@
-import { WorkshopDTO } from "./workshop.dto";
+import { WorkshopDTO } from "@/lib/dto/workshop.dto";
 
 export type RegistrationDTO = {
   id: number;

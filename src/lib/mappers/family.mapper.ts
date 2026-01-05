@@ -1,6 +1,6 @@
 import type { Family as PrismaFamily, Member as PrismaMember } from '@/generated/prisma/client';
 import type { FamilyDTO, FamilyWithFullDetailsDTO,  } from '@/lib/dto/family.dto';
-import { toMembersDTO } from './member.mapper';
+import { toMembersDTO } from '@/lib/mappers/member.mapper';
 
 export function toFamilyDTO(family: PrismaFamily): FamilyDTO {
   return {

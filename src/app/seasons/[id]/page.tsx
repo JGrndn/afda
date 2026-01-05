@@ -8,7 +8,7 @@ import { SeasonForm } from "@/components/season/SeasonForm";
 import { useSeason, useSeasonActions } from "@/hooks/season.hook";
 import { Button, Card, Column, DataTable, ErrorMessage, StatusBadge } from "@/components/ui";
 import { UpdateSeasonInput } from "@/lib/schemas/season.input";
-import { useWorkshopPriceActions } from "@/hooks/workshop.hook";
+import { useWorkshopPriceActions } from "@/hooks/workshopPrice.hook";
 import { CreateWorkshopPriceInput } from "@/lib/schemas/workshop.input";
 import { WorkshopPriceForm } from "@/components/workshop/WorkshopPriceForm";
 import { WorkshopPriceWithWorkshopInfoDTO } from "@/lib/dto/workshopPrice.dto";

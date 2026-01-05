@@ -1,7 +1,7 @@
 import type { Workshop as PrismaWorkshop, WorkshopPrice as PrismaWorkshopPrice, Season as PrismaSeason } from '@/generated/prisma/client';
-import { WorkshopPriceDTO, WorkshopPriceWithSeasonInfoDTO, WorkshopPriceWithWorkshopInfoDTO } from '../dto/workshopPrice.dto';
-import { toSeasonDTO } from './season.mapper';
-import { toWorkshopDTO } from './workshop.mapper';
+import { WorkshopPriceDTO, WorkshopPriceWithSeasonInfoDTO, WorkshopPriceWithWorkshopInfoDTO } from '@/lib/dto/workshopPrice.dto';
+import { toSeasonDTO } from '@/lib/mappers/season.mapper';
+import { toWorkshopDTO } from '@/lib/mappers/workshop.mapper';
 
 export function toWorkshopPriceDTO(price: PrismaWorkshopPrice): WorkshopPriceDTO {
   return {

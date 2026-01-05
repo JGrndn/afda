@@ -1,15 +1,16 @@
 'use server';
 
-import { WorkshopDTO, WorkshopPriceDTO } from '@/lib/dto/workshop.dto';
+import { WorkshopDTO } from '@/lib/dto/workshop.dto';
+import { WorkshopPriceDTO } from '@/lib/dto/workshopPrice.dto';
 import {
-  CreateWorkshopInput,
-  CreateWorkshopSchema,
-  UpdateWorkshopInput,
-  UpdateWorkshopSchema,
-  CreateWorkshopPriceInput,
-  CreateWorkshopPriceSchema,
-  UpdateWorkshopPriceInput,
-  UpdateWorkshopPriceSchema,
+CreateWorkshopInput,
+CreateWorkshopSchema,
+UpdateWorkshopInput,
+UpdateWorkshopSchema,
+CreateWorkshopPriceInput,
+CreateWorkshopPriceSchema,
+UpdateWorkshopPriceInput,
+UpdateWorkshopPriceSchema,
 } from '@/lib/schemas/workshop.input';
 import { workshopService } from '@/lib/services/workshop.service';
 import { workshopPriceService } from '@/lib/services/workshopPrice.service';

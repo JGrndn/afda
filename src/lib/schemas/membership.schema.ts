@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { MEMBERSHIP_STATUS, MembershipStatus } from '../domain/membership.status';
+import { MEMBERSHIP_STATUS, MembershipStatus } from '@/lib/domain/membership.status';
 
 export const MembershipStatusSchema = z.enum(
   Object.values(MEMBERSHIP_STATUS) as [MembershipStatus, ...MembershipStatus[]]

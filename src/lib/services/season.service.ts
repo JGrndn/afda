@@ -3,9 +3,9 @@ import { Prisma } from '@/generated/prisma/client'
 import { QueryOptions } from '@/lib/hooks/query';
 import { toSeasonDTO, toSeasonsDTO, toSeasonWithPricesAndWorkshopDTO } from '@/lib/mappers/season.mapper';
 import { SeasonDTO, SeasonWithPricesAndWorkshopDTO } from '@/lib/dto/season.dto';
-import { DomainError } from '../errors/domain-error';
-import { CreateSeasonInput, UpdateSeasonInput } from '../schemas/season.input';
-import { SEASON_STATUS } from '../domain/season.status';
+import { DomainError } from '@/lib/errors/domain-error';
+import { CreateSeasonInput, UpdateSeasonInput } from '@/lib/schemas/season.input';
+import { SEASON_STATUS } from '@/lib/domain/season.status';
 
 export const seasonService = {
   async getAll(

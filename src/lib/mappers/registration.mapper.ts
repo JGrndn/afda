@@ -1,10 +1,6 @@
 import type { Registration as PrismaRegistration, Workshop as PrismaWorkshop } from '@/generated/prisma/client';
-import type {
-  RegistrationDTO,
-  RegistrationWithDetailsDTO,
-  RegistrationWithWorkshopDetailsDTO,
-} from '@/lib/dto/registration.dto';
-import { toWorkshopDTO } from './workshop.mapper';
+import type { RegistrationDTO, RegistrationWithDetailsDTO, RegistrationWithWorkshopDetailsDTO } from '@/lib/dto/registration.dto';
+import { toWorkshopDTO } from '@/lib/mappers/workshop.mapper';
 
 export function toRegistrationDTO(registration: PrismaRegistration): RegistrationDTO {
   return {

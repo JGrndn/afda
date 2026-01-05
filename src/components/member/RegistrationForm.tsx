@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { GenericForm, FormField } from '@/components/ui';
-import { useWorkshopsForSeason } from '@/hooks/workshop.hook';
 import { useRegistrationActions } from '@/hooks/registration.hook';
 import { useSeason } from '@/hooks/season.hook';
 import type { CreateRegistrationInput } from '@/lib/schemas/registration.input';

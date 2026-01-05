@@ -1,16 +1,11 @@
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/generated/prisma/client';
 import { QueryOptions } from '@/lib/hooks/query';
-import {
-  toWorkshopDTO,
-  toWorkshopsDTO,
-  toWorkshopsWithPricesAndSeasonDTO,
-  toWorkshopWithPricesAndSeasonDTO,
-} from '@/lib/mappers/workshop.mapper';
+import { toWorkshopDTO, toWorkshopsDTO, toWorkshopWithPricesAndSeasonDTO } from '@/lib/mappers/workshop.mapper';
 import { WorkshopDTO, WorkshopWithPricesAndSeasonDTO } from '@/lib/dto/workshop.dto';
-import { DomainError } from '../errors/domain-error';
-import { CreateWorkshopInput, UpdateWorkshopInput } from '../schemas/workshop.input';
-import { WORKSHOP_STATUS, WorkshopStatus } from '../domain/workshop.status';
+import { DomainError } from '@/lib/errors/domain-error';
+import { CreateWorkshopInput, UpdateWorkshopInput } from '@/lib/schemas/workshop.input';
+import { WorkshopStatus } from '@/lib/domain/workshop.status';
 
 export const workshopService = {
   async getAll(
@@ -41,24 +36,6 @@ export const workshopService = {
     });
 
     return toWorkshopsDTO(workshops);
-  },
-
-  async getActiveWorkshopsForSeason(seasonId: number) : Promise<any>{
-    console.log('HELLO');
-    const workshops: PrismaWorkshopWithPricesAndSeason[] = await prisma.workshop.findMany({
-      where:{ status: WORKSHOP_STATUS.ACTIVE },
-      include: {
-        workshopPrices : {
-          where : {
-            season : { id : seasonId }
-          },
-          include:{
-            season : true
-          }
-        }
-      }
-    });
-    return toWorkshopsWithPricesAndSeasonDTO(workshops);
   },
 
   async getById(id: number): Promise<WorkshopWithPricesAndSeasonDTO | null> {

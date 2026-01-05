@@ -1,5 +1,5 @@
-import { SeasonStatus } from "../domain/season.status";
-import { WorkshopPriceWithWorkshopInfoDTO } from "./workshopPrice.dto";
+import { SeasonStatus } from "@/lib/domain/season.status";
+import { WorkshopPriceWithWorkshopInfoDTO } from "@/lib/dto/workshopPrice.dto";
 
 export type SeasonDTO = {
   id: number;
