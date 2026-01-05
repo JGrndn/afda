@@ -28,3 +28,7 @@ export function toWorkshopWithPricesAndSeasonDTO(workshop: PrismaWorkshopWithPri
     prices: toWorkshopPricesWithSeasonInfoDTO(workshop.workshopPrices),
   };
 }
+
+export function toWorkshopsWithPricesAndSeasonDTO(workshops: PrismaWorkshopWithPricesAndSeason[]) : WorkshopWithPricesAndSeasonDTO[]{
+  return workshops.map(toWorkshopWithPricesAndSeasonDTO);
+}

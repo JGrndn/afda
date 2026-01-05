@@ -1,3 +1,6 @@
+import { SeasonDTO } from "./season.dto";
+import { WorkshopDTO } from "./workshop.dto";
+
 export type WorkshopPriceDTO = {
   id: number;
   workshopId: number;
@@ -8,10 +11,9 @@ export type WorkshopPriceDTO = {
 };
 
 export type WorkshopPriceWithSeasonInfoDTO = WorkshopPriceDTO & {
-  seasonStart: number;
-  seasonEnd: number;
+  season: SeasonDTO;
 };
 
 export type WorkshopPriceWithWorkshopInfoDTO = WorkshopPriceDTO & {
-  workshopName : string;
+  workshop : WorkshopDTO;
 }

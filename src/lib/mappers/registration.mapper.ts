@@ -13,7 +13,7 @@ export function toRegistrationDTO(registration: PrismaRegistration): Registratio
     seasonId: registration.seasonId,
     workshopId: registration.workshopId,
     quantity: registration.quantity,
-    appliedPrice: registration.appliedPrice.toNumber(),
+    totalPrice: registration.totalPrice.toNumber(),
     discountPercent: registration.discountPercent.toNumber(),
     registrationDate: registration.registrationDate,
     createdAt: registration.createdAt,
@@ -38,7 +38,7 @@ export function toRegistrationWithDetailsDTO(
     memberName: `${registration.member.firstName} ${registration.member.lastName}`,
     workshopName: registration.workshop.name,
     seasonYear: `${registration.season.startYear}-${registration.season.endYear}`,
-    totalPrice: baseDTO.appliedPrice * baseDTO.quantity,
+    totalPrice: baseDTO.totalPrice * baseDTO.quantity,
   };
 }
 

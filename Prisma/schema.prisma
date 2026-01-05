@@ -124,7 +124,7 @@ model Registration {
   seasonId          Int      @map("season_id")
   workshopId        Int      @map("workshop_id")
   quantity          Int      @default(1)
-  appliedPrice      Decimal  @map("applied_price") @db.Decimal(10, 2)
+  totalPrice        Decimal  @map("total_price") @db.Decimal(10, 2)
   discountPercent   Decimal  @default(0) @map("discount_percent") @db.Decimal(5, 2)
   registrationDate  DateTime @default(now()) @map("registration_date") @db.Date
   createdAt         DateTime @default(now()) @map("created_at")

@@ -53,7 +53,7 @@ export function toMembershipSummaryDTO(
       lastName: string;
       family: { name: string } | null;
       registrations: Array<{
-        appliedPrice: { toNumber: () => number };
+        totalPrice: { toNumber: () => number };
         quantity: number;
       }>;
     };
@@ -62,7 +62,7 @@ export function toMembershipSummaryDTO(
 ): MembershipSummaryDTO {
   const workshopsAmount = membership.member.registrations
     .filter((wr) => wr)
-    .reduce((sum, wr) => sum + wr.appliedPrice.toNumber() * wr.quantity, 0);
+    .reduce((sum, wr) => sum + wr.totalPrice.toNumber() * wr.quantity, 0);
 
   return {
     membershipId: membership.id,

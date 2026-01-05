@@ -83,7 +83,7 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
     {
       type: 'computed',
       label: 'Atelier',
-      render: (price) => `${price.workshopName}` || '-',
+      render: (price) => `${price.workshop.name}` || '-',
     },
     {
       type: 'field',

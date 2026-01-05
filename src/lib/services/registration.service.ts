@@ -136,7 +136,7 @@ export const registrationService = {
 
       const data = {
         ...input,
-        appliedPrice: new Prisma.Decimal(input.appliedPrice),
+        totalPrice: new Prisma.Decimal(input.totalPrice),
         discountPercent: new Prisma.Decimal(input.discountPercent),
         registrationDate: input.registrationDate || new Date(),
       };
@@ -200,8 +200,8 @@ export const registrationService = {
 
       const data = {
         ...(input.quantity !== undefined && { quantity: input.quantity }),
-        ...(input.appliedPrice !== undefined && {
-          appliedPrice: new Prisma.Decimal(input.appliedPrice),
+        ...(input.totalPrice !== undefined && {
+          totalPrice: new Prisma.Decimal(input.totalPrice),
         }),
         ...(input.discountPercent !== undefined && {
           discountPercent: new Prisma.Decimal(input.discountPercent),

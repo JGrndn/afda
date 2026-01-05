@@ -79,7 +79,7 @@ export const membershipService = {
                   seasonId: seasonId,
                 },
                 select: {
-                  appliedPrice: true,
+                  totalPrice: true,
                   quantity: true,
                 },
               },

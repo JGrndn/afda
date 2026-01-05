@@ -8,13 +8,8 @@ export async function GET(request: Request) {
     const options = parseQueryParams(request, { status: WorkshopStatusSchema });
     const { searchParams } = new URL(request.url);
     
-    const includePrices = searchParams.get('includePrices') === 'true';
-    const seasonId = searchParams.get('seasonId');
-
     const workshops = await workshopService.getAll({
-      ...options,
-      includePrices,
-      seasonId: seasonId ? parseInt(seasonId) : undefined,
+      ...options
     });
 
     return NextResponse.json(workshops);

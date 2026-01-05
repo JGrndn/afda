@@ -109,23 +109,15 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
     },
     {
       type: 'field',
-      key: 'appliedPrice',
+      key: 'totalPrice',
       label: 'Prix',
-      render: (reg) => `${reg.appliedPrice.toFixed(2)} €`,
+      render: (reg) => `${reg.totalPrice.toFixed(2)} €`,
     },
     {
       type: 'field',
       key: 'discountPercent',
       label: 'Réduction',
       render: (reg) => `${reg.discountPercent}%`,
-    },
-    {
-      type: 'computed',
-      label: 'Total',
-      render: (reg) => {
-        const total = reg.appliedPrice * reg.quantity;
-        return <span className="font-semibold">{total.toFixed(2)} €</span>;
-      },
     },
     {
       type: 'action',

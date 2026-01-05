@@ -6,7 +6,7 @@ export type RegistrationDTO = {
   seasonId: number;
   workshopId: number;
   quantity: number;
-  appliedPrice: number;
+  totalPrice: number;
   discountPercent: number;
   registrationDate: Date;
   createdAt: Date;

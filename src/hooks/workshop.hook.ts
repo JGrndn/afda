@@ -25,13 +25,14 @@ const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 interface UseWorkshopsOptions {
   status?: WorkshopStatus;
+  seasonId?: number;
   search?: string;
   sortBy?: 'name';
   sortDirection?: 'asc' | 'desc';
 }
 
 export function useWorkshops(options: UseWorkshopsOptions = {}) {
-  const { status, search, sortBy, sortDirection } = options;
+  const { status, search, sortBy, sortDirection, seasonId } = options;
   const filters: Record<string, any> = {};
   if (status) {
     filters.status = status;
@@ -42,6 +43,21 @@ export function useWorkshops(options: UseWorkshopsOptions = {}) {
     sort: sortBy && sortDirection ? { field: sortBy, direction: sortDirection } : undefined,
     defaultSort: { field: 'name', direction: 'asc' },
   });
+}
+
+export function useWorkshopsForSeason(seasonId: number) {
+  let url = `/api/workshops/details/${seasonId}`;
+  const { data, error, isLoading, mutate } = useSWR<WorkshopWithPricesAndSeasonDTO[]>(
+    url,
+    fetcher
+  );
+
+  return {
+    workshops: data,
+    isLoading,
+    isError: error,
+    mutate,
+  };
 }
 
 export function useWorkshop(id: number) {

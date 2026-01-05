@@ -31,7 +31,7 @@ export function RegistrationForm({
     seasonId: seasonId || 0,
     workshopId: 0,
     quantity: 1,
-    appliedPrice: 0,
+    totalPrice: 0,
     discountPercent: 0,
     ...initialData,
   });
@@ -112,10 +112,10 @@ export function RegistrationForm({
 
         <FormField
           label="Prix appliqué (€)"
-          name="appliedPrice"
+          name="totalPrice"
           type="number"
-          value={formData.appliedPrice}
-          onChange={(v) => updateField('appliedPrice', parseFloat(v.toString()))}
+          value={formData.totalPrice}
+          onChange={(v) => updateField('totalPrice', parseFloat(v.toString()))}
           required
         />
 

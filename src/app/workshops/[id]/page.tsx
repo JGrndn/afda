@@ -83,7 +83,7 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
     {
       type: 'computed',
       label: 'Saison',
-      render: (price) => `${price.seasonStart} - ${price.seasonEnd}` || '-',
+      render: (price) => `${price.season.startYear} - ${price.season.endYear}` || '-',
     },
     {
       type: 'field',

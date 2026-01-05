@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { GenericForm, FormField } from '@/components/ui';
-import { useWorkshops } from '@/hooks/workshop.hook';
+import { useWorkshopsForSeason } from '@/hooks/workshop.hook';
 import { useRegistrationActions } from '@/hooks/registration.hook';
-import { useSeasons } from '@/hooks/season.hook';
+import { useSeason } from '@/hooks/season.hook';
 import type { CreateRegistrationInput } from '@/lib/schemas/registration.input';
 
 interface RegistrationFormProps {
@@ -22,46 +22,44 @@ export function RegistrationForm({
   onSubmit,
   onCancel,
 }: RegistrationFormProps) {
-  const { data: workshops } = useWorkshops({ status: 'active'});
-  const { data: seasons } = useSeasons();
-  const { create, isLoading, error } = useRegistrationActions();
+  const { season, isError, isLoading, mutate } = useSeason(seasonId); // faire la requête depuis Season, puisqu'on a les prix et les workshops
+  const { create, isLoading: isLoadingAction, error } = useRegistrationActions();
 
-  console.log(workshops);
+  const workshops = useMemo(() => {
+    return season?.prices.map(p => ({
+      id: p.workshopId,
+      name: p.workshop.name,
+      allowMultiple: p.workshop.allowMultiple,
+      maxPerMember: p.workshop.maxPerMember,
+      amount: p.amount,
+    })) ?? [];
+  }, [season?.prices]);
+
   const [formData, setFormData] = useState<CreateRegistrationInput>({
     memberId,
     seasonId,
     workshopId: 0,
     quantity: 1,
-    appliedPrice: 0,
+    totalPrice: 0,
     discountPercent: defaultDiscount,
   });
 
-  const [selectedWorkshop, setSelectedWorkshop] = useState<any>(null);
+  const selectedWorkshop = useMemo(() => {
+    return workshops.find(w => w.id === formData.workshopId);
+  }, [workshops, formData.workshopId]);
 
-  // Récupérer la saison pour obtenir le discountPercent
-  const selectedSeason = seasons?.find((s) => s.id === seasonId);
+  const totalPrice = useMemo(() => {
+    if (!selectedWorkshop) return 0;
 
-  useEffect(() => {
-    if (formData.workshopId && workshops) {
-      const workshop = workshops.find((w) => w.id === formData.workshopId);
-      setSelectedWorkshop(workshop);
+    const basePrice = selectedWorkshop.amount * formData.quantity;
+    const discountFactor = 1 - formData.discountPercent / 100;
 
-      // Si le workshop a des prix, récupérer le prix pour la saison
-      if (workshop && 'prices' in workshop) {
-        const workshopWithPrices = workshop as any;
-        const priceForSeason = workshopWithPrices.prices?.find(
-          (p: any) => p.seasonId === seasonId
-        );
-        if (priceForSeason) {
-          setFormData((prev) => ({
-            ...prev,
-            appliedPrice: priceForSeason.amount,
-            discountPercent: selectedSeason?.discountPercent || 0,
-          }));
-        }
-      }
-    }
-  }, [formData.workshopId, workshops, seasonId, selectedSeason]);
+    return Math.round(basePrice * discountFactor );
+  }, [
+    selectedWorkshop,
+    formData.quantity,
+    formData.discountPercent,
+  ]);
 
   function updateField<K extends keyof CreateRegistrationInput>(
     field: K,
@@ -73,16 +71,20 @@ export function RegistrationForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await create(formData);
+      const payload: CreateRegistrationInput = {
+        ...formData,
+        totalPrice, // rajout de totalPrice car n'est pas mis à jour dans FormData sur les events
+      }
+      await create(payload);
       if (onSubmit) {
-        await onSubmit(formData);
+        await onSubmit(payload);
       }
     } catch (err) {
       console.error('Failed to create registration:', err);
     }
   };
 
-  const workshopOptions =
+  const workshopOptions = // trouver les workshops actifs pour la saison
     workshops?.map((w) => ({
       value: w.id,
       label: w.name,
@@ -125,11 +127,12 @@ export function RegistrationForm({
 
           <FormField
             label="Prix appliqué (€)"
-            name="appliedPrice"
+            name="totalPrice"
             type="number"
-            value={formData.appliedPrice}
-            onChange={(v) => updateField('appliedPrice', parseFloat(v.toString()))}
+            value={totalPrice}
+            onChange={(v) => updateField('totalPrice', parseFloat(v.toString()))} // jamais appelé car champ désactivé
             required
+            disabled
           />
 
           <FormField
@@ -137,8 +140,9 @@ export function RegistrationForm({
             name="discountPercent"
             type="number"
             value={formData.discountPercent}
-            onChange={(v) => updateField('discountPercent', parseFloat(v.toString()))}
+            onChange={(v) => updateField('discountPercent', parseFloat(v.toString()))} // jamais appelé car champ désactivé
             helpText="Réduction familiale appliquée"
+            disabled
           />
         </div>
       </GenericForm>
