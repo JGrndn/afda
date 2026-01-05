@@ -12,7 +12,7 @@ import { useSeasons } from '@/hooks/season.hook';
 import { Button, Card, ErrorMessage, DataTable, Column, StatusBadge } from '@/components/ui';
 import { UpdateMemberInput } from '@/lib/schemas/member.input';
 import { RegistrationWithWorkshopDetailsDTO } from '@/lib/dto/registration.dto';
-import { MembershipDTO } from '@/lib/dto/membership.dto';
+import { MembershipDTO, MembershipWithSeasonDTO } from '@/lib/dto/membership.dto';
 import { CreateRegistrationInput } from '@/lib/schemas/registration.input';
 import { SEASON_STATUS } from '@/lib/domain/season.status';
 
@@ -94,8 +94,7 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
   // Vérifier si le membre a une membership pour la saison active
   const activeMembership = member.memberships?.find(
     (m) => m.seasonId === activeSeason?.id
-  ) as MembershipDTO | undefined;
-  const currentDiscount = activeMembership && activeMembership.familyOrder !== 1 ? activeSeason.discountPercent : 0;
+  );
   const registrationColumns: Column<RegistrationWithWorkshopDetailsDTO>[] = [
     {
       type: 'computed',
@@ -137,11 +136,11 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
     },
   ];
 
-  const membershipColumns: Column<MembershipDTO & { seasonYear?: string }>[] = [
+  const membershipColumns: Column<MembershipWithSeasonDTO>[] = [
     {
       type: 'computed',
       label: 'Saison',
-      render: (m: any) => m.seasonYear || '-',
+      render: (m) => `${m.season.startYear} / ${m.season.endYear}`,
     },
     {
       type: 'field',
@@ -151,13 +150,8 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
     },
     {
       type: 'field',
-      key: 'familyOrder',
-      label: 'Ordre',
-    },
-    {
-      type: 'field',
       key: 'status',
-      label: 'Statut',
+      label: 'Adhésion',
       render: (m) => <StatusBadge type="membership" status={m.status} />,
     },
     {
@@ -333,7 +327,7 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
 
           {/* Historique des adhésions */}
           <Card title="Historique des adhésions">
-            <DataTable<MembershipDTO & { seasonYear?: string }>
+            <DataTable<MembershipWithSeasonDTO>
               data={member.memberships as any}
               columns={membershipColumns}
               onRowClick={(membership) => router.push(`/memberships/${membership.id}`)}

@@ -1,6 +1,7 @@
-import type { Membership as PrismaMembership } from '@/generated/prisma/client';
-import type { MembershipDTO, MembershipWithDetailsDTO, MembershipSummaryDTO } from '@/lib/dto/membership.dto';
+import type { Membership as PrismaMembership, Member as PrismaMember, Season as PrismaSeason } from '@/generated/prisma/client';
+import type { MembershipDTO, MembershipSummaryDTO, MembershipWithMemberDTO, MembershipWithSeasonDTO } from '@/lib/dto/membership.dto';
 import { MembershipStatusSchema } from '@/lib/schemas/membership.schema';
+import { toSeasonDTO } from './season.mapper';
 
 export function toMembershipDTO(membership: PrismaMembership): MembershipDTO {
   return {
@@ -20,26 +21,28 @@ export function toMembershipsDTO(memberships: PrismaMembership[]): MembershipDTO
   return memberships.map(toMembershipDTO);
 }
 
-export function toMembershipWithDetailsDTO(
-  membership: PrismaMembership & {
-    member: {
-      firstName: string;
-      lastName: string;
-      email: string | null;
-      family: { name: string } | null;
-    };
-    season: { startYear: number; endYear: number };
-    _count?: { registrations: number };
-  }
-): MembershipWithDetailsDTO {
+export function toMembershipWithMemberDTO(
+  membership: PrismaMembership & { member: PrismaMember }
+): MembershipWithMemberDTO {
   return {
     ...toMembershipDTO(membership),
     memberName: `${membership.member.firstName} ${membership.member.lastName}`,
-    memberEmail: membership.member.email,
-    familyName: membership.member.family?.name || null,
-    seasonYear: `${membership.season.startYear}-${membership.season.endYear}`,
-    workshopsCount: membership._count?.registrations || 0,
   };
+}
+
+export function toMembershipsWithMemberInfoDTO(memberships: (PrismaMembership & {member: PrismaMember})[]): MembershipWithMemberDTO[]{
+  return memberships.map(toMembershipWithMemberDTO);
+}
+
+export function toMembershipWithSeasonDTO(membership: PrismaMembership & {season: PrismaSeason}) : MembershipWithSeasonDTO{
+  return {
+    ...toMembershipDTO(membership),
+    season: toSeasonDTO(membership.season)
+  }
+}
+
+export function toMembershipsWithSeasonDTO(memberships: (PrismaMembership & {season: PrismaSeason})[]) : MembershipWithSeasonDTO[]{
+  return memberships.map(toMembershipWithSeasonDTO);
 }
 
 export function toMembershipSummaryDTO(

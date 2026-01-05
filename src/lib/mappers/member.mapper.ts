@@ -2,7 +2,7 @@ import type { Member as PrismaMember } from '@/generated/prisma/client';
 import type { MemberDTO, MemberWithFamilyNameDTO, MemberWithFullDetailsDTO,  } from '@/lib/dto/member.dto';
 import { PrismaMemberWithFamily, PrismaMemberWithFullDetails } from '@/lib/services/member.service';
 import { toFamilyDTO } from '@/lib/mappers/family.mapper';
-import { toMembershipsDTO } from '@/lib/mappers/membership.mapper';
+import { toMembershipsWithSeasonDTO } from '@/lib/mappers/membership.mapper';
 import { toRegistrationsWithWorkshopDetailsDTO } from '@/lib/mappers/registration.mapper';
 
 export function toMemberDTO(member: PrismaMember): MemberDTO {
@@ -39,6 +39,6 @@ export function toMemberWithFullDetailsDTO(member: PrismaMemberWithFullDetails):
     ...toMemberDTO(member),
     family: member.family ? toFamilyDTO(member.family) : null,
     registrations: member.registrations ? toRegistrationsWithWorkshopDetailsDTO(member.registrations) : [],
-    memberships : member.memberships ? toMembershipsDTO(member.memberships) : [],
+    memberships : member.memberships ? toMembershipsWithSeasonDTO(member.memberships) : [],
   };
 }

@@ -12,6 +12,7 @@ import { useWorkshopPriceActions } from "@/hooks/workshopPrice.hook";
 import { CreateWorkshopPriceInput } from "@/lib/schemas/workshop.input";
 import { WorkshopPriceForm } from "@/components/workshop/WorkshopPriceForm";
 import { WorkshopPriceWithWorkshopInfoDTO } from "@/lib/dto/workshopPrice.dto";
+import { MembershipDTO, MembershipWithMemberDTO } from "@/lib/dto/membership.dto";
 
 export default function SeasonDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -110,6 +111,23 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
     },
   ];
 
+  const membershipColumns: Column<MembershipWithMemberDTO>[] = [
+    {
+      type: 'field',
+      key: "memberName",
+      label:'Membre'
+    },
+    {
+      type: 'field',
+      key: 'status',
+      label: 'Adhésion',
+      render: (v: MembershipDTO) => (
+        <StatusBadge status={v.status} type='membership' />
+      )
+    }
+    // ajouter une colonne avec le nombre d'inscriptionx aux ateliers ?
+  ];
+
   return (
     <div className="container mx-auto p-6 max-w-6xl">
       <Link
@@ -197,6 +215,16 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
                 emptyMessage="Aucun tarif défini"
               />
             )}
+          </Card>
+
+          <Card
+            title="Membres de la saison"
+          >
+            <DataTable<MembershipWithMemberDTO>
+              data={season.memberships}
+              columns={membershipColumns}
+              emptyMessage="Aucun membre"
+            /> 
           </Card>
 
         </div>

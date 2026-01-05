@@ -1,5 +1,6 @@
 import { SeasonStatus } from "@/lib/domain/season.status";
 import { WorkshopPriceWithWorkshopInfoDTO } from "@/lib/dto/workshopPrice.dto";
+import { MembershipWithMemberDTO } from "@/lib/dto/membership.dto";
 
 export type SeasonDTO = {
   id: number;
@@ -16,3 +17,8 @@ export type SeasonDTO = {
 export type SeasonWithPricesAndWorkshopDTO = SeasonDTO & {
   prices: WorkshopPriceWithWorkshopInfoDTO[];
 };
+
+export type SeasonWithFullDetailsDTO = SeasonDTO & {
+  prices: WorkshopPriceWithWorkshopInfoDTO[];
+  memberships : MembershipWithMemberDTO [];
+}

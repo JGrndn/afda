@@ -1,8 +1,9 @@
 import type { Season as PrismaSeason } from '@/generated/prisma/client';
-import type { SeasonDTO, SeasonWithPricesAndWorkshopDTO } from '@/lib/dto/season.dto';
+import type { SeasonDTO, SeasonWithFullDetailsDTO, SeasonWithPricesAndWorkshopDTO } from '@/lib/dto/season.dto';
 import { SeasonStatusSchema } from '@/lib/schemas/season.schema';
-import { PrismaSeasonWithPricesAndWorkshop } from '@/lib/services/season.service';
+import { PrismaSeasonWithFullDetails, PrismaSeasonWithPricesAndWorkshop } from '@/lib/services/season.service';
 import { toWorkshopPricesWithWorkshopInfoDTO } from '@/lib/mappers/workshopPrice.mapper';
+import { toMembershipsWithMemberInfoDTO } from '@/lib/mappers/membership.mapper';
 
 export function toSeasonDTO(season: PrismaSeason): SeasonDTO{
   return {
@@ -27,4 +28,12 @@ export function toSeasonWithPricesAndWorkshopDTO(season: PrismaSeasonWithPricesA
     ...toSeasonDTO(season),
     prices: season.workshopPrices ? toWorkshopPricesWithWorkshopInfoDTO(season.workshopPrices) : [],
   };
+}
+
+export function toSeasonWithFullDetailsDTO(season: PrismaSeasonWithFullDetails): SeasonWithFullDetailsDTO {
+  return {
+    ...toSeasonDTO(season),
+    prices: season.workshopPrices ? toWorkshopPricesWithWorkshopInfoDTO(season.workshopPrices) : [],
+    memberships: season.memberships ? toMembershipsWithMemberInfoDTO(season.memberships) : []
+  }
 }

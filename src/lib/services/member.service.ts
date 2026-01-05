@@ -41,7 +41,14 @@ export const memberService = {
       where: { id },
       include: {
         family: true,
-        memberships: true,
+        memberships: {
+          orderBy: {
+            season: {startYear: 'desc'}
+          },
+          include: {
+            season:true
+          }
+        },
         registrations: {
           include:{
             workshop:true
@@ -123,7 +130,11 @@ export type PrismaMemberWithFullDetails =
   Prisma.MemberGetPayload<{
     include: {
       family: true,
-      memberships: true,
+      memberships: {
+        include: {
+          season : true
+        }
+      },
       registrations: {
         include:{
           workshop:true

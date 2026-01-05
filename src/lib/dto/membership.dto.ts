@@ -1,4 +1,5 @@
 import { MembershipStatus } from '@/lib/domain/membership.status';
+import { SeasonDTO } from './season.dto';
 
 export type MembershipDTO = {
   id: number;
@@ -12,13 +13,13 @@ export type MembershipDTO = {
   updatedAt: Date;
 };
 
-export type MembershipWithDetailsDTO = MembershipDTO & {
+export type MembershipWithMemberDTO = MembershipDTO & {
   memberName: string;
-  memberEmail: string | null;
-  familyName: string | null;
-  seasonYear: string;
-  workshopsCount: number;
 };
+
+export type MembershipWithSeasonDTO =MembershipDTO & {
+  season : SeasonDTO
+}
 
 export type MembershipSummaryDTO = {
   membershipId: number;

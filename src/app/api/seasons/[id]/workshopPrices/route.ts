@@ -1,0 +1,19 @@
+import { NextResponse } from 'next/server';
+import { seasonService } from '@/lib/services/season.service';
+
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const season = await seasonService.getByIdWithWorkshopPrices(parseInt(id));
+    if (!season) {
+      return NextResponse.json({ error: 'Season not found' }, { status: 404 });
+    }
+    return NextResponse.json(season);
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json({ error: 'Failed to fetch season' }, { status: 500 });
+  }
+}

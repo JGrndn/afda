@@ -1,8 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/generated/prisma/client'
 import { QueryOptions } from '@/lib/hooks/query';
-import { toSeasonDTO, toSeasonsDTO, toSeasonWithPricesAndWorkshopDTO } from '@/lib/mappers/season.mapper';
-import { SeasonDTO, SeasonWithPricesAndWorkshopDTO } from '@/lib/dto/season.dto';
+import { toSeasonDTO, toSeasonsDTO, toSeasonWithFullDetailsDTO, toSeasonWithPricesAndWorkshopDTO } from '@/lib/mappers/season.mapper';
+import { SeasonDTO, SeasonWithFullDetailsDTO, SeasonWithPricesAndWorkshopDTO } from '@/lib/dto/season.dto';
 import { DomainError } from '@/lib/errors/domain-error';
 import { CreateSeasonInput, UpdateSeasonInput } from '@/lib/schemas/season.input';
 import { SEASON_STATUS } from '@/lib/domain/season.status';
@@ -25,7 +25,26 @@ export const seasonService = {
     return toSeasonsDTO(db);
   },
 
-  async getById(id: number) : Promise<SeasonWithPricesAndWorkshopDTO | null> {
+  async getById(id: number) : Promise<SeasonWithFullDetailsDTO | null> {
+    const season : PrismaSeasonWithFullDetails | null = await prisma.season.findUnique({
+      where : { id : id },
+      include : {
+        workshopPrices : {
+          include : {
+            workshop : true
+          }
+        },
+        memberships : {
+          include : {
+            member: true
+          }
+        }
+      }
+    });
+    return season ? toSeasonWithFullDetailsDTO(season) : null;
+  },
+
+  async getByIdWithWorkshopPrices(id: number) : Promise<SeasonWithPricesAndWorkshopDTO | null> {
     const season : PrismaSeasonWithPricesAndWorkshop | null = await prisma.season.findUnique({
       where : { id : id },
       include : {
@@ -100,4 +119,20 @@ export type PrismaSeasonWithPricesAndWorkshop =
         };
       };
     };
+  }>;
+
+export type PrismaSeasonWithFullDetails = 
+  Prisma.SeasonGetPayload<{
+    include : {
+      workshopPrices : {
+        include : {
+          workshop : true
+        }
+      },
+      memberships : {
+        include : {
+          member: true
+        }
+      }
+    }
   }>;

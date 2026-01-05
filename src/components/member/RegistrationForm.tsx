@@ -21,7 +21,7 @@ export function RegistrationForm({
   onSubmit,
   onCancel,
 }: RegistrationFormProps) {
-  const { season, isError, isLoading, mutate } = useSeason(seasonId); // faire la requête depuis Season, puisqu'on a les prix et les workshops
+  const { season, isError, isLoading, mutate } = useSeason(seasonId);
   const { create, isLoading: isLoadingAction, error } = useRegistrationActions();
 
   const workshops = useMemo(() => {
