@@ -34,7 +34,7 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
   const [isCashModalOpen, setIsCashModalOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<PaymentDTO | null>(null);
   
-  const [isEeditingPayment, setIsEditingPayment] = useState(false);
+  const [isEditingPayment, setIsEditingPayment] = useState(false);
   const [deletingPaymentId, setDeletingPaymentId] = useState<number>();
   
   // Récupérer la saison active et les paiements de cette saison
@@ -270,7 +270,7 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
             <Card
               title={`Paiements - ${activeSeason.startYear}-${activeSeason.endYear}`}
               actions={
-                !isEeditingPayment && (
+                !isEditingPayment && (
                   <Button size="sm" onClick={() => setIsPaymentSlideOverOpen(true)}>
                     <Plus className="w-4 h-4 mr-1" />
                     Nouveau paiement
