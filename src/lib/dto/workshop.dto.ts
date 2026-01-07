@@ -1,4 +1,4 @@
-import { WorkshopStatus } from '@/lib/domain/workshop.status';
+import { WorkshopStatus } from '@/lib/domain/workshop.enum';
 import { WorkshopPriceWithSeasonInfoDTO } from '@/lib/dto/workshopPrice.dto';
 
 export type WorkshopDTO = {

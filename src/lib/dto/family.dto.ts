@@ -1,4 +1,5 @@
-import { MemberDTO } from "@/lib/dto/member.dto";
+import { MemberWithMembershipsAndRegistrationsDTO } from "@/lib/dto/member.dto";
+import { PaymentDTO } from "@/lib/dto/payment.dto";
 
 export type FamilyDTO = {
   id: number;
@@ -11,5 +12,6 @@ export type FamilyDTO = {
 };
 
 export type FamilyWithFullDetailsDTO = FamilyDTO & {
-  members: MemberDTO[] | null;
+  members: MemberWithMembershipsAndRegistrationsDTO[] | null;
+  payments: PaymentDTO[] | null;
 };

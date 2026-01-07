@@ -10,9 +10,10 @@ export const memberService = {
   async getAll(
     options?: QueryOptions<Prisma.MemberOrderByWithRelationInput> & {
       search?: string;
+      familyId?: number;
     }
   ): Promise<MemberWithFamilyNameDTO[]> {
-    const { filters = {}, orderBy, search } = options || {};
+    const { filters = {}, orderBy, search, familyId } = options || {};
   
     const where: Prisma.MemberWhereInput = {
       ...filters,
@@ -24,7 +25,10 @@ export const memberService = {
         { email: { contains: search, mode: 'insensitive' } },
       ];
     }
-    const finalOrderBy = orderBy || { lastName: 'asc' as const, firstName: 'asc' as const };
+    if(familyId){
+      where.familyId = familyId;
+    }
+    const finalOrderBy = orderBy || { lastName: 'asc' };
     const members : PrismaMemberWithFamily[] = await prisma.member.findMany({
       where,
       orderBy: finalOrderBy,

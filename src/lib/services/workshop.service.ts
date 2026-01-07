@@ -5,7 +5,7 @@ import { toWorkshopDTO, toWorkshopsDTO, toWorkshopWithPricesAndSeasonDTO } from 
 import { WorkshopDTO, WorkshopWithPricesAndSeasonDTO } from '@/lib/dto/workshop.dto';
 import { DomainError } from '@/lib/errors/domain-error';
 import { CreateWorkshopInput, UpdateWorkshopInput } from '@/lib/schemas/workshop.input';
-import { WorkshopStatus } from '@/lib/domain/workshop.status';
+import { WorkshopStatus } from '@/lib/domain/workshop.enum';
 
 export const workshopService = {
   async getAll(

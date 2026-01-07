@@ -14,7 +14,7 @@ import { UpdateMemberInput } from '@/lib/schemas/member.input';
 import { RegistrationWithWorkshopDetailsDTO } from '@/lib/dto/registration.dto';
 import { MembershipDTO, MembershipWithSeasonDTO } from '@/lib/dto/membership.dto';
 import { CreateRegistrationInput } from '@/lib/schemas/registration.input';
-import { SEASON_STATUS } from '@/lib/domain/season.status';
+import { SEASON_STATUS } from '@/lib/domain/season.enum';
 
 export default function MemberDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();

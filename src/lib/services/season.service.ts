@@ -5,7 +5,7 @@ import { toSeasonDTO, toSeasonsDTO, toSeasonWithFullDetailsDTO, toSeasonWithPric
 import { SeasonDTO, SeasonWithFullDetailsDTO, SeasonWithPricesAndWorkshopDTO } from '@/lib/dto/season.dto';
 import { DomainError } from '@/lib/errors/domain-error';
 import { CreateSeasonInput, UpdateSeasonInput } from '@/lib/schemas/season.input';
-import { SEASON_STATUS } from '@/lib/domain/season.status';
+import { SEASON_STATUS } from '@/lib/domain/season.enum';
 
 export const seasonService = {
   async getAll(

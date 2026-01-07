@@ -1,14 +1,23 @@
 'use client';
 
-import { use, useState } from 'react';
+import { use, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Pencil, Trash2} from 'lucide-react';
+import { ArrowLeft, Pencil, Plus, Trash2} from 'lucide-react';
 import { FamilyForm } from '@/components/family/FamilyForm';
 import { useFamily, useFamilyActions } from '@/hooks/family.hook';
-import { Button, Card, ErrorMessage, DataTable, Column } from '@/components/ui';
+import { Button, Card, ErrorMessage, DataTable, Column, StatusBadge } from '@/components/ui';
 import { UpdateFamilyInput } from '@/lib/schemas/family.input';
-import { MemberDTO } from '@/lib/dto/member.dto';
+import { MemberWithMembershipsAndRegistrationsDTO } from '@/lib/dto/member.dto';
+import { PaymentDTO } from '@/lib/dto/payment.dto';
+import { usePaymentActions } from '@/hooks/payment.hook';
+import { useSeasons } from '@/hooks/season.hook';
+import { SEASON_STATUS } from '@/lib/domain/season.enum';
+import { FamilyBalanceCard } from '@/components/payment/FamilyBalanceCard';
+import { PaymentSlideOver } from '@/components/payment/PaymentSlideOver';
+import { CashPaymentModal } from '@/components/payment/CashPaymentModal';
+import { PAYMENT_STATUS, PAYMENT_TYPE } from '@/lib/domain/payment.enum';
+import { computeFinancialStats, FamilyFinancialStats } from '@/lib/domain/finance';
 
 export default function FamilyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -16,8 +25,32 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
   const familyId = parseInt(resolvedParams.id);
   
   const { family, isLoading: familyLoading, mutate } = useFamily(familyId);
+  const { data:seasons, isLoading: seasonsLoading } = useSeasons();
   const { update, remove, isLoading: mutationLoading, error } = useFamilyActions();
+  const { remove: removePayment } = usePaymentActions();
+  
   const [isEditing, setIsEditing] = useState(false);
+  const [isPaymentSlideOverOpen, setIsPaymentSlideOverOpen] = useState(false);
+  const [isCashModalOpen, setIsCashModalOpen] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<PaymentDTO | null>(null);
+  
+  const [isEeditingPayment, setIsEditingPayment] = useState(false);
+  const [deletingPaymentId, setDeletingPaymentId] = useState<number>();
+  
+  // Récupérer la saison active et les paiements de cette saison
+  const activeSeason = seasons.find(s=> s.status === SEASON_STATUS.ACTIVE);
+  const payments = family?.payments?.filter(p => p.seasonId === activeSeason?.id)
+  
+  const financialStats: FamilyFinancialStats = useMemo(() => {
+    if (!family || !family.payments || !family.members || !activeSeason){
+      return {
+        totalPaid: 0,
+        totalDue: 0,
+        balance: 0,
+      }
+    }
+    return computeFinancialStats(family.members, family.payments, activeSeason.id);
+  }, [family?.members, family?.payments]);
 
   const handleUpdate = async (data: UpdateFamilyInput) => {
     await update(familyId, data);
@@ -26,13 +59,36 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
   };
 
   const handleDelete = async () => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette famille ? Tous les membres associés seront également supprimés.')) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette famille ? Tous les membres et paiements associés seront également supprimés.')) {
       await remove(familyId);
       router.push('/families');
     }
   };
 
-  if (familyLoading) {
+  const handleCash = (payment: PaymentDTO) => {
+    setSelectedPayment(payment);
+    setIsCashModalOpen(true);
+  };
+
+  const handleDeletePaymentClick = async (payment: PaymentDTO) => {
+    setDeletingPaymentId(payment.id);
+    try{
+      await removePayment(payment.id);
+      // mettre à jour les statuts des memberships de tous les membres de la famille
+      // (si 'completed' -> alors 'pending') (le faire aussi dans l'autre sens quand on ajoute ou update un paiement)
+      mutate();
+    } catch(error){
+      console.log(error);
+    } finally{
+      setDeletingPaymentId(0);
+    }
+  }
+
+  const handlePaymentSucess = () => {
+    mutate();
+  };
+
+  if (familyLoading || seasonsLoading) {
     return (
       <div className="container mx-auto p-6">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
@@ -50,29 +106,91 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
     );
   }
 
-  const memberColumns: Column<MemberDTO>[] = [
+  const memberColumns: Column<MemberWithMembershipsAndRegistrationsDTO>[] = [
     {
       type: 'computed',
       label: 'Nom',
       render: (member) => `${member.firstName} ${member.lastName}`,
     },
     {
+      type: 'computed',
+      label: activeSeason ? `Adhérent saison ${activeSeason.startYear}/${activeSeason.endYear}` : '',
+      render: (member) => {
+        const ms = member.memberships?.find(o => o.seasonId === activeSeason?.id);
+        return ms ? <StatusBadge type='membership' status={ms.status} /> : '-';
+      },
+    }
+  ];
+
+  const paymentColumns: Column<PaymentDTO>[] = [
+    {
       type: 'field',
-      key: 'email',
-      label: 'Email',
-      render: (member) => member.email || '-',
+      key: 'amount',
+      label: 'Montant',
+      render: (payment) => `${payment.amount.toFixed(2)} €`,
     },
     {
       type: 'field',
-      key: 'phone',
-      label: 'Téléphone',
-      render: (member) => member.phone || '-',
+      key: 'paymentType',
+      label: 'Type',
+      render: (payment) => {
+        const types: Record<string, string> = {
+          cash: 'Espèces',
+          check: 'Chèque',
+          transfer: 'Virement',
+          card: 'Carte',
+        };
+        return types[payment.paymentType] || payment.paymentType;
+      },
     },
     {
       type: 'field',
-      key: 'isMinor',
+      key: 'paymentDate',
+      label: 'Date paiement',
+      render: (payment) => new Date(payment.paymentDate).toLocaleDateString('fr-FR'),
+    },
+    {
+      type: 'field',
+      key: 'cashingDate',
+      label: 'Date encaissement',
+      render: (payment) =>
+        payment.cashingDate ? new Date(payment.cashingDate).toLocaleDateString('fr-FR') : '-',
+    },
+    {
+      type: 'field',
+      key: 'status',
       label: 'Statut',
-      render: (member) => member.isMinor ? 'Mineur' : 'Majeur',
+      render: (payment) => <StatusBadge type="payment" status={payment.status} />,
+    },
+    {
+      type: 'field',
+      key: 'reference',
+      label: 'Référence',
+      render: (payment) => payment.reference || '-',
+    },
+    {
+      type: 'action',
+      label: 'Actions',
+      render: (payment) => (
+        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+          {payment.status === PAYMENT_STATUS.PENDING && payment.paymentType === PAYMENT_TYPE.CHECK && (
+            <Button size="sm" onClick={() => handleCash(payment)}>
+              Encaisser
+            </Button>
+          )}
+          {<Button
+            size="sm"
+            variant="danger"
+            onClick={() => {
+              return handleDeletePaymentClick(payment);
+            }}
+            disabled={deletingPaymentId === payment.id}
+            Icon={Trash2}
+          >
+            {deletingPaymentId === payment.id ? 'Suppression...' : ''}
+          </Button>}
+        </div>
+      ),
     },
   ];
 
@@ -126,21 +244,68 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
             </dl>
           </Card>
 
+          {activeSeason && (/* situation financière */
+            <FamilyBalanceCard financialStats={financialStats} />
+          )}
+
           <Card 
             title="Membres de la famille"
             actions={
               <Button size="sm" onClick={() => router.push(`/members/new?familyId=${familyId}`)}>
                 Ajouter un membre
               </Button>
+              // ajouter le composant plutôt que la redirection vers la page
             }
           >
-            <DataTable<MemberDTO>
+            <DataTable<MemberWithMembershipsAndRegistrationsDTO>
               data={family.members}
               columns={memberColumns}
               onRowClick={(member) => router.push(`/members/${member.id}`)}
               emptyMessage="Aucun membre dans cette famille"
             />
           </Card>
+              
+          {/* Paiements */}
+          {activeSeason && (
+            <Card
+              title={`Paiements - ${activeSeason.startYear}-${activeSeason.endYear}`}
+              actions={
+                !isEeditingPayment && (
+                  <Button size="sm" onClick={() => setIsPaymentSlideOverOpen(true)}>
+                    <Plus className="w-4 h-4 mr-1" />
+                    Nouveau paiement
+                  </Button>
+                )
+              }
+            >
+              <DataTable<PaymentDTO>
+                data={payments}
+                columns={paymentColumns}
+                emptyMessage="Aucun paiement enregistré"
+              />
+              
+            </Card>
+          )}
+          {activeSeason &&(
+            <PaymentSlideOver 
+              isOpen={isPaymentSlideOverOpen}
+              onClose={() => setIsPaymentSlideOverOpen(false)} 
+              familyId={familyId}
+              seasonId={activeSeason.id}
+              onSuccess={handlePaymentSucess}        
+            />
+          )}
+          {selectedPayment && (
+          <CashPaymentModal
+            isOpen={isCashModalOpen}
+            onClose={() => {
+              setIsCashModalOpen(false);
+              setSelectedPayment(null);
+            }}
+            payment={selectedPayment} 
+            onSuccess={handlePaymentSucess}
+          />
+          )}
         </div>
       )}
     </div>

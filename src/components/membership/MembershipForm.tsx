@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { GenericForm, FormField } from '@/components/ui';
 import { useMembers } from '@/hooks/member.hook';
 import { useSeasons } from '@/hooks/season.hook';
-import { MEMBERSHIP_STATUS } from '@/lib/domain/membership.status';
+import { MEMBERSHIP_STATUS } from '@/lib/domain/membership.enum';
 import type { CreateMembershipInput } from '@/lib/schemas/membership.input';
 
 interface MembershipFormProps {
@@ -62,7 +62,7 @@ export function MembershipForm({
 
   const statusOptions = [
     { value: MEMBERSHIP_STATUS.PENDING, label: 'En attente' },
-    { value: MEMBERSHIP_STATUS.PAID, label: 'Payé' },
+    { value: MEMBERSHIP_STATUS.COMPLETED, label: 'Payé' },
     { value: MEMBERSHIP_STATUS.CANCELLED, label: 'Annulé' },
   ];
 

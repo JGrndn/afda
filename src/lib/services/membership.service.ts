@@ -1,12 +1,48 @@
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/generated/prisma/client';
-import { toMembershipDTO } from '@/lib/mappers/membership.mapper';
+import { QueryOptions } from '@/lib/hooks/query';
+import { toMembershipDTO, toMembershipsDTO } from '@/lib/mappers/membership.mapper';
 import { MembershipDTO } from '@/lib/dto/membership.dto';
 import { DomainError } from '@/lib/errors/domain-error';
 import { CreateMembershipInput, UpdateMembershipInput } from '@/lib/schemas/membership.input';
+import { MEMBERSHIP_STATUS, MembershipStatus } from '@/lib/domain/membership.enum';
 
 
 export const membershipService = {
+  async getAll(
+    options?: QueryOptions<Prisma.MembershipOrderByWithRelationInput> & {
+      memberIds?: number[];
+      seasonId?: number;
+      status?: MembershipStatus;
+    }
+  ): Promise<MembershipDTO[]> {
+    const { filters = {}, orderBy, memberIds, seasonId, status } = options || {};
+
+    const { includeDetails: _, ...prismaFilters } = filters as any;
+
+    const where: Prisma.MembershipWhereInput = {
+      ...prismaFilters,
+    };
+
+    if (memberIds && memberIds.length) {
+      where.memberId = { in: memberIds};
+    }
+    if (seasonId) {
+      where.seasonId = seasonId;
+    }
+    if (status) {
+      where.status = status;
+    }
+
+    const finalOrderBy = orderBy || { membershipDate: 'desc' as const };
+    const memberships = await prisma.membership.findMany({
+      where,
+      orderBy: finalOrderBy,
+    });
+
+    return toMembershipsDTO(memberships);
+  },
+
   async create(input: CreateMembershipInput): Promise<MembershipDTO> {
     try {
       // Vérifier si une membership existe déjà
@@ -97,6 +133,25 @@ export const membershipService = {
       }
       throw error;
     }
+  },
+
+  async updateStatuses(
+    memberIds: number[],
+    seasonId: number,
+    oldStatus: MembershipStatus,
+    newStatus: MembershipStatus
+  ): Promise<void>{
+    const where: Prisma.MembershipWhereInput = {
+      seasonId : seasonId,
+      status:oldStatus,
+      memberId : { in : memberIds }
+    }
+    
+    await prisma.membership.updateMany({
+      where,
+      data: { status : newStatus}
+    });
+
   },
 
   async delete(id: number): Promise<void> {

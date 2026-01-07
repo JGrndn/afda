@@ -1,6 +1,6 @@
 export const MEMBERSHIP_STATUS = {
   PENDING: 'pending',
-  PAID: 'paid',
+  COMPLETED: 'completed',
   CANCELLED: 'cancelled',
 } as const;
 

@@ -125,11 +125,18 @@ async function main(){
   ];
   const registrations = await prisma.registration.createManyAndReturn({ data: registrationsData });
   console.log('✅ Workshop registrations created');
+
+  const paymentData: Prisma.PaymentCreateManyInput[] = [
+    { familyId: families[2].id, seasonId: seasons[2].id, amount: '100', paymentType: 'cash', paymentDate: new Date(2025, 8, 15).toISOString() }
+  ];
+  const payments = await prisma.payment.createManyAndReturn({data: paymentData });
+  console.log('✅ Payments created');
 }
 
 
 async function clearDatabase(){
   await prisma.$transaction([
+    prisma.payment.deleteMany(),
     prisma.membership.deleteMany(),
     prisma.registration.deleteMany(),
     prisma.season.deleteMany(),
