@@ -62,7 +62,7 @@ export function MembershipForm({
 
   const statusOptions = [
     { value: MEMBERSHIP_STATUS.PENDING, label: 'En attente' },
-    { value: MEMBERSHIP_STATUS.PAID, label: 'Payé' },
+    { value: MEMBERSHIP_STATUS.COMPLETED, label: 'Payé' },
     { value: MEMBERSHIP_STATUS.CANCELLED, label: 'Annulé' },
   ];
 

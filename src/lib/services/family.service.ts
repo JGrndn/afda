@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/generated/prisma/client';
 import { QueryOptions } from '@/lib/hooks/query';
 import { toFamilyDTO, toFamiliesDTO, toFamilyWithFullDetailsDTO } from '@/lib/mappers/family.mapper';
-import { FamilyDTO } from '@/lib/dto/family.dto';
+import { FamilyDTO, FamilyWithFullDetailsDTO } from '@/lib/dto/family.dto';
 import { DomainError } from '@/lib/errors/domain-error';
 import { CreateFamilyInput, UpdateFamilyInput } from '@/lib/schemas/family.input';
 
@@ -25,11 +25,17 @@ export const familyService = {
     return toFamiliesDTO(families);
   },
 
-  async getById(id: number): Promise<FamilyDTO | null> {
-    const family = await prisma.family.findUnique({
+  async getById(id: number): Promise<FamilyWithFullDetailsDTO | null> {
+    const family: PrismaFamilyWithFullDetails | null = await prisma.family.findUnique({
       where: { id },
       include:{
-        members:true
+        members:{
+          include: {
+            memberships:true,
+            registrations:true
+          }
+        },
+        payments:true
       }
     });
     return family ? toFamilyWithFullDetailsDTO(family) : null;
@@ -80,3 +86,16 @@ export const familyService = {
     }
   },
 };
+
+export type PrismaFamilyWithFullDetails =
+  Prisma.FamilyGetPayload<{
+    include:{
+      members:{
+        include: {
+          memberships:true,
+          registrations:true
+        }
+      },
+      payments:true
+    }
+  }>

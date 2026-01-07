@@ -1,6 +1,6 @@
 import { FamilyDTO } from "@/lib/dto/family.dto";
-import { MembershipWithSeasonDTO } from "@/lib/dto/membership.dto";
-import { RegistrationWithWorkshopDetailsDTO } from "@/lib/dto/registration.dto";
+import { MembershipDTO, MembershipWithSeasonDTO } from "@/lib/dto/membership.dto";
+import { RegistrationDTO, RegistrationWithWorkshopDetailsDTO } from "@/lib/dto/registration.dto";
 
 export type MemberDTO = {
   id: number;
@@ -26,4 +26,9 @@ export type MemberWithFullDetailsDTO = MemberDTO & {
   family: FamilyDTO | null;
   registrations: RegistrationWithWorkshopDetailsDTO[] | null;
   memberships: MembershipWithSeasonDTO[] | null;
+};
+
+export type MemberWithMembershipsAndRegistrationsDTO = MemberDTO & {
+  memberships: MembershipDTO[] | null;
+  registrations: RegistrationDTO[] | null;
 };

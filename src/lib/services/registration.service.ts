@@ -1,11 +1,42 @@
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/generated/prisma/client';
-import { toRegistrationDTO } from '@/lib/mappers/registration.mapper';
+import { toRegistrationDTO, toRegistrationsDTO } from '@/lib/mappers/registration.mapper';
 import { RegistrationDTO } from '@/lib/dto/registration.dto';
 import { DomainError } from '@/lib/errors/domain-error';
 import { CreateRegistrationInput, UpdateRegistrationInput } from '@/lib/schemas/registration.input';
+import { QueryOptions } from '@/lib/hooks/query';
 
 export const registrationService = {
+async getAll(
+    options?: QueryOptions<Prisma.RegistrationOrderByWithRelationInput> & {
+      memberIds?: number[];
+      seasonId?: number;
+    }
+  ): Promise<RegistrationDTO[]> {
+    const { filters = {}, orderBy, memberIds, seasonId } = options || {};
+
+    const { includeDetails: _, ...prismaFilters } = filters as any;
+
+    const where: Prisma.RegistrationWhereInput = {
+      ...prismaFilters,
+    };
+
+    if (memberIds && memberIds.length) {
+      where.memberId = { in: memberIds};
+    }
+    if (seasonId) {
+      where.seasonId = seasonId;
+    }
+
+    const finalOrderBy = orderBy || { registrationDate: 'desc' as const };
+    const registrations = await prisma.registration.findMany({
+      where,
+      orderBy: finalOrderBy,
+    });
+
+    return toRegistrationsDTO(registrations);
+  },
+
   async create(input: CreateRegistrationInput): Promise<RegistrationDTO> {
     try {
       // Vérifier que la membership existe

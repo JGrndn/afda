@@ -1,9 +1,9 @@
-import type { Member as PrismaMember } from '@/generated/prisma/client';
-import type { MemberDTO, MemberWithFamilyNameDTO, MemberWithFullDetailsDTO,  } from '@/lib/dto/member.dto';
+import type { Member as PrismaMember, Membership as PrismaMembership, Registration as PrismaRegistration } from '@/generated/prisma/client';
+import type { MemberDTO, MemberWithFamilyNameDTO, MemberWithFullDetailsDTO, MemberWithMembershipsAndRegistrationsDTO,  } from '@/lib/dto/member.dto';
 import { PrismaMemberWithFamily, PrismaMemberWithFullDetails } from '@/lib/services/member.service';
 import { toFamilyDTO } from '@/lib/mappers/family.mapper';
-import { toMembershipsWithSeasonDTO } from '@/lib/mappers/membership.mapper';
-import { toRegistrationsWithWorkshopDetailsDTO } from '@/lib/mappers/registration.mapper';
+import { toMembershipsDTO, toMembershipsWithSeasonDTO } from '@/lib/mappers/membership.mapper';
+import { toRegistrationsDTO, toRegistrationsWithWorkshopDetailsDTO } from '@/lib/mappers/registration.mapper';
 
 export function toMemberDTO(member: PrismaMember): MemberDTO {
   return {
@@ -41,4 +41,25 @@ export function toMemberWithFullDetailsDTO(member: PrismaMemberWithFullDetails):
     registrations: member.registrations ? toRegistrationsWithWorkshopDetailsDTO(member.registrations) : [],
     memberships : member.memberships ? toMembershipsWithSeasonDTO(member.memberships) : [],
   };
+}
+
+export function toMemberWithMembershipsAndRegistrationsDTO(
+  member: PrismaMember 
+  & {memberships: PrismaMembership[]} 
+  & {registrations: PrismaRegistration[]}
+): MemberWithMembershipsAndRegistrationsDTO{
+  return {
+    ...toMemberDTO(member),
+    memberships: member.memberships ? toMembershipsDTO(member.memberships) : [],
+    registrations: member.registrations ? toRegistrationsDTO(member.registrations) : []
+  }
+}
+
+export function toMembersWithMembershipsAndRegistrationsDTO(
+  members: (PrismaMember 
+    & {memberships: PrismaMembership[]}
+    & {registrations: PrismaRegistration[]}
+  )[]
+): MemberWithMembershipsAndRegistrationsDTO[]{
+  return members.map(toMemberWithMembershipsAndRegistrationsDTO);
 }

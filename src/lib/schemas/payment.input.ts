@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { PaymentTypeSchema, PaymentStatusSchema } from '@/lib/schemas/payment.schema';
-import { PAYMENT_STATUS } from '@/lib/domain/payment.enum';
 
 export const CreatePaymentSchema = z.object({
   familyId: z.number().int().positive(),

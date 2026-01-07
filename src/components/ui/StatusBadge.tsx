@@ -35,7 +35,7 @@ export const WORKSHOP_STATUS_COLORS: Record<WorkshopStatus, string> = {
 }
 export const MEMBERSHIP_STATUS_COLORS: Record<MembershipStatus, string> = {
   pending: 'yellow',
-  paid: 'green',
+  completed: 'green',
   cancelled: 'red'
 }
 export const PAYMENT_STATUS_COLORS: Record<PaymentStatus, string> = {

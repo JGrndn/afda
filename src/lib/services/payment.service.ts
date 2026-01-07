@@ -9,12 +9,10 @@ import {
 import {
   PaymentDTO,
   PaymentWithDetailsDTO,
-  FamilyPaymentSummaryDTO,
 } from '@/lib/dto/payment.dto';
 import { DomainError } from '../errors/domain-error';
 import { CreatePaymentInput, UpdatePaymentInput } from '@/lib/schemas/payment.input';
-import { PaymentStatus } from '@/lib/domain/payment.enum';
-import { MEMBERSHIP_STATUS } from '@/lib/domain/membership.enum';
+import { PAYMENT_STATUS, PaymentStatus } from '@/lib/domain/payment.enum';
 
 export const paymentService = {
   async getAll(
@@ -86,123 +84,13 @@ export const paymentService = {
   },
 
   /**
-   * Calcule le montant total dû par une famille pour une saison
-   * (somme des memberships + registrations)
-   */
-  async calculateFamilyBalance(familyId: number, seasonId: number): Promise<FamilyPaymentSummaryDTO> {
-    const family = await prisma.family.findUnique({
-      where: { id: familyId },
-    });
-
-    if (!family) {
-      throw new DomainError('Famille introuvable', 'FAMILY_NOT_FOUND');
-    }
-
-    const season = await prisma.season.findUnique({
-      where: { id: seasonId },
-    });
-
-    if (!season) {
-      throw new DomainError('Saison introuvable', 'SEASON_NOT_FOUND');
-    }
-
-    // Récupérer tous les membres de la famille
-    const familyMembers = await prisma.member.findMany({
-      where: { familyId },
-      select: { id: true },
-    });
-
-    const memberIds = familyMembers.map((m) => m.id);
-
-    // Calculer le montant total des memberships
-    const memberships = await prisma.membership.findMany({
-      where: {
-        memberId: { in: memberIds },
-        seasonId,
-      },
-    });
-
-    const totalMemberships = memberships.reduce(
-      (sum, m) => sum + m.amount.toNumber(),
-      0
-    );
-
-    // Calculer le montant total des registrations
-    const registrations = await prisma.registration.findMany({
-      where: {
-        memberId: { in: memberIds },
-        seasonId,
-      },
-    });
-
-    const totalRegistrations = registrations.reduce(
-      (sum, r) => sum + r.totalPrice.toNumber() * r.quantity,
-      0
-    );
-
-    const totalDue = totalMemberships + totalRegistrations;
-
-    // Calculer le montant total payé (seulement les paiements completed)
-    const payments = await prisma.payment.findMany({
-      where: {
-        familyId,
-        seasonId,
-        status: 'completed',
-      },
-    });
-
-    const totalPaid = payments.reduce((sum, p) => sum + p.amount.toNumber(), 0);
-
-    return {
-      familyId,
-      familyName: family.name,
-      seasonId,
-      seasonYear: `${season.startYear}-${season.endYear}`,
-      totalDue,
-      totalPaid,
-      balance: totalDue - totalPaid,
-      paymentsCount: payments.length,
-      isFullyPaid: totalPaid >= totalDue,
-    };
-  },
-
-  /**
-   * Valide automatiquement les memberships si le montant payé >= montant dû
-   */
-  async validateMembershipsIfFullyPaid(familyId: number, seasonId: number): Promise<void> {
-    const balance = await this.calculateFamilyBalance(familyId, seasonId);
-
-    if (balance.isFullyPaid) {
-      // Récupérer tous les membres de la famille
-      const familyMembers = await prisma.member.findMany({
-        where: { familyId },
-        select: { id: true },
-      });
-
-      const memberIds = familyMembers.map((m) => m.id);
-
-      // Mettre à jour tous les memberships de la famille pour cette saison
-      await prisma.membership.updateMany({
-        where: {
-          memberId: { in: memberIds },
-          seasonId,
-          status: { in: [MEMBERSHIP_STATUS.PENDING, MEMBERSHIP_STATUS.PAID] },
-        },
-        data: {
-          status: 'validated',
-        },
-      });
-    }
-  },
-
-  /**
    * Détermine automatiquement le statut d'un paiement selon la cashingDate
    * - Si pas de cashingDate ou cashingDate <= aujourd'hui → completed
    * - Sinon → pending
    */
-  determinePaymentStatus(cashingDate: Date | null | undefined): string {
+  determinePaymentStatus(cashingDate: Date | null | undefined): PaymentStatus {
     if (!cashingDate) {
-      return 'completed';
+      return PAYMENT_STATUS.COMPLETED;
     }
     
     const today = new Date();
@@ -211,7 +99,7 @@ export const paymentService = {
     const cashing = new Date(cashingDate);
     cashing.setHours(0, 0, 0, 0);
     
-    return cashing <= today ? 'completed' : 'pending';
+    return cashing <= today ? PAYMENT_STATUS.COMPLETED : PAYMENT_STATUS.PENDING;
   },
 
   async create(input: CreatePaymentInput): Promise<PaymentDTO> {
@@ -225,13 +113,7 @@ export const paymentService = {
         paymentDate: input.paymentDate || new Date(),
         status: autoStatus, // Utiliser le statut automatique
       };
-
       const result = await prisma.payment.create({ data });
-
-      // Si le paiement est completed, vérifier si on peut valider les memberships
-      if (result.status === 'completed') {
-        await this.validateMembershipsIfFullyPaid(result.familyId, result.seasonId);
-      }
 
       return toPaymentDTO(result);
     } catch (error: unknown) {
@@ -274,14 +156,6 @@ export const paymentService = {
         data,
       });
 
-      // Si le statut passe à completed, vérifier si on peut valider les memberships
-      if (
-        result.status === 'completed' &&
-        existing.status !== 'completed'
-      ) {
-        await this.validateMembershipsIfFullyPaid(result.familyId, result.seasonId);
-      }
-
       return toPaymentDTO(result);
     } catch (error: unknown) {
       if (error instanceof DomainError) {
@@ -309,10 +183,6 @@ export const paymentService = {
         where: { id },
       });
 
-      // Après suppression, revérifier le statut des memberships
-      if (payment.status === 'completed') {
-        await this.validateMembershipsIfFullyPaid(payment.familyId, payment.seasonId);
-      }
     } catch (error: unknown) {
       if (error instanceof DomainError) {
         throw error;

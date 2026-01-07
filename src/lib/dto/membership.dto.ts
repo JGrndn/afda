@@ -17,7 +17,7 @@ export type MembershipWithMemberDTO = MembershipDTO & {
   memberName: string;
 };
 
-export type MembershipWithSeasonDTO =MembershipDTO & {
+export type MembershipWithSeasonDTO = MembershipDTO & {
   season : SeasonDTO
 }
 

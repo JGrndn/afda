@@ -1,6 +1,7 @@
 export { familyService } from './family.service'
 export { memberService } from './member.service'
 export { membershipService } from './membership.service'
+export { paymentService } from './payment.service'
 export { registrationService } from './registration.service'
 export { seasonService } from './season.service'
 export { workshopService } from './workshop.service'
