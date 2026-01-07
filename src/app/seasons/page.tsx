@@ -91,8 +91,8 @@ export default function SeasonsPage() {
       />
       <SeasonSlideOver 
         isOpen={isSlideOverOpen}
-        onClose={() => setIsSlideOverOpen(false)} 
-        onSuccess={handleCreateSucess}        
+        onClose={() => setIsSlideOverOpen(false)}
+        onSuccess={handleCreateSucess}
       />
     </div>
   );

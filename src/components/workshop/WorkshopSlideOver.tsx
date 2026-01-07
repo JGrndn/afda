@@ -1,25 +1,25 @@
 'use client';
 
 import { SlideOver } from '@/components/ui/SlideOver';
-import { SeasonForm } from '@/components/season/SeasonForm';
-import { useSeasonActions } from '@/hooks/season.hook';
+import { WorkshopForm } from '@/components/workshop/WorkshopForm';
+import { useWorkshopActions } from '@/hooks/workshop.hook';
 import { ErrorMessage } from '@/components/ui';
-import type { CreateSeasonInput } from '@/lib/schemas/season.input';
+import type { CreateWorkshopInput } from '@/lib/schemas/workshop.input';
 
-interface SeasonSlideOverProps {
+interface WorkshopSlideOverProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
 }
 
-export function SeasonSlideOver({
+export function WorkshopSlideOver({
   isOpen,
   onClose,
   onSuccess,
-}: SeasonSlideOverProps) {
-  const { create, isLoading, error } = useSeasonActions();
+}: WorkshopSlideOverProps) {
+  const { create, isLoading, error } = useWorkshopActions();
 
-  const handleSubmit = async (data: CreateSeasonInput) => {
+  const handleSubmit = async (data: CreateWorkshopInput) => {
     const result = await create({...data});
     
     if (result) {
@@ -32,7 +32,7 @@ export function SeasonSlideOver({
     <SlideOver
       isOpen={isOpen}
       onClose={onClose}
-      title="Nouvelle saison"
+      title="Nouvel atelier"
       size="md"
     >
       {error && (
@@ -40,7 +40,7 @@ export function SeasonSlideOver({
           <ErrorMessage error={error} />
         </div>
       )}
-      <SeasonForm
+      <WorkshopForm
         onSubmit={handleSubmit}
         onCancel={onClose}
         isLoading={isLoading}

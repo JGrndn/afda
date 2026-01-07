@@ -7,6 +7,7 @@ import { DataTable, Button, ErrorMessage, Column, StatusBadge, FormField } from 
 import { WorkshopDTO } from '@/lib/dto/workshop.dto';
 import { WORKSHOP_STATUS, WorkshopStatus } from '@/lib/domain/workshop.enum';
 import { ListPlus, Trash2 } from 'lucide-react';
+import { WorkshopSlideOver } from '@/components/workshop/WorkshopSlideOver';
 
 export default function WorkshopsPage() {
   const router = useRouter();
@@ -20,6 +21,11 @@ export default function WorkshopsPage() {
   
   const { remove, error } = useWorkshopActions();
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [isSlideOverOpen, setIsSlideOverOpen] = useState(false);
+
+  const handleCreateSucess = async() => {
+    await mutate();
+  }
 
   const handleDelete = async (workshopId: number) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer cet atelier ? Tous les prix associés seront également supprimés.')) {
@@ -88,7 +94,7 @@ export default function WorkshopsPage() {
     <div className="container mx-auto p-6">
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-3xl font-bold">Ateliers</h1>
-        <Button onClick={() => router.push('/workshops/new')} Icon={ListPlus}/>
+        <Button onClick={() => setIsSlideOverOpen(true)} Icon={ListPlus}/>
       </div>
 
       {/* Filtres */}
@@ -128,6 +134,11 @@ export default function WorkshopsPage() {
         onRowClick={(workshop) => router.push(`/workshops/${workshop.id}`)}
         isLoading={isLoading}
         emptyMessage="Aucun atelier"
+      />
+      <WorkshopSlideOver 
+        isOpen={isSlideOverOpen}
+        onClose={() => setIsSlideOverOpen(false)}
+        onSuccess={handleCreateSucess}
       />
     </div>
   );
