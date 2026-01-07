@@ -6,15 +6,17 @@ import { useSeasons, useSeasonActions } from '@/hooks/season.hook';
 import { DataTable, Button, StatusBadge, ErrorMessage, Column } from '@/components/ui';
 import { SeasonDTO } from '@/lib/dto/season.dto';
 import { SEASON_STATUS } from '@/lib/domain/season.enum';
-import { UpdateSeasonInput } from '@/lib/schemas/season.input';
 import { CalendarPlus } from 'lucide-react';
+import { SeasonSlideOver } from '@/components/season/SeasonSlideOver';
 
 export default function SeasonsPage() {
   const router = useRouter();
   const { data:seasons, isLoading, mutate } = useSeasons();
   const { update, isLoading: isUpdating } = useSeasonActions();
+  
   const [activatingId, setActivatingId] = useState<number | null>(null);
   const [error, setError] = useState<Error | null>(null);
+    const [isSlideOverOpen, setIsSlideOverOpen] = useState(false);
 
   const handleActivate = async (seasonId: number) => {
     setActivatingId(seasonId);
@@ -30,16 +32,9 @@ export default function SeasonsPage() {
     }
   };
 
-  const handleRowSave = async(seasonId:number, input:UpdateSeasonInput) => {
-    setError(null);
-    try{
-      await update(seasonId, input);
-      await mutate();
-    } catch(error:any){
-      setError(error);
-      throw error;
-    }
-  };
+  const handleCreateSucess = async() => {
+    await mutate();
+  }
 
   const columns : Column<SeasonDTO>[]= [
     {
@@ -84,7 +79,7 @@ export default function SeasonsPage() {
     <div className="container mx-auto p-6">
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-3xl font-bold">Saisons</h1>
-        <Button onClick={() => router.push('/seasons/new')} Icon={CalendarPlus}/>
+        <Button onClick={() => setIsSlideOverOpen(true)} Icon={CalendarPlus}/>
       </div>
       {error && <ErrorMessage error={error}/>}
       <DataTable<SeasonDTO>
@@ -93,6 +88,11 @@ export default function SeasonsPage() {
         onRowClick={(season) => router.push(`/seasons/${season.id}`)}
         isLoading={isLoading}
         emptyMessage="Aucune donnée"
+      />
+      <SeasonSlideOver 
+        isOpen={isSlideOverOpen}
+        onClose={() => setIsSlideOverOpen(false)} 
+        onSuccess={handleCreateSucess}        
       />
     </div>
   );
