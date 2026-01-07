@@ -6,6 +6,7 @@ import { useMembers, useMemberActions } from '@/hooks/member.hook';
 import { DataTable, Button, ErrorMessage, Column, FormField } from '@/components/ui';
 import { MemberWithFamilyNameDTO } from '@/lib/dto/member.dto';
 import { Trash2, UserRoundPlus } from 'lucide-react';
+import { MemberSlideOver } from '@/components/member/MemberSlideOver';
 
 export default function MembersPage() {
   const router = useRouter();
@@ -17,6 +18,11 @@ export default function MembersPage() {
   
   const { remove, error } = useMemberActions();
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [isSlideOverOpen, setIsSlideOverOpen] = useState(false);
+
+  const handleCreateSucess = async () =>{
+    await mutate();
+  }
 
   const handleDelete = async (memberId: number) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')) {
@@ -93,7 +99,7 @@ export default function MembersPage() {
     <div className="container mx-auto p-6">
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-3xl font-bold">Membres</h1>
-        <Button onClick={() => router.push('/members/new')} Icon={UserRoundPlus}/>
+        <Button onClick={() => setIsSlideOverOpen(true)} Icon={UserRoundPlus}/>
       </div>
 
       {/* Filtres */}
@@ -119,6 +125,11 @@ export default function MembersPage() {
         onRowClick={(member) => router.push(`/members/${member.id}`)}
         isLoading={isLoading}
         emptyMessage="Aucun membre"
+      />
+      <MemberSlideOver 
+        isOpen={isSlideOverOpen}
+        onClose={() => setIsSlideOverOpen(false)}
+        onSuccess={handleCreateSucess}
       />
     </div>
   );
