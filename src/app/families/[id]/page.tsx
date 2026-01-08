@@ -18,6 +18,7 @@ import { PaymentSlideOver } from '@/components/payment/PaymentSlideOver';
 import { CashPaymentModal } from '@/components/payment/CashPaymentModal';
 import { PAYMENT_STATUS, PAYMENT_TYPE } from '@/lib/domain/payment.enum';
 import { computeFinancialStats, FamilyFinancialStats } from '@/lib/domain/finance';
+import { MemberSlideOver } from '@/components/member/MemberSlideOver';
 
 export default function FamilyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -31,6 +32,7 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
   
   const [isEditing, setIsEditing] = useState(false);
   const [isPaymentSlideOverOpen, setIsPaymentSlideOverOpen] = useState(false);
+  const [isMemberSlideOverOpen, setIsMemberSlideOverOpen] = useState(false);
   const [isCashModalOpen, setIsCashModalOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<PaymentDTO | null>(null);
   
@@ -64,6 +66,10 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
       router.push('/families');
     }
   };
+
+  const handleAddMemberSuccess = ()=>{
+    mutate();
+  }
 
   const handleCash = (payment: PaymentDTO) => {
     setSelectedPayment(payment);
@@ -251,7 +257,7 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
           <Card 
             title="Membres de la famille"
             actions={
-              <Button size="sm" onClick={() => router.push(`/members/new?familyId=${familyId}`)}>
+              <Button size="sm" onClick={() => setIsMemberSlideOverOpen(true)}>
                 Ajouter un membre
               </Button>
               // ajouter le composant plutôt que la redirection vers la page
@@ -263,6 +269,14 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
               onRowClick={(member) => router.push(`/members/${member.id}`)}
               emptyMessage="Aucun membre dans cette famille"
             />
+            {isMemberSlideOverOpen && 
+              <MemberSlideOver
+                isOpen={isMemberSlideOverOpen}
+                onClose={()=> setIsMemberSlideOverOpen(false)}
+                onSuccess={handleAddMemberSuccess}
+                familyId={family.id}
+              />
+            }
           </Card>
               
           {/* Paiements */}

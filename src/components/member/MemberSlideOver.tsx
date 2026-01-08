@@ -10,12 +10,14 @@ interface MemberSlideOverProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  familyId?: number;
 }
 
 export function MemberSlideOver({
   isOpen,
   onClose,
   onSuccess,
+  familyId,
 }: MemberSlideOverProps) {
   const { create, isLoading, error } = useMemberActions();
 
@@ -44,6 +46,7 @@ export function MemberSlideOver({
         onSubmit={handleSubmit}
         onCancel={onClose}
         isLoading={isLoading}
+        initialData={{familyId:familyId}}
       />
     </SlideOver>
   );

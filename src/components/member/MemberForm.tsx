@@ -16,7 +16,7 @@ export function MemberForm({ initialData, onSubmit, onCancel, isLoading }: Membe
   const { data: families } = useFamilies();
   
   const [formData, setFormData] = useState<CreateMemberInput>({
-    familyId: null,
+    familyId: initialData?.familyId? initialData.familyId : null,
     lastName: '',
     firstName: '',
     isMinor: false,
@@ -99,6 +99,7 @@ export function MemberForm({ initialData, onSubmit, onCancel, isLoading }: Membe
               value={formData.familyId || ''}
               onChange={(v) => updateField('familyId', v ? parseInt(v) : null)}
               options={familyOptions}
+              disabled= {initialData?.familyId ? true : false}
             />
 
             <FormField
