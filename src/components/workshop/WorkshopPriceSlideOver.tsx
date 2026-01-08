@@ -36,7 +36,7 @@ export function WorkshopPriceSlideOver({
     <SlideOver
       isOpen={isOpen}
       onClose={onClose}
-      title="Nouvel prix"
+      title="Nouveau prix"
       size="md"
     >
       {error && (
