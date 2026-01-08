@@ -16,7 +16,7 @@ export async function createMember(input: CreateMemberInput): Promise<MemberDTO>
 }
 
 export async function updateMember(id: number, input: UpdateMemberInput): Promise<MemberDTO> {
-  const data = UpdateMemberSchema.parse(input);
+  const data = UpdateMemberSchema.parse(input); 
   const result = await memberService.update(id, data);
   return result;
 }

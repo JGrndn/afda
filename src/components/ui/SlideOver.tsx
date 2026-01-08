@@ -26,8 +26,12 @@ export function SlideOver({
   useEffect(() => {
     if (isOpen) {
       setShouldRender(true);
+      const originalOverflow = window.getComputedStyle(document.body).overflow;
       setTimeout(() => setIsVisible(true), 10);
       document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      }
     } else {
       setIsVisible(false);
       const timer = setTimeout(() => setShouldRender(false), 300);
