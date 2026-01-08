@@ -14,7 +14,7 @@ export const WORKSHOP_STATUS_TRANSLATIONS: Record<WorkshopStatus, string> = {
 };
 export const MEMBERSHIP_STATUS_TRANSLATIONS: Record<MembershipStatus, string> = {
   pending: "En cours",
-  paid: "Payé",
+  completed: "Validé",
   cancelled: "Annulé"
 };
 export const PAYMENT_STATUS_TRANSLATIONS: Record<PaymentStatus, string> = {

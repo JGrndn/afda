@@ -75,7 +75,6 @@ export function SeasonForm({ initialData, onSubmit, onCancel, isLoading }: Seaso
           type="number"
           value={formData.discountPercent}
           onChange={(v) => updateField('discountPercent', v)}
-          required
           helpText="Réduction à appliquer si plusieurs adhésions par famille"
         />
       </div>

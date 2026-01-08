@@ -6,12 +6,15 @@ import { useFamilies, useFamilyActions } from '@/hooks/family.hook';
 import { DataTable, Button, ErrorMessage, Column } from '@/components/ui';
 import { FamilyDTO } from '@/lib/dto/family.dto';
 import { Trash2, UserRoundPlus } from 'lucide-react';
+import { FamilySlideOver } from '@/components/family/FamilySlideOver';
 
 export default function FamiliesPage() {
   const router = useRouter();
   const { data: families, isLoading, mutate } = useFamilies();
   const { remove, isLoading: isDeleting, error } = useFamilyActions();
+
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [isSlideOverOpen, setIsSlideOverOpen] = useState(false);
 
   const handleDelete = async (familyId: number) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer cette famille ? Tous les membres associés seront également supprimés.')) {
@@ -28,6 +31,11 @@ export default function FamiliesPage() {
       setDeletingId(null);
     }
   };
+
+  const handleCreateSucess = () => {
+    mutate();
+  };
+
 
   const columns: Column<FamilyDTO>[] = [
     {
@@ -70,7 +78,7 @@ export default function FamiliesPage() {
     <div className="container mx-auto p-6">
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-3xl font-bold">Familles</h1>
-        <Button onClick={() => router.push('/families/new')} Icon={UserRoundPlus}/>
+        <Button onClick={() => setIsSlideOverOpen(true)} Icon={UserRoundPlus}/>
       </div>
 
       {error && <ErrorMessage error={error} />}
@@ -81,6 +89,11 @@ export default function FamiliesPage() {
         onRowClick={(family) => router.push(`/families/${family.id}`)}
         isLoading={isLoading}
         emptyMessage="Aucune famille"
+      />
+      <FamilySlideOver 
+        isOpen={isSlideOverOpen}
+        onClose={() => setIsSlideOverOpen(false)} 
+        onSuccess={handleCreateSucess}        
       />
     </div>
   );

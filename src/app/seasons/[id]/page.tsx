@@ -10,7 +10,7 @@ import { Button, Card, Column, DataTable, ErrorMessage, StatusBadge } from "@/co
 import { UpdateSeasonInput } from "@/lib/schemas/season.input";
 import { useWorkshopPriceActions } from "@/hooks/workshopPrice.hook";
 import { CreateWorkshopPriceInput } from "@/lib/schemas/workshop.input";
-import { WorkshopPriceForm } from "@/components/workshop/WorkshopPriceForm";
+import { WorkshopPriceSlideOver } from "@/components/workshop/WorkshopPriceSlideOver";
 import { WorkshopPriceWithWorkshopInfoDTO } from "@/lib/dto/workshopPrice.dto";
 import { MembershipDTO, MembershipWithMemberDTO } from "@/lib/dto/membership.dto";
 
@@ -40,9 +40,7 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
     }
   };
 
-  const handleAddPrice = async (data: CreateWorkshopPriceInput) => {
-    await createPrice(data);
-    setIsAddingPrice(false);
+  const handleAddPriceSuccess = () => {
     mutate();
   };
 
@@ -196,25 +194,24 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
             actions={
               !isAddingPrice && (
                 <Button size="sm" onClick={() => setIsAddingPrice(true)}>
-                  Ajouter un tarif
+                  Ajouter un atelier
                 </Button>
               )
             }
           >
-            {isAddingPrice ? (
-              <WorkshopPriceForm
-                initialData={{ seasonId }}
-                seasonId={seasonId}
-                onSubmit={handleAddPrice}
-                onCancel={() => setIsAddingPrice(false)}
+            <DataTable<WorkshopPriceWithWorkshopInfoDTO>
+              data={season.prices}
+              columns={priceColumns}
+              emptyMessage="Aucun tarif défini"
+            />
+            {isAddingPrice && 
+              <WorkshopPriceSlideOver 
+                isOpen={isAddingPrice}
+                onClose={() => setIsAddingPrice(false)}
+                onSuccess={handleAddPriceSuccess}
+                seasonId={season.id}
               />
-            ) : (
-              <DataTable<WorkshopPriceWithWorkshopInfoDTO>
-                data={season.prices}
-                columns={priceColumns}
-                emptyMessage="Aucun tarif défini"
-              />
-            )}
+            }
           </Card>
 
           <Card

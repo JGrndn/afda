@@ -11,6 +11,7 @@ import { useWorkshopPriceActions } from '@/hooks/workshopPrice.hook';
 import { Button, Card, ErrorMessage, DataTable, Column, StatusBadge } from '@/components/ui';
 import { UpdateWorkshopInput, CreateWorkshopPriceInput } from '@/lib/schemas/workshop.input';
 import { WorkshopPriceWithSeasonInfoDTO } from '@/lib/dto/workshopPrice.dto';
+import { WorkshopPriceSlideOver } from '@/components/workshop/WorkshopPriceSlideOver';
 
 export default function WorkshopDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -40,9 +41,7 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
     }
   };
 
-  const handleAddPrice = async (data: CreateWorkshopPriceInput) => {
-    await createPrice(data);
-    setIsAddingPrice(false);
+  const handleAddPriceSuccess =  () => {
     mutate();
   };
 
@@ -184,26 +183,25 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
             actions={
               !isAddingPrice && (
                 <Button size="sm" onClick={() => setIsAddingPrice(true)}>
-                  Ajouter un tarif
+                  Ajouter pour une saison
                 </Button>
               )
             }
           >
-            {isAddingPrice ? (
-              <WorkshopPriceForm
-                initialData={{ workshopId }}
-                workshopId={workshopId}
-                onSubmit={handleAddPrice}
-                onCancel={() => setIsAddingPrice(false)}
-              />
-            ) : (
-              <DataTable<WorkshopPriceWithSeasonInfoDTO>
+            <DataTable<WorkshopPriceWithSeasonInfoDTO>
                 data={workshop.prices}
                 columns={priceColumns}
                 
                 emptyMessage="Aucun tarif défini"
               />
-            )}
+            {isAddingPrice &&
+              <WorkshopPriceSlideOver
+                isOpen={isAddingPrice}
+                onClose={() => setIsAddingPrice(false)}
+                onSuccess={handleAddPriceSuccess}
+                worshopId={workshopId}
+              />
+            }
           </Card>
         </div>
       )}
