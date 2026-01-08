@@ -5,16 +5,15 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Plus } from 'lucide-react';
 import { MemberForm } from '@/components/member/MemberForm';
-import { RegistrationForm } from '@/components/member/RegistrationForm';
 import { useMember, useMemberActions } from '@/hooks/member.hook';
 import { useRegistrationActions } from '@/hooks/registration.hook';
 import { useSeasons } from '@/hooks/season.hook';
 import { Button, Card, ErrorMessage, DataTable, Column, StatusBadge } from '@/components/ui';
 import { UpdateMemberInput } from '@/lib/schemas/member.input';
 import { RegistrationWithWorkshopDetailsDTO } from '@/lib/dto/registration.dto';
-import { MembershipDTO, MembershipWithSeasonDTO } from '@/lib/dto/membership.dto';
-import { CreateRegistrationInput } from '@/lib/schemas/registration.input';
+import { MembershipWithSeasonDTO } from '@/lib/dto/membership.dto';
 import { SEASON_STATUS } from '@/lib/domain/season.enum';
+import { RegistrationSlideOver } from '@/components/member/RegistrationSlideOver';
 
 export default function MemberDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -47,9 +46,7 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
     }
   };
 
-  const handleAddRegistration = async (data: CreateRegistrationInput) => {
-    // La création de la registration est gérée par le formulaire
-    setIsAddingRegistration(false);
+  const handleAddRegistrationSuccess = async () => {
     mutate();
   };
 
@@ -307,19 +304,21 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
                     Créez d'abord une adhésion pour pouvoir créer des inscriptions aux ateliers.
                   </p>
                 </div>
-              ) : isAddingRegistration ? (
-                <RegistrationForm
-                  memberId={memberId}
-                  seasonId={activeSeason.id}
-                  defaultDiscount={activeMembership && activeMembership.familyOrder !== 1 ? activeSeason.discountPercent : 0}
-                  onSubmit={handleAddRegistration}
-                  onCancel={() => setIsAddingRegistration(false)}
-                />
               ) : (
                 <DataTable<RegistrationWithWorkshopDetailsDTO>
                   data={member.registrations}
                   columns={registrationColumns}
                   emptyMessage="Aucune inscription"
+                />
+              )}
+              {isAddingRegistration && (
+                <RegistrationSlideOver
+                  memberId={memberId}
+                  seasonId={activeSeason.id}
+                  defaultDiscount={activeMembership && activeMembership.familyOrder !== 1 ? activeSeason.discountPercent : 0}
+                  onSuccess={handleAddRegistrationSuccess}
+                  onClose={() => setIsAddingRegistration(false)}
+                  isOpen={isAddingRegistration}
                 />
               )}
             </Card>
