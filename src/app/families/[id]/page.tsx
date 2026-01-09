@@ -166,7 +166,7 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
       type: 'field',
       key: 'status',
       label: 'Statut',
-      render: (payment) => <StatusBadge type="payment" status={payment.status} />,
+      render: (payment) => <StatusBadge type="payment" status={payment.status}/>,
     },
     {
       type: 'field',
