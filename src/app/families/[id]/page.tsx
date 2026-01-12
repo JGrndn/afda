@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft, Pencil, Plus, Trash2} from 'lucide-react';
 import { FamilyForm } from '@/components/family/FamilyForm';
 import { useFamily, useFamilyActions } from '@/hooks/family.hook';
-import { Button, Card, ErrorMessage, DataTable, Column, StatusBadge } from '@/components/ui';
+import { Button, Card, ErrorMessage, DataTable, Column, StatusBadge, ConfirmModal } from '@/components/ui';
 import { UpdateFamilyInput } from '@/lib/schemas/family.input';
 import { MemberWithMembershipsAndRegistrationsDTO } from '@/lib/dto/member.dto';
 import { PaymentDTO } from '@/lib/dto/payment.dto';
@@ -30,15 +30,16 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
   const { data:seasons, isLoading: seasonsLoading } = useSeasons();
   const { update, remove, isLoading: mutationLoading, error } = useFamilyActions();
   const { remove: removePayment } = usePaymentActions();
-  
+
   const [isEditing, setIsEditing] = useState(false);
   const [isPaymentSlideOverOpen, setIsPaymentSlideOverOpen] = useState(false);
   const [isMemberSlideOverOpen, setIsMemberSlideOverOpen] = useState(false);
   const [isCashModalOpen, setIsCashModalOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<PaymentDTO | null>(null);
-  
+  const [isConfirmModalDeleteFamilyOpen, setIsConfirmModalDeleteFamilyOpen] = useState(false);
+  const [isConfirmModalDeletePaymentOpen, setIsConfirmModalDeletePaymentOpen] = useState(false);
+
   const [isEditingPayment, setIsEditingPayment] = useState(false);
-  const [deletingPaymentId, setDeletingPaymentId] = useState<number>();
   
   // Récupérer la saison active et les paiements de cette saison
   const activeSeason = seasons.find(s=> s.status === SEASON_STATUS.ACTIVE);
@@ -65,11 +66,13 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
     mutate();
   }
 
+  const handleDeleteRequest = async() => {
+    setIsConfirmModalDeleteFamilyOpen(true);
+  }
+  
   const handleDelete = async () => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette famille ? Tous les membres et paiements associés seront également supprimés.')) {
-      await remove(familyId);
-      router.push('/families');
-    }
+    await remove(familyId);
+    router.push('/families');
   };
 
   const handleAddMemberSuccess = ()=>{
@@ -81,18 +84,21 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
     setIsCashModalOpen(true);
   };
 
-  const handleDeletePaymentClick = async (payment: PaymentDTO) => {
-    setDeletingPaymentId(payment.id);
+  const handleDeletePayment = async () => {
+    if (!selectedPayment) return;
     try{
-      await removePayment(payment.id);
-      // mettre à jour les statuts des memberships de tous les membres de la famille
-      // (si 'completed' -> alors 'pending') (le faire aussi dans l'autre sens quand on ajoute ou update un paiement)
+      await removePayment(selectedPayment.id);
       mutate();
     } catch(error){
       console.log(error);
     } finally{
-      setDeletingPaymentId(0);
+      setSelectedPayment(null);
     }
+  }
+
+  const handleDeletePaymentClick = async (payment: PaymentDTO) => {
+    setIsConfirmModalDeletePaymentOpen(true);
+    setSelectedPayment(payment);
   }
 
   const handlePaymentSucess = () => {
@@ -195,10 +201,10 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
             onClick={() => {
               return handleDeletePaymentClick(payment);
             }}
-            disabled={deletingPaymentId === payment.id}
+            disabled={selectedPayment?.id === payment.id}
             Icon={Trash2}
           >
-            {deletingPaymentId === payment.id ? 'Suppression...' : ''}
+            {selectedPayment?.id === payment.id ? 'Suppression...' : ''}
           </Button>}
         </div>
       ),
@@ -224,7 +230,7 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
                 <ReconcileFamilySeasonButton familyId={family.id} seasonId={activeSeason.id} onSuccess={handleRefreshSuccess} />
               }
               <Button onClick={() => setIsEditing(true)} Icon={Pencil} />
-              <Button variant="danger" onClick={handleDelete} Icon={Trash2} />
+              <Button variant="danger" onClick={handleDeleteRequest} Icon={Trash2} />
             </>
           )}
         </div>
@@ -330,6 +336,25 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
           )}
         </div>
       )}
+      <ConfirmModal
+        isOpen={isConfirmModalDeletePaymentOpen}
+        title={'Supprimer le paiement'}
+        content={'Etes-vous sûr de vouloir supprimer ce paiement ?'}
+        onClose={() => {
+          setIsConfirmModalDeletePaymentOpen(false);
+          setSelectedPayment(null);
+        }}
+        onConfirm={handleDeletePayment}
+      />
+      <ConfirmModal
+        isOpen={isConfirmModalDeleteFamilyOpen}
+        title={'Supprimer la famille'}
+        content={'Etes-vous sûr de vouloir supprimer cette famille ?'}
+        onClose={() => {
+          setIsConfirmModalDeleteFamilyOpen(false);
+        }}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

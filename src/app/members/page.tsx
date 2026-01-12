@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMembers, useMemberActions } from '@/hooks/member.hook';
-import { DataTable, Button, ErrorMessage, Column, FormField } from '@/components/ui';
+import { DataTable, Button, ErrorMessage, Column, FormField, ConfirmModal } from '@/components/ui';
 import { MemberWithFamilyNameDTO } from '@/lib/dto/member.dto';
 import { Trash2, UserRoundPlus } from 'lucide-react';
 import { MemberSlideOver } from '@/components/member/MemberSlideOver';
@@ -19,19 +19,21 @@ export default function MembersPage() {
   const { remove, error } = useMemberActions();
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [isSlideOverOpen, setIsSlideOverOpen] = useState(false);
+  const [isConfirmModalDeleteOpen, setIsConfirmModalDeleteOpen] = useState(false);
+
+  const handleDeleteRequest = async (memberId: number) => {
+    setIsConfirmModalDeleteOpen(true);
+    setDeletingId(memberId);
+  }
 
   const handleCreateSucess = async () =>{
     await mutate();
   }
 
-  const handleDelete = async (memberId: number) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')) {
-      return;
-    }
-    
-    setDeletingId(memberId);
+  const handleDelete = async () => {
+    if (!deletingId) return;
     try {
-      await remove(memberId);
+      await remove(deletingId);
       await mutate();
     } catch (error) {
       console.error('Failed to delete member:', error);
@@ -82,7 +84,7 @@ export default function MembersPage() {
           <Button
             size="icon"
             variant="danger"
-            onClick={() => handleDelete(member.id)}
+            onClick={() => handleDeleteRequest(member.id)}
             disabled={deletingId === member.id}
             Icon={Trash2}
           >
@@ -130,6 +132,16 @@ export default function MembersPage() {
         isOpen={isSlideOverOpen}
         onClose={() => setIsSlideOverOpen(false)}
         onSuccess={handleCreateSucess}
+      />
+      <ConfirmModal
+        isOpen={isConfirmModalDeleteOpen}
+        title={"Supprimer le membre"}
+        content={'Etes-vous sûr de vouloir supprimer ce membre ?'}
+        onClose={() => {
+          setIsConfirmModalDeleteOpen(false);
+          setDeletingId(null);
+        }}
+        onConfirm={handleDelete}
       />
     </div>
   );

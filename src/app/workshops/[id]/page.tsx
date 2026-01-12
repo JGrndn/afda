@@ -5,11 +5,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Pencil, Trash2 } from 'lucide-react';
 import { WorkshopForm } from '@/components/workshop/WorkshopForm';
-import { WorkshopPriceForm } from '@/components/workshop/WorkshopPriceForm';
 import { useWorkshop, useWorkshopActions } from '@/hooks/workshop.hook';
 import { useWorkshopPriceActions } from '@/hooks/workshopPrice.hook';
-import { Button, Card, ErrorMessage, DataTable, Column, StatusBadge } from '@/components/ui';
-import { UpdateWorkshopInput, CreateWorkshopPriceInput } from '@/lib/schemas/workshop.input';
+import { Button, Card, ErrorMessage, DataTable, Column, StatusBadge, ConfirmModal } from '@/components/ui';
+import { UpdateWorkshopInput } from '@/lib/schemas/workshop.input';
 import { WorkshopPriceWithSeasonInfoDTO } from '@/lib/dto/workshopPrice.dto';
 import { WorkshopPriceSlideOver } from '@/components/workshop/WorkshopPriceSlideOver';
 
@@ -24,7 +23,9 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
 
   const [isEditing, setIsEditing] = useState(false);
   const [isAddingPrice, setIsAddingPrice] = useState(false);
-  const [deletingPriceId, setDeletingPriceId] = useState<number | null>(null);
+  const [selectedPrice, setSelectedPrice] = useState<WorkshopPriceWithSeasonInfoDTO | null>(null);
+  const [isConfirmModalDeleteWorkshopOpen, setIsConfirmModalDeleteWorkshopOpen] = useState(false);
+  const [isConfirmModalDeleteWorkshopPriceOpen, setIsConfirmModalDeleteWorkshopPriceOpen] = useState(false);
 
   const handleUpdate = async (data: UpdateWorkshopInput) => {
     await update(workshopId, data);
@@ -32,32 +33,33 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
     mutate();
   };
 
+  const handleDeleteRequest = async () => {
+    setIsConfirmModalDeleteWorkshopOpen(true);
+  };
+
   const handleDelete = async () => {
-    if (
-      confirm('Êtes-vous sûr de vouloir supprimer cet atelier ? Tous les prix associés seront également supprimés.')
-    ) {
-      await remove(workshopId);
-      router.push('/workshops');
-    }
+    await remove(workshopId);
+    router.push('/workshops');
   };
 
   const handleAddPriceSuccess =  () => {
     mutate();
   };
 
-  const handleDeletePrice = async (priceId: number) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce prix ?')) {
-      return;
-    }
+  const handleDeletePriceRequest = async(price: WorkshopPriceWithSeasonInfoDTO) => {
+    setSelectedPrice(price);
+    setIsConfirmModalDeleteWorkshopPriceOpen(true);
+  }
 
-    setDeletingPriceId(priceId);
+  const handleDeletePrice = async () => {
+    if (!selectedPrice) return;
     try {
-      await removePrice(priceId);
+      await removePrice(selectedPrice.id);
       mutate();
     } catch (error) {
       console.error('Failed to delete price:', error);
     } finally {
-      setDeletingPriceId(null);
+      setSelectedPrice(null);
     }
   };
 
@@ -99,11 +101,11 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
           <Button
             size="sm"
             variant="danger"
-            onClick={() => handleDeletePrice(price.id)}
-            disabled={deletingPriceId === price.id}
+            onClick={() => handleDeletePriceRequest(price)}
+            disabled={selectedPrice?.id === price.id}
             Icon={Trash2}
           >
-            {deletingPriceId === price.id ? 'Suppression...' : ''}
+            {selectedPrice?.id === price.id ? 'Suppression...' : ''}
           </Button>
         </div>
       ),
@@ -136,7 +138,7 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
           {!isEditing && (
             <>
               <Button onClick={() => setIsEditing(true)} Icon={Pencil} />
-              <Button variant="danger" onClick={handleDelete} Icon={Trash2}/>
+              <Button variant="danger" onClick={handleDeleteRequest} Icon={Trash2}/>
             </>
           )}
         </div>
@@ -205,6 +207,25 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
           </Card>
         </div>
       )}
+      <ConfirmModal
+        isOpen={isConfirmModalDeleteWorkshopPriceOpen}
+        title={"Supprimer pour la saison"}
+        content={'Etes-vous sûr de vouloir supprimer cet atelier pour cette saison ?'}
+        onClose={() => {
+          setIsConfirmModalDeleteWorkshopPriceOpen(false);
+          setSelectedPrice(null);
+        }}
+        onConfirm={handleDeletePrice}
+      />
+      <ConfirmModal
+        isOpen={isConfirmModalDeleteWorkshopOpen}
+        title={"Supprimer l'atelier"}
+        content={'Etes-vous sûr de vouloir supprimer cet atelier ?'}
+        onClose={() => {
+          setIsConfirmModalDeleteWorkshopOpen(false);
+        }}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

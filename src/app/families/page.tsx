@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFamilies, useFamilyActions } from '@/hooks/family.hook';
-import { DataTable, Button, ErrorMessage, Column } from '@/components/ui';
+import { DataTable, Button, ErrorMessage, Column, ConfirmModal } from '@/components/ui';
 import { FamilyDTO } from '@/lib/dto/family.dto';
 import { Trash2, UserRoundPlus } from 'lucide-react';
 import { FamilySlideOver } from '@/components/family/FamilySlideOver';
@@ -15,15 +15,17 @@ export default function FamiliesPage() {
 
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [isSlideOverOpen, setIsSlideOverOpen] = useState(false);
+  const [isConfirmModalDeleteOpen, setIsConfirmModalDeleteOpen] = useState(false);
 
-  const handleDelete = async (familyId: number) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cette famille ? Tous les membres associés seront également supprimés.')) {
-      return;
-    }
-    
+  const handleDeleteRequest = async (familyId: number) => {
+    setIsConfirmModalDeleteOpen(true);
     setDeletingId(familyId);
+  }
+
+  const handleDelete = async () => {
+    if(!deletingId) return;
     try {
-      await remove(familyId);
+      await remove(deletingId);
       await mutate();
     } catch (error) {
       console.error('Failed to delete family:', error);
@@ -63,7 +65,7 @@ export default function FamiliesPage() {
           <Button
             size="icon"
             variant="danger"
-            onClick={() => handleDelete(family.id)}
+            onClick={() => handleDeleteRequest(family.id)}
             disabled={deletingId === family.id}
             Icon={Trash2}
           >
@@ -94,6 +96,16 @@ export default function FamiliesPage() {
         isOpen={isSlideOverOpen}
         onClose={() => setIsSlideOverOpen(false)} 
         onSuccess={handleCreateSucess}        
+      />
+      <ConfirmModal
+        isOpen={isConfirmModalDeleteOpen}
+        title={"Supprimer la famille"}
+        content={'Etes-vous sûr de vouloir supprimer cette famille ?'}
+        onClose={() => {
+          setIsConfirmModalDeleteOpen(false);
+          setDeletingId(null);
+        }}
+        onConfirm={handleDelete}
       />
     </div>
   );
