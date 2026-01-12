@@ -8,9 +8,9 @@ import { MemberForm } from '@/components/member/MemberForm';
 import { useMember, useMemberActions } from '@/hooks/member.hook';
 import { useRegistrationActions } from '@/hooks/registration.hook';
 import { useSeasons } from '@/hooks/season.hook';
-import { Button, Card, ErrorMessage, DataTable, Column, StatusBadge } from '@/components/ui';
+import { Button, Card, ErrorMessage, DataTable, Column, StatusBadge, ConfirmModal } from '@/components/ui';
 import { UpdateMemberInput } from '@/lib/schemas/member.input';
-import { RegistrationWithWorkshopDetailsDTO } from '@/lib/dto/registration.dto';
+import { RegistrationDTO, RegistrationWithWorkshopDetailsDTO } from '@/lib/dto/registration.dto';
 import { MembershipWithSeasonDTO } from '@/lib/dto/membership.dto';
 import { SEASON_STATUS } from '@/lib/domain/season.enum';
 import { RegistrationSlideOver } from '@/components/member/RegistrationSlideOver';
@@ -32,7 +32,9 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
 
   const [isEditing, setIsEditing] = useState(false);
   const [isAddingRegistration, setIsAddingRegistration] = useState(false);
-  const [deletingRegistrationId, setDeletingRegistrationId] = useState<number | null>(null);
+  const [selectedRegistration, setSelectedRegistration] = useState<RegistrationDTO | null>();
+  const [isConfirmModalDeleteMemberOpen, setIsConfirmModalDeleteMemberOpen] = useState(false);
+  const [isConfirmModalDeleteRegistrationOpen, setIsConfirmModalDeleteRegistrationOpen] = useState(false);
 
   const handleUpdate = async (data: UpdateMemberInput) => {
     await update(memberId, data);
@@ -40,11 +42,13 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
     mutate();
   };
 
+  const handleDeleteRequest = async () => {
+    setIsConfirmModalDeleteMemberOpen(true);
+  }
+
   const handleDelete = async () => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce membre ?')) {
-      await remove(memberId);
-      router.push('/members');
-    }
+    await remove(memberId);
+    router.push('/members');
   };
 
   const handleRefreshSuccess = () => {
@@ -55,19 +59,20 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
     mutate();
   };
 
-  const handleDeleteRegistration = async (registrationId: number) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cette inscription ?')) {
-      return;
-    }
+  const handleDeleteRegistrationRequest = async (registration: RegistrationDTO) => {
+    setIsConfirmModalDeleteRegistrationOpen(true);
+    setSelectedRegistration(registration);
+  }
 
-    setDeletingRegistrationId(registrationId);
+  const handleDeleteRegistration = async () => {
+    if (!selectedRegistration) return;
     try {
-      await removeRegistration(registrationId);
+      await removeRegistration(selectedRegistration.id);
       mutate();
     } catch (error) {
       console.error('Failed to delete registration:', error);
     } finally {
-      setDeletingRegistrationId(null);
+      setSelectedRegistration(null);
     }
   };
 
@@ -128,11 +133,11 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
           <Button
             size="sm"
             variant="danger"
-            onClick={() => handleDeleteRegistration(reg.id)}
-            disabled={deletingRegistrationId === reg.id}
+            onClick={() => handleDeleteRegistrationRequest(reg)}
+            disabled={selectedRegistration?.id === reg.id}
             Icon={Trash2}
           >
-            {deletingRegistrationId === reg.id ? 'Suppression...' : ''}
+            {selectedRegistration?.id === reg.id ? 'Suppression...' : ''}
           </Button>
         </div>
       ),
@@ -191,7 +196,7 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
                 <ReconcileFamilySeasonButton familyId={member.familyId} seasonId={activeSeason.id} onSuccess={handleRefreshSuccess} />
               }
               <Button onClick={() => setIsEditing(true)} Icon={Pencil}/>
-              <Button variant="danger" onClick={handleDelete} Icon={Trash2} />
+              <Button variant="danger" onClick={handleDeleteRequest} Icon={Trash2} />
             </>
           )}
         </div>
@@ -342,6 +347,24 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
           </Card>
         </div>
       )}
+      <ConfirmModal
+        isOpen={isConfirmModalDeleteRegistrationOpen}
+        title={"Supprimer l'inscription"}
+        content={'Etes-vous sûr de vouloir supprimer cette inscription ?'}
+        onClose={() => {
+          setIsConfirmModalDeleteRegistrationOpen(false);
+        }}
+        onConfirm={handleDeleteRegistration}
+      />
+      <ConfirmModal
+        isOpen={isConfirmModalDeleteMemberOpen}
+        title={'Supprimer le membre'}
+        content={'Etes-vous sûr de vouloir supprimer ce membre ?'}
+        onClose={() => {
+          setIsConfirmModalDeleteMemberOpen(false);
+        }}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }
