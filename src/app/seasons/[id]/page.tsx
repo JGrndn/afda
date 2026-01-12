@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { SeasonForm } from "@/components/season/SeasonForm";
 import { useSeason, useSeasonActions } from "@/hooks/season.hook";
-import { Button, Card, Column, DataTable, ErrorMessage, StatusBadge } from "@/components/ui";
+import { Button, Card, Column, ConfirmModal, DataTable, ErrorMessage, StatusBadge } from "@/components/ui";
 import { UpdateSeasonInput } from "@/lib/schemas/season.input";
 import { useWorkshopPriceActions } from "@/hooks/workshopPrice.hook";
 import { CreateWorkshopPriceInput } from "@/lib/schemas/workshop.input";
@@ -25,7 +25,9 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
 
   const [isEditing, setIsEditing] = useState(false);
   const [isAddingPrice, setIsAddingPrice] = useState(false);
-  const [deletingPriceId, setDeletingPriceId] = useState<number | null>(null);
+  const [selectedPrice, setSelectedPrice] = useState<WorkshopPriceWithWorkshopInfoDTO | null>(null);
+  const [isConfirmModalDeleteSeasonOpen, setIsConfirmModalDeleteSeasonOpen] = useState(false);
+  const [isConfirmModalDeleteWorkshopPriceOpen, setIsConfirmModalDeleteWorkshopPriceOpen] = useState(false);
 
   const handleUpdate = async (data: UpdateSeasonInput) => {
     await update(seasonId, data);
@@ -33,30 +35,33 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
     mutate();
   };
 
+  const handleDeleteRequest = async () => {
+    setIsConfirmModalDeleteSeasonOpen(true);
+  };
+
   const handleDelete = async () => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cet atelier ? Tous les prix associés seront également supprimés.')) {
-      await remove(seasonId);
-      router.push('/seasons');
-    }
+    await remove(seasonId);
+    router.push('/seasons');   
   };
 
   const handleAddPriceSuccess = () => {
     mutate();
   };
 
-  const handleDeletePrice = async (priceId: number) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce prix ?')) {
-      return;
-    }
+  const handleDeletePriceRequest = async(price: WorkshopPriceWithWorkshopInfoDTO) => {
+    setIsConfirmModalDeleteWorkshopPriceOpen(true);
+    setSelectedPrice(price);
+  }
 
-    setDeletingPriceId(priceId);
+  const handleDeletePrice = async () => {
+    if (!selectedPrice) return;
     try {
-      await removePrice(priceId);
+      await removePrice(selectedPrice.id);
       mutate();
     } catch (error) {
       console.error('Failed to delete price:', error);
     } finally {
-      setDeletingPriceId(null);
+      setSelectedPrice(null);
     }
   };
 
@@ -98,11 +103,11 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
           <Button
             size="sm"
             variant="danger"
-            onClick={() => handleDeletePrice(price.id)}
-            disabled={deletingPriceId === price.id}
+            onClick={() => handleDeletePriceRequest(price)}
+            disabled={selectedPrice?.id === price.id}
             Icon={Trash2}
           >
-            {deletingPriceId === price.id ? 'Suppression...' : ''}
+            {selectedPrice?.id === price.id ? 'Suppression...' : ''}
           </Button>
         </div>
       ),
@@ -149,7 +154,7 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
           {!isEditing && (
             <>
               <Button onClick={() => setIsEditing(true)} Icon={Pencil}/>
-              <Button variant="danger" onClick={handleDelete} Icon={Trash2} />
+              <Button variant="danger" onClick={handleDeleteRequest} Icon={Trash2} />
             </>
           )}
         </div>
@@ -226,6 +231,24 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
 
         </div>
       )}
+      <ConfirmModal
+        isOpen={isConfirmModalDeleteWorkshopPriceOpen}
+        title={"Supprimer l'atelier"}
+        content={'Etes-vous sûr de vouloir supprimer cet atelier pour cette saison ?'}
+        onClose={() => {
+          setIsConfirmModalDeleteWorkshopPriceOpen(false);
+        }}
+        onConfirm={handleDeletePrice}
+      />
+      <ConfirmModal
+        isOpen={isConfirmModalDeleteSeasonOpen}
+        title={'Supprimer la saison'}
+        content={'Etes-vous sûr de vouloir supprimer cette saison ?'}
+        onClose={() => {
+          setIsConfirmModalDeleteSeasonOpen(false);
+        }}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }
