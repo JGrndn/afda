@@ -16,7 +16,7 @@ export default function SeasonsPage() {
   
   const [activatingId, setActivatingId] = useState<number | null>(null);
   const [error, setError] = useState<Error | null>(null);
-    const [isSlideOverOpen, setIsSlideOverOpen] = useState(false);
+  const [isSlideOverOpen, setIsSlideOverOpen] = useState(false);
 
   const handleActivate = async (seasonId: number) => {
     setActivatingId(seasonId);

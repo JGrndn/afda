@@ -213,6 +213,7 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
         content={'Etes-vous sûr de vouloir supprimer cet atelier pour cette saison ?'}
         onClose={() => {
           setIsConfirmModalDeleteWorkshopPriceOpen(false);
+          setSelectedPrice(null);
         }}
         onConfirm={handleDeletePrice}
       />

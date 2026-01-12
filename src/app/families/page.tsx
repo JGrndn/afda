@@ -103,6 +103,7 @@ export default function FamiliesPage() {
         content={'Etes-vous sûr de vouloir supprimer cette famille ?'}
         onClose={() => {
           setIsConfirmModalDeleteOpen(false);
+          setDeletingId(null);
         }}
         onConfirm={handleDelete}
       />

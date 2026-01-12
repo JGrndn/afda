@@ -139,6 +139,7 @@ export default function MembersPage() {
         content={'Etes-vous sûr de vouloir supprimer ce membre ?'}
         onClose={() => {
           setIsConfirmModalDeleteOpen(false);
+          setDeletingId(null);
         }}
         onConfirm={handleDelete}
       />

@@ -353,6 +353,7 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
         content={'Etes-vous sûr de vouloir supprimer cette inscription ?'}
         onClose={() => {
           setIsConfirmModalDeleteRegistrationOpen(false);
+          setSelectedRegistration(null);
         }}
         onConfirm={handleDeleteRegistration}
       />

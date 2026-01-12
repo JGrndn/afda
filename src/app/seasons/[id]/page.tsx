@@ -236,6 +236,7 @@ export default function SeasonDetailPage({ params }: { params: Promise<{ id: str
         content={'Etes-vous sûr de vouloir supprimer cet atelier pour cette saison ?'}
         onClose={() => {
           setIsConfirmModalDeleteWorkshopPriceOpen(false);
+          setSelectedPrice(null);
         }}
         onConfirm={handleDeletePrice}
       />
