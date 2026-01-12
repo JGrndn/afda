@@ -9,7 +9,6 @@ import { useSeason, useSeasonActions } from "@/hooks/season.hook";
 import { Button, Card, Column, ConfirmModal, DataTable, ErrorMessage, StatusBadge } from "@/components/ui";
 import { UpdateSeasonInput } from "@/lib/schemas/season.input";
 import { useWorkshopPriceActions } from "@/hooks/workshopPrice.hook";
-import { CreateWorkshopPriceInput } from "@/lib/schemas/workshop.input";
 import { WorkshopPriceSlideOver } from "@/components/workshop/WorkshopPriceSlideOver";
 import { WorkshopPriceWithWorkshopInfoDTO } from "@/lib/dto/workshopPrice.dto";
 import { MembershipDTO, MembershipWithMemberDTO } from "@/lib/dto/membership.dto";
