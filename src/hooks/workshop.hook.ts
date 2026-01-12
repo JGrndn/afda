@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
 import useSWR from 'swr';
 import { useResource } from '@/lib/hooks/useResources';
 import { createWorkshop, updateWorkshop, deleteWorkshop } from '@/app/workshops/workshops.actions';
 import { WorkshopDTO, WorkshopWithPricesAndSeasonDTO } from '@/lib/dto/workshop.dto';
 import { CreateWorkshopInput, UpdateWorkshopInput } from '@/lib/schemas/workshop.input';
 import { WorkshopStatus } from '@/lib/domain/workshop.enum';
+import { createCrudActionsHook } from '@/lib/actions/useServerActions';
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -47,29 +47,12 @@ export function useWorkshop(id: number) {
   };
 }
 
-export function useWorkshopActions() {
-  const [isLoading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-
-  async function run<T>(fn: () => Promise<T>): Promise<T> {
-    try {
-      setLoading(true);
-      setError(null);
-      return await fn();
-    } catch (e) {
-      setError(e as Error);
-      throw e;
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return {
-    create: (data: CreateWorkshopInput) => run<WorkshopDTO>(() => createWorkshop(data)),
-    update: (id: number, data: UpdateWorkshopInput) =>
-      run<WorkshopDTO>(() => updateWorkshop(id, data)),
-    remove: (id: number) => run<void>(() => deleteWorkshop(id)),
-    isLoading,
-    error,
-  };
-}
+export const useWorkshopActions = createCrudActionsHook<
+  CreateWorkshopInput,
+  UpdateWorkshopInput,
+  WorkshopDTO
+>({
+  create: createWorkshop,
+  update: updateWorkshop,
+  remove: deleteWorkshop,
+});

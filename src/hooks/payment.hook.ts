@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import useSWR from 'swr';
 import { useResource } from '@/lib/hooks/useResources';
 import {
@@ -18,6 +17,7 @@ import {
   UpdatePaymentInput,
 } from '@/lib/schemas/payment.input';
 import { PaymentStatus } from '@/lib/domain/payment.enum';
+import { createCrudActionsHook } from '@/lib/actions/useServerActions';
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -79,29 +79,12 @@ export function useFamilyBalance(familyId: number, seasonId: number) {
   };
 }
 
-export function usePaymentActions() {
-  const [isLoading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-
-  async function run<T>(fn: () => Promise<T>): Promise<T> {
-    try {
-      setLoading(true);
-      setError(null);
-      return await fn();
-    } catch (e) {
-      setError(e as Error);
-      throw e;
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return {
-    create: (data: CreatePaymentInput) => run<PaymentDTO>(() => createPayment(data)),
-    update: (id: number, data: UpdatePaymentInput) =>
-      run<PaymentDTO>(() => updatePayment(id, data)),
-    remove: (id: number) => run<void>(() => deletePayment(id)),
-    isLoading,
-    error,
-  };
-}
+export const usePaymentActions = createCrudActionsHook<
+  CreatePaymentInput,
+  UpdatePaymentInput,
+  PaymentDTO
+>({
+  create: createPayment,
+  update: updatePayment,
+  remove: deletePayment,
+});
