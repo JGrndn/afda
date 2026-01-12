@@ -12,7 +12,7 @@ import { Button, Card, ErrorMessage, DataTable, Column, StatusBadge, ConfirmModa
 import { UpdateMemberInput } from '@/lib/schemas/member.input';
 import { RegistrationDTO, RegistrationWithWorkshopDetailsDTO } from '@/lib/dto/registration.dto';
 import { MembershipWithSeasonDTO } from '@/lib/dto/membership.dto';
-import { SEASON_STATUS } from '@/lib/domain/season.enum';
+import { SEASON_STATUS } from '@/lib/domain/enums/season.enum';
 import { RegistrationSlideOver } from '@/components/member/RegistrationSlideOver';
 import { ReconcileFamilySeasonButton } from '@/components/membership/ReconcileFamilySeasonButton';
 

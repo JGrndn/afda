@@ -1,5 +1,5 @@
 import { Layout } from '@/components/layout/Layout';
-import './globals.css';
+import '@/app/globals.css';
 import { NavigationProvider } from '@/components/navigation';
 
 export const metadata = {

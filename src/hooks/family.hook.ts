@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
 import useSWR from 'swr';
 import { useResource } from '@/lib/hooks/useResources';
 import { createFamily, updateFamily, deleteFamily } from '@/app/families/families.actions';
 import { FamilyDTO, FamilyWithFullDetailsDTO } from '@/lib/dto/family.dto';
 import { CreateFamilyInput, UpdateFamilyInput } from '@/lib/schemas/family.input';
+import { createCrudActionsHook } from '@/lib/actions/useServerActions';
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -43,28 +43,12 @@ export function useFamily(id: number) {
   };
 }
 
-export function useFamilyActions() {
-  const [isLoading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-
-  async function run<T>(fn: () => Promise<T>): Promise<T> {
-    try {
-      setLoading(true);
-      setError(null);
-      return await fn();
-    } catch (e) {
-      setError(e as Error);
-      throw e;
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return {
-    create: (data: CreateFamilyInput) => run<FamilyDTO>(() => createFamily(data)),
-    update: (id: number, data: UpdateFamilyInput) => run<FamilyDTO>(() => updateFamily(id, data)),
-    remove: (id: number) => run<void>(() => deleteFamily(id)),
-    isLoading,
-    error,
-  };
-}
+export const useFamilyActions = createCrudActionsHook<
+  CreateFamilyInput,
+  UpdateFamilyInput,
+  FamilyDTO
+>({
+  create: createFamily,
+  update: updateFamily,
+  remove: deleteFamily,
+});

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { WORKSHOP_STATUS, WorkshopStatus } from '@/lib/domain/workshop.enum';
+import { WORKSHOP_STATUS, WorkshopStatus } from '@/lib/domain/enums/workshop.enum';
 
 export const WorkshopStatusSchema = z.enum(
   Object.values(WORKSHOP_STATUS) as [WorkshopStatus, ...WorkshopStatus[]]

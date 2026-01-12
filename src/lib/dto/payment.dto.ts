@@ -1,4 +1,4 @@
-import { PaymentType, PaymentStatus } from '@/lib/domain/payment.enum';
+import { PaymentType, PaymentStatus } from '@/lib/domain/enums/payment.enum';
 
 export type PaymentDTO = {
   id: number;

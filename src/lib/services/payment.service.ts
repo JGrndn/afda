@@ -12,7 +12,7 @@ import {
 } from '@/lib/dto/payment.dto';
 import { DomainError } from '../errors/domain-error';
 import { CreatePaymentInput, UpdatePaymentInput } from '@/lib/schemas/payment.input';
-import { PAYMENT_STATUS, PaymentStatus } from '@/lib/domain/payment.enum';
+import { PAYMENT_STATUS, PaymentStatus } from '@/lib/domain/enums/payment.enum';
 
 export const paymentService = {
   async getAll(

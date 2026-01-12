@@ -5,7 +5,7 @@ import { toMembershipDTO, toMembershipsDTO } from '@/lib/mappers/membership.mapp
 import { MembershipDTO } from '@/lib/dto/membership.dto';
 import { DomainError } from '@/lib/errors/domain-error';
 import { CreateMembershipInput, UpdateMembershipInput } from '@/lib/schemas/membership.input';
-import { MEMBERSHIP_STATUS, MembershipStatus } from '@/lib/domain/membership.enum';
+import { MembershipStatus } from '@/lib/domain/enums/membership.enum';
 
 
 export const membershipService = {

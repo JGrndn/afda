@@ -1,6 +1,6 @@
 import { memberService, membershipService, paymentService, registrationService } from "@/lib/services";
 import { computeFinancialStats } from "@/lib/domain/finance";
-import { MEMBERSHIP_STATUS } from "@/lib/domain/membership.enum";
+import { MEMBERSHIP_STATUS } from "@/lib/domain/enums/membership.enum";
 
 export async function updateMembershipStatusesForFamily(familyId: number, seasonId: number): Promise<void>{
   const payments= await paymentService.getAll({familyId: familyId, seasonId: seasonId});

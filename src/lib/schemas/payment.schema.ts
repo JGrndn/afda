@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { PAYMENT_TYPE, PAYMENT_STATUS, PaymentType, PaymentStatus } from '@/lib/domain/payment.enum';
+import { PAYMENT_TYPE, PAYMENT_STATUS, PaymentType, PaymentStatus } from '@/lib/domain/enums/payment.enum';
 
 export const PaymentTypeSchema = z.enum(
   Object.values(PAYMENT_TYPE) as [PaymentType, ...PaymentType[]]

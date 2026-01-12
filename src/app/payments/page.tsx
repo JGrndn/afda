@@ -13,8 +13,8 @@ import {
   FormField,
 } from '@/components/ui';
 import { PaymentWithDetailsDTO } from '@/lib/dto/payment.dto';
-import { PAYMENT_STATUS, PaymentStatus } from '@/lib/domain/payment.enum';
-import { SEASON_STATUS } from '@/lib/domain/season.enum';
+import { PAYMENT_STATUS, PaymentStatus } from '@/lib/domain/enums/payment.enum';
+import { SEASON_STATUS } from '@/lib/domain/enums/season.enum';
 
 export default function PaymentsPage() {
   const router = useRouter();
