@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWorkshops, useWorkshopActions } from '@/hooks/workshop.hook';
-import { DataTable, Button, ErrorMessage, Column, StatusBadge, FormField } from '@/components/ui';
+import { DataTable, Button, ErrorMessage, Column, StatusBadge, FormField, ConfirmModal } from '@/components/ui';
 import { WorkshopDTO } from '@/lib/dto/workshop.dto';
 import { WORKSHOP_STATUS, WorkshopStatus } from '@/lib/domain/workshop.enum';
 import { ListPlus, Trash2 } from 'lucide-react';
@@ -22,19 +22,21 @@ export default function WorkshopsPage() {
   const { remove, error } = useWorkshopActions();
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [isSlideOverOpen, setIsSlideOverOpen] = useState(false);
+  const [isConfirmModalDeleteOpen, setIsConfirmModalDeleteOpen] = useState(false);
+
+  const handleDeleteRequest = async (workshopId: number) => {
+    setIsConfirmModalDeleteOpen(true);
+    setDeletingId(workshopId);
+  }
 
   const handleCreateSucess = async() => {
     await mutate();
   }
 
-  const handleDelete = async (workshopId: number) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cet atelier ? Tous les prix associés seront également supprimés.')) {
-      return;
-    }
-
-    setDeletingId(workshopId);
+  const handleDelete = async () => {
+    if (!deletingId) return;
     try {
-      await remove(workshopId);
+      await remove(deletingId);
       await mutate();
     } catch (error) {
       console.error('Failed to delete workshop:', error);
@@ -80,7 +82,7 @@ export default function WorkshopsPage() {
             size="icon"
             Icon={Trash2}
             variant="danger"
-            onClick={() => handleDelete(workshop.id)}
+            onClick={() => handleDeleteRequest(workshop.id)}
             disabled={deletingId === workshop.id}
           >
             {deletingId === workshop.id ? 'Suppression...' : ''}
@@ -139,6 +141,16 @@ export default function WorkshopsPage() {
         isOpen={isSlideOverOpen}
         onClose={() => setIsSlideOverOpen(false)}
         onSuccess={handleCreateSucess}
+      />
+      <ConfirmModal
+        isOpen={isConfirmModalDeleteOpen}
+        title={"Supprimer l'atelier"}
+        content={'Etes-vous sûr de vouloir supprimer cet atelier ?'}
+        onClose={() => {
+          setIsConfirmModalDeleteOpen(false);
+          setDeletingId(null);
+        }}
+        onConfirm={handleDelete}
       />
     </div>
   );
