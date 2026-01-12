@@ -19,6 +19,7 @@ import { CashPaymentModal } from '@/components/payment/CashPaymentModal';
 import { PAYMENT_STATUS, PAYMENT_TYPE } from '@/lib/domain/payment.enum';
 import { computeFinancialStats, FamilyFinancialStats } from '@/lib/domain/finance';
 import { MemberSlideOver } from '@/components/member/MemberSlideOver';
+import { ReconcileFamilySeasonButton } from '@/components/membership/ReconcileFamilySeasonButton';
 
 export default function FamilyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -59,6 +60,10 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
     setIsEditing(false);
     mutate();
   };
+
+  const handleRefreshSuccess = () => {
+    mutate();
+  }
 
   const handleDelete = async () => {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette famille ? Tous les membres et paiements associés seront également supprimés.')) {
@@ -215,6 +220,9 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
         <div className="flex gap-2">
           {!isEditing && (
             <>
+              {activeSeason && 
+                <ReconcileFamilySeasonButton familyId={family.id} seasonId={activeSeason.id} onSuccess={handleRefreshSuccess} />
+              }
               <Button onClick={() => setIsEditing(true)} Icon={Pencil} />
               <Button variant="danger" onClick={handleDelete} Icon={Trash2} />
             </>
