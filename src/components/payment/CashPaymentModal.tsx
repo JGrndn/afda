@@ -46,7 +46,7 @@ export function CashPaymentModal({
       isOpen={isOpen}
       onClose={onClose}
       title="Encaisser le paiement"
-      size="sm"
+      size="md"
     >
       {error && (
         <div className="mb-4">
