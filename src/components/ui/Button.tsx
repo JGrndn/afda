@@ -8,6 +8,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   isLoading?: boolean;
   Icon?: LucideIcon;
   iconPosition?: 'left' | 'right';
+  iconClassName?: string;
 }
 
 export function Button({
@@ -19,6 +20,7 @@ export function Button({
   isLoading,
   disabled,
   className = '',
+  iconClassName = '',
   ...props
 }: ButtonProps) {
   const baseClasses = 'inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
@@ -37,18 +39,20 @@ export function Button({
     icon: 'p-2'
   };
 
+  const iconClasses = `w-5 h-5 transition-transform group-hover:scale-110 ${iconClassName}`;
+
   return (
     <button
       className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
       disabled={disabled || isLoading}
       {...props}
     >
-      {!isLoading && Icon && iconPosition === 'left' && (
-        <Icon className='w-5 h-5 transition-transform group-hover:scale-110' />
+      {Icon && iconPosition === 'left' && (
+        <Icon className={iconClasses} />
       )}
-      {isLoading ? 'Loading...' : children}
-      {!isLoading && Icon && iconPosition === 'right' && (
-        <Icon className='w-5 h-5 transition-transform group-hover:scale-110' />
+        {children}
+      {Icon && iconPosition === 'right' && (
+        <Icon className={iconClasses} />
       )}
     </button>
   );

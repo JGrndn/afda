@@ -3,7 +3,7 @@
 import { use, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ArrowLeft, Pencil, Plus, Trash2 } from 'lucide-react';
 import { MemberForm } from '@/components/member/MemberForm';
 import { useMember, useMemberActions } from '@/hooks/member.hook';
 import { useRegistrationActions } from '@/hooks/registration.hook';
@@ -14,6 +14,7 @@ import { RegistrationWithWorkshopDetailsDTO } from '@/lib/dto/registration.dto';
 import { MembershipWithSeasonDTO } from '@/lib/dto/membership.dto';
 import { SEASON_STATUS } from '@/lib/domain/season.enum';
 import { RegistrationSlideOver } from '@/components/member/RegistrationSlideOver';
+import { ReconcileFamilySeasonButton } from '@/components/membership/ReconcileFamilySeasonButton';
 
 export default function MemberDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -45,6 +46,10 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
       router.push('/members');
     }
   };
+
+  const handleRefreshSuccess = () => {
+    mutate();
+  }
 
   const handleAddRegistrationSuccess = async () => {
     mutate();
@@ -125,8 +130,9 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
             variant="danger"
             onClick={() => handleDeleteRegistration(reg.id)}
             disabled={deletingRegistrationId === reg.id}
+            Icon={Trash2}
           >
-            {deletingRegistrationId === reg.id ? 'Suppression...' : 'Supprimer'}
+            {deletingRegistrationId === reg.id ? 'Suppression...' : ''}
           </Button>
         </div>
       ),
@@ -181,10 +187,11 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
         <div className="flex gap-2">
           {!isEditing && (
             <>
-              <Button onClick={() => setIsEditing(true)}>Modifier</Button>
-              <Button variant="danger" onClick={handleDelete}>
-                Supprimer
-              </Button>
+              {activeSeason && member.familyId && 
+                <ReconcileFamilySeasonButton familyId={member.familyId} seasonId={activeSeason.id} onSuccess={handleRefreshSuccess} />
+              }
+              <Button onClick={() => setIsEditing(true)} Icon={Pencil}/>
+              <Button variant="danger" onClick={handleDelete} Icon={Trash2} />
             </>
           )}
         </div>
