@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { GenericForm, FormField } from '@/components/ui';
-import { WORKSHOP_STATUS } from '@/lib/domain/workshop.enum';
+import { WORKSHOP_STATUS } from '@/lib/domain/enums/workshop.enum';
 import type { CreateWorkshopInput } from '@/lib/schemas/workshop.input';
 
 interface WorkshopFormProps {

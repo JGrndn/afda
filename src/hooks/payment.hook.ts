@@ -16,7 +16,7 @@ import {
   CreatePaymentInput,
   UpdatePaymentInput,
 } from '@/lib/schemas/payment.input';
-import { PaymentStatus } from '@/lib/domain/payment.enum';
+import { PaymentStatus } from '@/lib/domain/enums/payment.enum';
 import { createCrudActionsHook } from '@/lib/actions/useServerActions';
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());

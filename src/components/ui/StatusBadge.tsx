@@ -1,7 +1,7 @@
-import { SeasonStatus } from '@/lib/domain/season.enum';
-import { WorkshopStatus } from '@/lib/domain/workshop.enum';
-import { MembershipStatus } from '@/lib/domain/membership.enum';
-import { PaymentStatus } from '@/lib/domain/payment.enum';
+import { SeasonStatus } from '@/lib/domain/enums/season.enum';
+import { WorkshopStatus } from '@/lib/domain/enums/workshop.enum';
+import { MembershipStatus } from '@/lib/domain/enums/membership.enum';
+import { PaymentStatus } from '@/lib/domain/enums/payment.enum';
 import {
   MEMBERSHIP_STATUS_TRANSLATIONS,
   PAYMENT_STATUS_TRANSLATIONS,

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { GenericForm, FormField } from '@/components/ui';
-import { SEASON_STATUS } from '@/lib/domain/season.enum';
+import { SEASON_STATUS } from '@/lib/domain/enums/season.enum';
 import type { CreateSeasonInput } from '@/lib/schemas/season.input';
 
 interface SeasonFormProps {

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { GenericForm, FormField } from '@/components/ui';
-import { PAYMENT_TYPE } from '@/lib/domain/payment.enum';
+import { PAYMENT_TYPE } from '@/lib/domain/enums/payment.enum';
 import type { CreatePaymentInput } from '@/lib/schemas/payment.input';
 
 interface PaymentFormProps {

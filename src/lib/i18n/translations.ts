@@ -1,7 +1,7 @@
-import { MembershipStatus } from "../domain/membership.enum";
-import { PaymentStatus } from "../domain/payment.enum";
-import { SeasonStatus } from "../domain/season.enum";
-import { WorkshopStatus } from "../domain/workshop.enum";
+import { MembershipStatus } from "@/lib/domain/enums/membership.enum";
+import { PaymentStatus } from "@/lib/domain/enums/payment.enum";
+import { SeasonStatus } from "@/lib/domain/enums/season.enum";
+import { WorkshopStatus } from "@/lib/domain/enums/workshop.enum";
 
 // Season Status
 export const SEASON_STATUS_TRANSLATIONS: Record<SeasonStatus, string> = {

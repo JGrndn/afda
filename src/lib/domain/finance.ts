@@ -1,7 +1,7 @@
 import { MembershipDTO } from "@/lib/dto/membership.dto";
 import { RegistrationDTO } from "@/lib/dto/registration.dto";
 import { PaymentDTO } from "@/lib/dto/payment.dto";
-import { PAYMENT_STATUS } from "./payment.enum";
+import { PAYMENT_STATUS } from "./enums/payment.enum";
 
 export type FamilyFinancialStats = {
   totalPaid: number;
