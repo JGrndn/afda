@@ -1,6 +1,6 @@
 'use client'
 
-import { navItems, SideBarItem, useNavigation } from "@/components/navigation";
+import { navItems, SideBarItem, AppVersion, useNavigation } from "@/components/navigation";
 import { Menu } from "lucide-react";
 import Link from "next/link";
 
@@ -32,7 +32,9 @@ export function SideBar({ title } : {
         {navItems.map((item) => (
           <SideBarItem key={item.id} item={item} />
         ))}
-      </nav> 
+      </nav>
+
+      <AppVersion collapsed={isCollapsed}/>
     </aside>
   );
 }
