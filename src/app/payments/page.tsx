@@ -11,9 +11,10 @@ import {
   Column,
   StatusBadge,
   FormField,
+  ConfirmModal,
 } from '@/components/ui';
 import { PaymentWithDetailsDTO } from '@/lib/dto/payment.dto';
-import { PAYMENT_STATUS, PaymentStatus } from '@/lib/domain/enums/payment.enum';
+import { PaymentStatus } from '@/lib/domain/enums/payment.enum';
 import { SEASON_STATUS } from '@/lib/domain/enums/season.enum';
 import { getStatusOptionsWithAll } from '@/lib/i18n/statusOptions';
 import { PAYMENT_STATUS_TRANSLATIONS } from '@/lib/i18n/translations';
@@ -39,15 +40,17 @@ export default function PaymentsPage() {
 
   const { remove, error } = usePaymentActions();
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [isConfirmModalDeleteOpen, setIsConfirmModalDeleteOpen] = useState(false);
 
-  const handleDelete = async (paymentId: number) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce paiement ?')) {
-      return;
-    }
-
+  const handleDeleteRequest = async (paymentId: number) => {
     setDeletingId(paymentId);
+    setIsConfirmModalDeleteOpen(true);
+  }
+
+  const handleDelete = async () => {
+    if (!deletingId) return;
     try {
-      await remove(paymentId);
+      await remove(deletingId);
       await mutate();
     } catch (error) {
       console.error('Failed to delete payment:', error);
@@ -113,7 +116,7 @@ export default function PaymentsPage() {
           <Button
             size="sm"
             variant="danger"
-            onClick={() => handleDelete(payment.id)}
+            onClick={() => handleDeleteRequest(payment.id)}
             disabled={deletingId === payment.id}
           >
             {deletingId === payment.id ? 'Suppression...' : 'Supprimer'}
@@ -168,6 +171,17 @@ export default function PaymentsPage() {
         columns={columns}
         isLoading={isLoading}
         emptyMessage="Aucun paiement"
+      />
+
+      <ConfirmModal
+        isOpen={isConfirmModalDeleteOpen}
+        title={"Supprimer le paiement"}
+        content={'Etes-vous sûr de vouloir supprimer ce paiement ?'}
+        onClose={() => {
+          setIsConfirmModalDeleteOpen(false);
+          setDeletingId(null);
+        }}
+        onConfirm={handleDelete}
       />
     </div>
   );
