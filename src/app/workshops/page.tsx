@@ -8,6 +8,8 @@ import { WorkshopDTO } from '@/lib/dto/workshop.dto';
 import { WORKSHOP_STATUS, WorkshopStatus } from '@/lib/domain/enums/workshop.enum';
 import { ListPlus, Trash2 } from 'lucide-react';
 import { WorkshopSlideOver } from '@/components/workshop/WorkshopSlideOver';
+import { getStatusOptionsWithAll } from '@/lib/i18n/statusOptions';
+import { WORKSHOP_STATUS_TRANSLATIONS } from '@/lib/i18n/translations';
 
 export default function WorkshopsPage() {
   const router = useRouter();
@@ -92,6 +94,8 @@ export default function WorkshopsPage() {
     },
   ];
 
+  const workshopStatusFilter = getStatusOptionsWithAll(WORKSHOP_STATUS_TRANSLATIONS, { includeAll:true})
+
   return (
     <div className="container mx-auto p-6">
       <div className="mb-6 flex justify-between items-center">
@@ -118,11 +122,7 @@ export default function WorkshopsPage() {
             placeholder='Filtrer...'
             value={statusFilter || ''}
             onChange={(v) => setStatusFilter(v ? (v as WorkshopStatus) : undefined)}
-            options={[
-              { value: '', label: 'Tous' },
-              { value: WORKSHOP_STATUS.ACTIVE, label: 'Actifs' },
-              { value: WORKSHOP_STATUS.INACTIVE, label: 'Inactifs' },
-            ]}
+            options={workshopStatusFilter}
             compact
           />
         </div>

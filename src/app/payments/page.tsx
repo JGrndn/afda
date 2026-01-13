@@ -129,7 +129,7 @@ export default function PaymentsPage() {
       label: `${s.startYear}-${s.endYear}`,
     })) || [];
 
-  const paymentStatusFiler = getStatusOptionsWithAll(PAYMENT_STATUS_TRANSLATIONS, { includeAll:true})
+  const paymentStatusFilter = getStatusOptionsWithAll(PAYMENT_STATUS_TRANSLATIONS, { includeAll:true})
 
   return (
     <div className="container mx-auto p-6">
@@ -155,7 +155,7 @@ export default function PaymentsPage() {
             type="select"
             value={statusFilter || ''}
             onChange={(v) => setStatusFilter(v ? (v as PaymentStatus) : undefined)}
-            options={paymentStatusFiler}
+            options={paymentStatusFilter}
             compact
           />
         </div>
