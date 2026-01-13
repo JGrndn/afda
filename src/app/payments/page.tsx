@@ -11,10 +11,14 @@ import {
   Column,
   StatusBadge,
   FormField,
+  ConfirmModal,
 } from '@/components/ui';
 import { PaymentWithDetailsDTO } from '@/lib/dto/payment.dto';
-import { PAYMENT_STATUS, PaymentStatus } from '@/lib/domain/enums/payment.enum';
+import { PaymentStatus } from '@/lib/domain/enums/payment.enum';
 import { SEASON_STATUS } from '@/lib/domain/enums/season.enum';
+import { getStatusOptionsWithAll } from '@/lib/i18n/statusOptions';
+import { PAYMENT_STATUS_TRANSLATIONS } from '@/lib/i18n/translations';
+import { Trash2 } from 'lucide-react';
 
 export default function PaymentsPage() {
   const router = useRouter();
@@ -37,15 +41,17 @@ export default function PaymentsPage() {
 
   const { remove, error } = usePaymentActions();
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [isConfirmModalDeleteOpen, setIsConfirmModalDeleteOpen] = useState(false);
 
-  const handleDelete = async (paymentId: number) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce paiement ?')) {
-      return;
-    }
-
+  const handleDeleteRequest = async (paymentId: number) => {
     setDeletingId(paymentId);
+    setIsConfirmModalDeleteOpen(true);
+  }
+
+  const handleDelete = async () => {
+    if (!deletingId) return;
     try {
-      await remove(paymentId);
+      await remove(deletingId);
       await mutate();
     } catch (error) {
       console.error('Failed to delete payment:', error);
@@ -111,10 +117,11 @@ export default function PaymentsPage() {
           <Button
             size="sm"
             variant="danger"
-            onClick={() => handleDelete(payment.id)}
+            onClick={() => handleDeleteRequest(payment.id)}
             disabled={deletingId === payment.id}
+            Icon={Trash2}
           >
-            {deletingId === payment.id ? 'Suppression...' : 'Supprimer'}
+            {deletingId === payment.id ? 'Suppression...' : ''}
           </Button>
         </div>
       ),
@@ -126,6 +133,8 @@ export default function PaymentsPage() {
       value: s.id.toString(),
       label: `${s.startYear}-${s.endYear}`,
     })) || [];
+
+  const paymentStatusFilter = getStatusOptionsWithAll(PAYMENT_STATUS_TRANSLATIONS, { includeAll:true})
 
   return (
     <div className="container mx-auto p-6">
@@ -151,12 +160,7 @@ export default function PaymentsPage() {
             type="select"
             value={statusFilter || ''}
             onChange={(v) => setStatusFilter(v ? (v as PaymentStatus) : undefined)}
-            options={[
-              { value: '', label: 'Tous' },
-              { value: PAYMENT_STATUS.PENDING, label: 'En attente' },
-              { value: PAYMENT_STATUS.COMPLETED, label: 'Encaissé' },
-              { value: PAYMENT_STATUS.CANCELLED, label: 'Annulé' },
-            ]}
+            options={paymentStatusFilter}
             compact
           />
         </div>
@@ -169,6 +173,17 @@ export default function PaymentsPage() {
         columns={columns}
         isLoading={isLoading}
         emptyMessage="Aucun paiement"
+      />
+
+      <ConfirmModal
+        isOpen={isConfirmModalDeleteOpen}
+        title={"Supprimer le paiement"}
+        content={'Etes-vous sûr de vouloir supprimer ce paiement ?'}
+        onClose={() => {
+          setIsConfirmModalDeleteOpen(false);
+          setDeletingId(null);
+        }}
+        onConfirm={handleDelete}
       />
     </div>
   );
