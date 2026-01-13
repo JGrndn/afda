@@ -18,6 +18,7 @@ import { PaymentStatus } from '@/lib/domain/enums/payment.enum';
 import { SEASON_STATUS } from '@/lib/domain/enums/season.enum';
 import { getStatusOptionsWithAll } from '@/lib/i18n/statusOptions';
 import { PAYMENT_STATUS_TRANSLATIONS } from '@/lib/i18n/translations';
+import { Trash2 } from 'lucide-react';
 
 export default function PaymentsPage() {
   const router = useRouter();
@@ -118,8 +119,9 @@ export default function PaymentsPage() {
             variant="danger"
             onClick={() => handleDeleteRequest(payment.id)}
             disabled={deletingId === payment.id}
+            Icon={Trash2}
           >
-            {deletingId === payment.id ? 'Suppression...' : 'Supprimer'}
+            {deletingId === payment.id ? 'Suppression...' : ''}
           </Button>
         </div>
       ),
