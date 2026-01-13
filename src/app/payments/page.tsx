@@ -15,6 +15,8 @@ import {
 import { PaymentWithDetailsDTO } from '@/lib/dto/payment.dto';
 import { PAYMENT_STATUS, PaymentStatus } from '@/lib/domain/enums/payment.enum';
 import { SEASON_STATUS } from '@/lib/domain/enums/season.enum';
+import { getStatusOptionsWithAll } from '@/lib/i18n/statusOptions';
+import { PAYMENT_STATUS_TRANSLATIONS } from '@/lib/i18n/translations';
 
 export default function PaymentsPage() {
   const router = useRouter();
@@ -127,6 +129,8 @@ export default function PaymentsPage() {
       label: `${s.startYear}-${s.endYear}`,
     })) || [];
 
+  const paymentStatusFiler = getStatusOptionsWithAll(PAYMENT_STATUS_TRANSLATIONS, { includeAll:true})
+
   return (
     <div className="container mx-auto p-6">
       <div className="mb-6 flex justify-between items-center">
@@ -151,12 +155,7 @@ export default function PaymentsPage() {
             type="select"
             value={statusFilter || ''}
             onChange={(v) => setStatusFilter(v ? (v as PaymentStatus) : undefined)}
-            options={[
-              { value: '', label: 'Tous' },
-              { value: PAYMENT_STATUS.PENDING, label: 'En attente' },
-              { value: PAYMENT_STATUS.COMPLETED, label: 'Encaissé' },
-              { value: PAYMENT_STATUS.CANCELLED, label: 'Annulé' },
-            ]}
+            options={paymentStatusFiler}
             compact
           />
         </div>
