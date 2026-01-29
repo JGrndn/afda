@@ -24,6 +24,7 @@ model Season {
   memberships       Membership[]
   registrations     Registration[]
   payments          Payment[]
+  invoice           Invoice[]
 
   @@unique([startYear, endYear])
   @@map("seasons")
@@ -72,6 +73,7 @@ model Family {
 
   members     Member[]
   payments    Payment[]
+  invoices    Invoice[]
 
   @@map("families")
 }
@@ -164,4 +166,36 @@ model Payment {
   @@index([seasonId])
   @@index([status])
   @@map("payments")
+}
+
+model Invoice {
+  id            Int     @id @default(autoincrement())
+  familyId      Int     @map("family_id")
+  seasonId      Int     @map("season_id")
+  status        String  @db.VarChar(50)
+  invoiceNumber String? @map("invoice_number") @unique @db.VarChar(50)
+  issuedAt      DateTime? @default(now()) @map("issued_at")
+  totalAmount   Decimal @db.Decimal(10, 2) @map("total_amount")
+
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  items         InvoiceItem[]
+  family        Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  season        Season    @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  @@unique([familyId, seasonId])
+}
+
+
+model InvoiceItem {
+  id            Int @id @default(autoincrement())
+  invoiceId     Int @map("invoice_id")
+  label         String @db.VarChar(255)
+  description   String? @db.Text
+  unitPrice     Decimal @db.Decimal(10, 2) @map("unit_price")
+  quantity      Int
+  lineTotal     Decimal @db.Decimal(10, 2) @map("line_total")
+
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 }
