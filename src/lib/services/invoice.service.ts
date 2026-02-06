@@ -3,6 +3,14 @@ import { mapInvoiceToDTO } from '@/lib/mappers/invoice.mapper';
 import { Prisma } from '@/generated/prisma';
 
 export const invoiceService = {
+  async getById(id:number){
+    const invoice: PrismaInvoiceDetails | null = await prisma.invoice.findUnique({
+      where: {id : id },
+      include: {items : true }
+    });
+    return invoice ? mapInvoiceToDTO(invoice) : null;
+  },
+
   async findByFamilyAndSeason(familyId: number, seasonId: number) {
     const invoice: PrismaInvoiceDetails | null = await prisma.invoice.findUnique({
       where: { familyId_seasonId: { familyId, seasonId } },

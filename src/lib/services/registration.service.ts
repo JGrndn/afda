@@ -89,7 +89,7 @@ async getAll(
         discountPercent: new Prisma.Decimal(input.discountPercent),
         registrationDate: input.registrationDate || new Date(),
       };
-
+console.log('INSCRIPTION')
       const result = await prisma.registration.create({ data });
       return toRegistrationDTO(result);
     } catch (error: unknown) {

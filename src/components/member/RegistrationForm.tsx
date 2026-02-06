@@ -10,7 +10,7 @@ interface RegistrationFormProps {
   memberId: number;
   seasonId: number;
   defaultDiscount?: number;
-  onSubmit?: (data: CreateRegistrationInput) => Promise<void>;
+  onSubmit: (data: CreateRegistrationInput) => Promise<void>;
   onCancel?: () => void;
 }
 
@@ -74,10 +74,7 @@ export function RegistrationForm({
         ...formData,
         totalPrice, // rajout de totalPrice car n'est pas mis à jour dans FormData sur les events
       }
-      await create(payload);
-      if (onSubmit) {
-        await onSubmit(payload);
-      }
+      await onSubmit(payload);
     } catch (err) {
       console.error('Failed to create registration:', err);
     }

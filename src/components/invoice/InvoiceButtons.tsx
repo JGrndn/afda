@@ -1,45 +1,25 @@
 'use client';
 
-import { useTransition } from 'react';
 import { InvoiceDTO } from '@/lib/dto/invoice.dto';
 
-
-export function InvoiceButtons({
-invoice,
-familyId,
-seasonId,
-onUpdated,
+export function InvoiceButton({
+  invoice,
 }: {
-invoice: InvoiceDTO;
-familyId: string;
-seasonId: string;
-onUpdated: (invoice: InvoiceDTO) => void;
+  invoice: InvoiceDTO;
 }) {
-const [pending, startTransition] = useTransition();
+  const isDraft = invoice.status === 'draft';
 
+  const href = isDraft
+    ? `/api/invoice/preview?familyId=${invoice.familyId}&seasonId=${invoice.seasonId}`
+    : `/api/invoice/${invoice.id}/pdf`;
 
-return (
-  <div className="flex gap-2">
+  return (
     <a
-    href={`/api/invoice/${invoice.id}/pdf?draft=true`}
-    target="_blank"
-    className="btn-secondary"
+      href={href}
+      target="_blank"
+      className="inline-flex items-center gap-2 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
     >
-      {invoice.status === 'draft' ? 'Voir le brouillon' : 'Voir la facture'}
+      {isDraft ? 'Voir la facture (brouillon)' : 'Voir la facture'}
     </a>
-
-    {invoice.status === 'draft' && (
-      <button
-        className="btn-primary"
-        disabled={pending}
-        onClick={() => startTransition(async () => {
-          
-          })
-        }
-      >
-        Émettre la facture
-      </button>
-    )}
-    </div>
   );
 }

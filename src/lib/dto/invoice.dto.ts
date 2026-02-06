@@ -7,6 +7,7 @@ export interface InvoiceItemDTO {
 }
 
 export interface InvoiceDTO {
+  id:number | null;
   familyId: number;
   seasonId: number;
   status: 'draft' | 'issued' | 'partially_paid' | 'paid' | 'cancelled';
