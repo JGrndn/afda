@@ -1,53 +1,69 @@
-import { InvoiceDTO, InvoiceItemDTO } from '@/lib/dto/invoice.dto';
+import { InvoiceDTO, InvoiceItemByMemberDTO, InvoiceItemDTO } from '@/lib/dto/invoice.dto';
 import {
   memberService,
   membershipService,
   registrationService,
+  seasonService,
+  workshopPriceService,
 } from '@/lib/services';
 
 export async function buildInvoiceForFamily(
   familyId: number,
   seasonId: number
 ): Promise<InvoiceDTO> {
+  const season = await seasonService.getById(seasonId);
+
   const members = await memberService.getAll({ familyId });
   const memberIds = members.map((m) => m.id);
 
+  const workshopPrices = await workshopPriceService.getAllForSeason(seasonId);
   const memberships = await membershipService.getAll({ memberIds, seasonId });
   const registrations = await registrationService.getAll({ memberIds, seasonId });
-
-  const items: InvoiceItemDTO[] = [];
-
-  for (const m of memberships) {
-    items.push({
-      label: 'Adhésion',
-      unitPrice: m.amount,
-      quantity: 1,
-      lineTotal: m.amount,
-    });
+  
+  const itemsByMember:InvoiceItemByMemberDTO[] = [];
+  for (const m of memberships){
+    const currentMember = members.find(o => o.id === m.memberId);
+    if (currentMember){
+      const data:InvoiceItemByMemberDTO = {
+        memberId: currentMember.id,
+        memberName: `${currentMember.firstName} ${currentMember.lastName}`,
+        items: [{
+          label: 'Adhésion',
+          unitPrice: m.amount,
+          quantity: 1,
+          lineTotal: m.amount
+        }]
+      }
+      const currentRegistrations = registrations.filter(r => r.memberId === currentMember.id);
+      if (currentRegistrations){
+        for (const r of currentRegistrations){
+          const ws = workshopPrices.find(wp => wp.workshopId === r.workshopId);
+          if (ws){
+            data.items.push({
+              label: ws.workshop.name,
+              unitPrice: ws.amount * (1-r.discountPercent/100),
+              quantity: r.quantity,
+              lineTotal: r.totalPrice
+            });
+          }
+        }
+      }
+      itemsByMember.push(data);
+    }
   }
 
-  for (const r of registrations) {
-    items.push({
-      label: 'Inscription',
-      unitPrice: r.totalPrice,
-      quantity: r.quantity,
-      lineTotal: r.totalPrice,
-    });
-  }
-
-  const totalAmount = items.reduce(
-    (sum, item) => sum + item.lineTotal,
-    0
-  );
+  const totalAmount = itemsByMember
+    .flatMap(m => m.items)
+    .reduce((sum, item) => sum + item.lineTotal, 0);
 
   return {
     id: null,
     familyId,
-    seasonId,
+    season: `${season?.startYear}/${season?.endYear}`,
     status: 'draft',
     invoiceNumber: null,
     issuedAt: null,
-    items,
+    itemsByMember,
     totalAmount,
   };
 }

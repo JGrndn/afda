@@ -1,4 +1,4 @@
-import { renderToBuffer, renderToStream } from '@react-pdf/renderer';
+import { renderToStream } from '@react-pdf/renderer';
 import { createInvoiceDocument } from './pdf/InvoicePdf';
 import { InvoiceDTO } from '@/lib/dto/invoice.dto';
 
