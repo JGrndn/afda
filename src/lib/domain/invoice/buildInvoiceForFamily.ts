@@ -59,6 +59,7 @@ export async function buildInvoiceForFamily(
   return {
     id: null,
     familyId,
+    seasonId,
     season: `${season?.startYear}/${season?.endYear}`,
     status: 'draft',
     invoiceNumber: null,
