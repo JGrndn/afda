@@ -15,6 +15,7 @@ import { MembershipWithSeasonDTO } from '@/lib/dto/membership.dto';
 import { SEASON_STATUS } from '@/lib/domain/enums/season.enum';
 import { RegistrationSlideOver } from '@/components/member/RegistrationSlideOver';
 import { ReconcileFamilySeasonButton } from '@/components/membership/ReconcileFamilySeasonButton';
+import { MembershipSlideOver } from '@/components/member/MembershipSlideOver';
 
 export default function MemberDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -32,6 +33,7 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
 
   const [isEditing, setIsEditing] = useState(false);
   const [isAddingRegistration, setIsAddingRegistration] = useState(false);
+  const [isAddingMembership, setIsAddingMembership] = useState(false);
   const [selectedRegistration, setSelectedRegistration] = useState<RegistrationDTO | null>();
   const [isConfirmModalDeleteMemberOpen, setIsConfirmModalDeleteMemberOpen] = useState(false);
   const [isConfirmModalDeleteRegistrationOpen, setIsConfirmModalDeleteRegistrationOpen] = useState(false);
@@ -76,9 +78,9 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
     }
   };
 
-  const handleCreateMembership = () => {
-    router.push(`/memberships/new?memberId=${memberId}&seasonId=${activeSeason?.id}`);
-  };
+  const handleAddMembershipSuccess = async () => {
+    mutate();
+  }
 
   if (memberLoading) {
     return (
@@ -295,7 +297,7 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
               actions={
                 <>
                   {!activeMembership && (
-                    <Button size="sm" onClick={handleCreateMembership} variant="secondary">
+                    <Button size="sm" onClick={() => setIsAddingMembership(true)} variant="secondary">
                       <Plus className="w-4 h-4 mr-1" />
                       Adhérer à la saison
                     </Button>
@@ -321,6 +323,15 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
                   data={member.registrations}
                   columns={registrationColumns}
                   emptyMessage="Aucune inscription"
+                />
+              )}
+              {isAddingMembership && (
+                <MembershipSlideOver
+                  memberId={memberId}
+                  seasonId={activeSeason.id}
+                  onSuccess={handleAddMembershipSuccess}
+                  onClose={() => setIsAddingMembership(false)}
+                  isOpen={isAddingMembership}
                 />
               )}
               {isAddingRegistration && (
