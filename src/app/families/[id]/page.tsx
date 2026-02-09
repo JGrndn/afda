@@ -20,6 +20,8 @@ import { PAYMENT_STATUS, PAYMENT_TYPE } from '@/lib/domain/enums/payment.enum';
 import { computeFinancialStats, FamilyFinancialStats } from '@/lib/domain/finance';
 import { MemberSlideOver } from '@/components/member/MemberSlideOver';
 import { ReconcileFamilySeasonButton } from '@/components/membership/ReconcileFamilySeasonButton';
+import { InvoiceButton } from '@/components/invoice/InvoiceButtons';
+import { useInvoice } from '@/hooks/invoice.hook';
 
 export default function FamilyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -30,7 +32,7 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
   const { data:seasons, isLoading: seasonsLoading } = useSeasons();
   const { update, remove, isLoading: mutationLoading, error } = useFamilyActions();
   const { remove: removePayment } = usePaymentActions();
-
+  
   const [isEditing, setIsEditing] = useState(false);
   const [isPaymentSlideOverOpen, setIsPaymentSlideOverOpen] = useState(false);
   const [isMemberSlideOverOpen, setIsMemberSlideOverOpen] = useState(false);
@@ -38,13 +40,15 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
   const [selectedPayment, setSelectedPayment] = useState<PaymentDTO | null>(null);
   const [isConfirmModalDeleteFamilyOpen, setIsConfirmModalDeleteFamilyOpen] = useState(false);
   const [isConfirmModalDeletePaymentOpen, setIsConfirmModalDeletePaymentOpen] = useState(false);
-
+  
   const [isEditingPayment, setIsEditingPayment] = useState(false);
+  
   
   // Récupérer la saison active et les paiements de cette saison
   const activeSeason = seasons.find(s=> s.status === SEASON_STATUS.ACTIVE);
+  const { invoice, isLoading } = useInvoice(familyId, activeSeason?.id)
   const payments = family?.payments?.filter(p => p.seasonId === activeSeason?.id)
-  
+
   const financialStats: FamilyFinancialStats = useMemo(() => {
     if (!family || !family.payments || !family.members || !activeSeason){
       return {
@@ -223,6 +227,9 @@ export default function FamilyDetailPage({ params }: { params: Promise<{ id: str
 
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-3xl font-bold">Famille : {family.name}</h1>
+        <div className="flex">
+          {invoice && <InvoiceButton invoice={invoice} />}
+        </div>
         <div className="flex gap-2">
           {!isEditing && (
             <>

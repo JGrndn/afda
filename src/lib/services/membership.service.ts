@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/generated/prisma/client';
 import { QueryOptions } from '@/lib/hooks/query';
-import { toMembershipDTO, toMembershipsDTO } from '@/lib/mappers/membership.mapper';
+import { toMembershipDTO, toMembershipsDTO, toMembershipsWithMemberInfoDTO } from '@/lib/mappers/membership.mapper';
 import { MembershipDTO } from '@/lib/dto/membership.dto';
 import { DomainError } from '@/lib/errors/domain-error';
 import { CreateMembershipInput, UpdateMembershipInput } from '@/lib/schemas/membership.input';

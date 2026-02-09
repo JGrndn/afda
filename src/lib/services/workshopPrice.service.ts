@@ -1,11 +1,21 @@
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@/generated/prisma/client';
-import { toWorkshopPriceDTO } from '@/lib/mappers/workshopPrice.mapper';
-import { WorkshopPriceDTO } from '@/lib/dto/workshopPrice.dto';
+import { toWorkshopPriceDTO, toWorkshopPricesWithWorkshopInfoDTO } from '@/lib/mappers/workshopPrice.mapper';
+import { WorkshopPriceDTO, WorkshopPriceWithWorkshopInfoDTO } from '@/lib/dto/workshopPrice.dto';
 import { DomainError } from '@/lib/errors/domain-error';
 import { CreateWorkshopPriceInput, UpdateWorkshopPriceInput } from '@/lib/schemas/workshop.input';
 
 export const workshopPriceService = {
+  async getAllForSeason(seasonId:number): Promise<WorkshopPriceWithWorkshopInfoDTO[]>{
+    const prices = await prisma.workshopPrice.findMany({
+      where:{seasonId : seasonId},
+      include:{
+        workshop:true
+      }
+    });
+    return toWorkshopPricesWithWorkshopInfoDTO(prices);
+  },
+
   async create(input: CreateWorkshopPriceInput): Promise<WorkshopPriceDTO> {
     try {
       const data = {
