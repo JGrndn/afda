@@ -31,7 +31,7 @@ export function MembershipForm({
     memberId: memberId || 0,
     seasonId: seasonId || 0,
     familyOrder: 1,
-    amount: 0,
+    amount: seasons.find(s => seasonId == s.id)?.membershipAmount ?? 0,
     status: MEMBERSHIP_STATUS.PENDING,
     ...initialData,
   });
@@ -103,6 +103,7 @@ export function MembershipForm({
           value={formData.amount}
           onChange={(v) => updateField('amount', parseFloat(v.toString()))}
           required
+          disabled={!!formData.amount}
         />
 
         <FormField
