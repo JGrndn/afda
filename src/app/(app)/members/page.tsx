@@ -1,148 +1,29 @@
-'use client';
+import { auth } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import { memberService } from '@/lib/services/member.service';
+import { MembersPageClient } from './MembersPageClient';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useMembers, useMemberActions } from '@/hooks/member.hook';
-import { DataTable, Button, ErrorMessage, Column, FormField, ConfirmModal } from '@/components/ui';
-import { MemberWithFamilyNameDTO } from '@/lib/dto/member.dto';
-import { Trash2, UserRoundPlus } from 'lucide-react';
-import { MemberSlideOver } from '@/components/member/MemberSlideOver';
-
-export default function MembersPage() {
-  const router = useRouter();
-  const [search, setSearch] = useState('');
+export default async function MembersPage() {
+  // 1. Vérifier l'authentification
+  const session = await auth();
   
-  const { data: members, isLoading, mutate } = useMembers({ 
-    search,
-  });
+  if (!session) {
+    redirect('/signin');
+  }
   
-  const { remove, error } = useMemberActions();
-  const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [isSlideOverOpen, setIsSlideOverOpen] = useState(false);
-  const [isConfirmModalDeleteOpen, setIsConfirmModalDeleteOpen] = useState(false);
-
-  const handleDeleteRequest = async (memberId: number) => {
-    setIsConfirmModalDeleteOpen(true);
-    setDeletingId(memberId);
+  // 2. Vérifier les permissions (tous les rôles peuvent voir)
+  if (!['ADMIN', 'MANAGER', 'VIEWER'].includes(session.user.role)) {
+    redirect('/unauthorized');
   }
-
-  const handleCreateSucess = async () =>{
-    await mutate();
-  }
-
-  const handleDelete = async () => {
-    if (!deletingId) return;
-    try {
-      await remove(deletingId);
-      await mutate();
-    } catch (error) {
-      console.error('Failed to delete member:', error);
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
-  const columns: Column<MemberWithFamilyNameDTO>[] = [
-    {
-      type: 'computed',
-      label: 'Nom',
-      render: (member) => `${member.firstName} ${member.lastName}`,
-    },
-    {
-      type: 'field',
-      key: 'familyName',
-      label: 'Famille',
-      render: (member) => member.familyName || '-',
-    },
-    {
-      type: 'field',
-      key: 'email',
-      label: 'Email',
-      render: (member) => member.email || '-',
-    },
-    {
-      type: 'field',
-      key: 'phone',
-      label: 'Téléphone',
-      render: (member) => member.phone || '-',
-    },
-    {
-      type: 'field',
-      key: 'isMinor',
-      label: 'Statut',
-      render: (member) => (
-        <span className={`px-2 py-1 text-xs rounded ${member.isMinor ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
-          {member.isMinor ? 'Mineur' : 'Majeur'}
-        </span>
-      ),
-    },
-    {
-      type: 'action',
-      label: 'Actions',
-      render: (member) => (
-        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-          <Button
-            size="icon"
-            variant="danger"
-            onClick={() => handleDeleteRequest(member.id)}
-            disabled={deletingId === member.id}
-            Icon={Trash2}
-          >
-            {deletingId === member.id ? (
-              'Suppression...'
-            ) : ''}
-          </Button>
-        </div>
-      ),
-    },
-  ];
-
+  
+  // 3. Fetch data côté serveur
+  const initialMembers = await memberService.getAll();
+  
+  // 4. Passer au Client Component avec le rôle
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Membres</h1>
-        <Button onClick={() => setIsSlideOverOpen(true)} Icon={UserRoundPlus}/>
-      </div>
-
-      {/* Filtres */}
-      <div className="mb-6 bg-white p-4 rounded-lg shadow">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FormField
-            label="Recherche"
-            name="search"
-            type="text"
-            value={search}
-            onChange={setSearch}
-            placeholder="Nom, prénom, email..."
-            compact
-          />
-        </div>
-      </div>
-
-      {error && <ErrorMessage error={error} />}
-
-      <DataTable<MemberWithFamilyNameDTO>
-        data={members as MemberWithFamilyNameDTO[]}
-        columns={columns}
-        onRowClick={(member) => router.push(`/members/${member.id}`)}
-        isLoading={isLoading}
-        emptyMessage="Aucun membre"
-      />
-      <MemberSlideOver 
-        isOpen={isSlideOverOpen}
-        onClose={() => setIsSlideOverOpen(false)}
-        onSuccess={handleCreateSucess}
-      />
-      <ConfirmModal
-        isOpen={isConfirmModalDeleteOpen}
-        title={"Supprimer le membre"}
-        content={'Etes-vous sûr de vouloir supprimer ce membre ?'}
-        onClose={() => {
-          setIsConfirmModalDeleteOpen(false);
-          setDeletingId(null);
-        }}
-        onConfirm={handleDelete}
-      />
-    </div>
+    <MembersPageClient 
+      initialMembers={initialMembers}
+      userRole={session.user.role}
+    />
   );
 }

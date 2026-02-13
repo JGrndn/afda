@@ -2,7 +2,7 @@
 
 import useSWR from 'swr';
 import { useResource } from '@/lib/hooks/useResources';
-import { createFamily, updateFamily, deleteFamily } from '@/app/families/families.actions';
+import { createFamily, updateFamily, deleteFamily } from '@/app/(app)/families/families.actions';
 import { FamilyDTO, FamilyWithFullDetailsDTO } from '@/lib/dto/family.dto';
 import { CreateFamilyInput, UpdateFamilyInput } from '@/lib/schemas/family.input';
 import { createCrudActionsHook } from '@/lib/actions/useServerActions';
