@@ -2,7 +2,7 @@
 
 import useSWR from 'swr';
 import { useResource } from '@/lib/hooks/useResources';
-import { createWorkshop, updateWorkshop, deleteWorkshop } from '@/app/workshops/workshops.actions';
+import { createWorkshop, updateWorkshop, deleteWorkshop } from '@/app/(app)/workshops/workshops.actions';
 import { WorkshopDTO, WorkshopWithPricesAndSeasonDTO } from '@/lib/dto/workshop.dto';
 import { CreateWorkshopInput, UpdateWorkshopInput } from '@/lib/schemas/workshop.input';
 import { WorkshopStatus } from '@/lib/domain/enums/workshop.enum';

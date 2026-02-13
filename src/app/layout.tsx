@@ -1,6 +1,7 @@
 import { Layout } from '@/components/layout/Layout';
 import '@/app/globals.css';
-import { NavigationProvider } from '@/components/navigation';
+import { SessionProvider } from '@/components/auth/SessionProvider';
+
 
 export const metadata = {
   title: 'AFDA',
@@ -15,9 +16,9 @@ export default function App({
   return (
     <html>
       <body>
-        <NavigationProvider>
-          <Layout title={metadata.title}>{children}</Layout>
-        </NavigationProvider>
+        <SessionProvider>
+          {children}
+        </SessionProvider>
       </body>
     </html>    
   );
