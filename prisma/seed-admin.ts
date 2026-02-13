@@ -1,44 +1,65 @@
 import 'dotenv/config';
-import { PrismaClient } from '@/generated/prisma/client';
+import { PrismaClient, UserRole } from '@/generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import bcrypt from 'bcryptjs';
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
+type UserProps = {
+  email: string;
+  name: string;
+  pwd: string;
+  role: UserRole
+}
+
 async function main() {
-  console.log('🌱 Creating admin user...');
+  console.log('🌱 Creating users...');
+  const users: UserProps[] = [{
+    email :'admin@afda.com',
+    name : 'Administrateur', 
+    pwd : 'admin123',
+    role: 'ADMIN' 
+  }, {
+    email :'manager@afda.com',
+    name : 'Manager', 
+    pwd : 'manager123',
+    role: 'MANAGER' 
+  }, {
+    email :'viewer@afda.com',
+    name : 'Viewer', 
+    pwd : 'viewer123',
+    role: 'VIEWER' 
+  }];
 
-  const adminEmail = 'admin@afda.com';
-  const adminPassword = 'admin123'; // À changer en production !
+  for(const u of users){
+    await createUser(u);
+    console.log(`✅ User <${u.name}> created`);
+  }
+}
 
-  // Vérifier si admin existe
+async function createUser({email, name, pwd, role}: UserProps){
   const existingAdmin = await prisma.user.findUnique({
-    where: { email: adminEmail },
+    where: { email: email },
   });
 
   if (existingAdmin) {
-    console.log('✅ Admin already exists');
+    console.log(`✅ User <${email}> already exists`);
     return;
   }
 
   // Créer l'admin
-  const hashedPassword = await bcrypt.hash(adminPassword, 10);
+  const hashedPassword = await bcrypt.hash(pwd, 10);
 
   const admin = await prisma.user.create({
     data: {
-      email: adminEmail,
+      email: email,
       password: hashedPassword,
-      name: 'Administrateur',
-      role: 'ADMIN',
+      name: name,
+      role: role,
       isActive: true,
     },
   });
-
-  console.log('✅ Admin user created:');
-  console.log('   Email:', admin.email);
-  console.log('   Password:', adminPassword);
-  console.log('   ⚠️  CHANGE THIS PASSWORD IN PRODUCTION!');
 }
 
 main()
