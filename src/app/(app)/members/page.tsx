@@ -2,6 +2,7 @@ import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { memberService } from '@/lib/services/member.service';
 import { MembersPageClient } from './MembersPageClient';
+import { UserRole } from '@/lib/domain/enums/user-role.enum';
 
 export default async function MembersPage() {
   // 1. Vérifier l'authentification
@@ -12,7 +13,12 @@ export default async function MembersPage() {
   }
   
   // 2. Vérifier les permissions (tous les rôles peuvent voir)
-  if (!['ADMIN', 'MANAGER', 'VIEWER'].includes(session.user.role)) {
+  const allowedRoles: UserRole[] = [
+    UserRole.ADMIN, 
+    UserRole.MANAGER, 
+    UserRole.VIEWER
+  ];
+  if (!allowedRoles.includes(session.user.role)) {
     redirect('/unauthorized');
   }
   

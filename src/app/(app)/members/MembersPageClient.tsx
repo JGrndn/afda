@@ -4,11 +4,11 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
 import { MemberWithFamilyNameDTO } from '@/lib/dto/member.dto';
-import { UserRole } from '@/generated/prisma/client';
 import { DataTable, Button, ErrorMessage, Column, FormField, ConfirmModal } from '@/components/ui';
 import { MemberSlideOver } from '@/components/member/MemberSlideOver';
 import { useMemberActions } from '@/hooks/member.hook';
 import { Trash2, UserRoundPlus } from 'lucide-react';
+import { UserRole, UserRolePermissions } from '@/lib/domain/enums/user-role.enum';
 
 interface MembersPageClientProps {
   initialMembers: MemberWithFamilyNameDTO[];
@@ -37,7 +37,8 @@ export function MembersPageClient({
   const [isConfirmModalDeleteOpen, setIsConfirmModalDeleteOpen] = useState(false);
   
   // Permissions dérivées du rôle
-  const canEdit = ['ADMIN', 'MANAGER'].includes(userRole);
+  const canCreate = UserRolePermissions.canCreate(userRole);
+  const canDelete = UserRolePermissions.canDelete(userRole);
   
   const handleDeleteRequest = (memberId: number) => {
     setIsConfirmModalDeleteOpen(true);
@@ -95,7 +96,7 @@ export function MembersPageClient({
         </span>
       ),
     },
-    ...(canEdit ? [{
+    ...(canDelete ? [{
       type: 'action' as const,
       label: 'Actions',
       render: (member: MemberWithFamilyNameDTO) => (
@@ -112,14 +113,14 @@ export function MembersPageClient({
         </div>
       ),
     }] : []),
-  ], [canEdit, deletingId]); // ✅ Dépendances pour useMemo
+  ], [canDelete, deletingId]); // ✅ Dépendances pour useMemo
   
   return (
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Membres</h1>
         
-        {canEdit && (
+        {canCreate && (
           <Button onClick={() => setIsSlideOverOpen(true)} Icon={UserRoundPlus}>
             Nouveau membre
           </Button>
