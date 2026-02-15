@@ -1,254 +1,48 @@
-'use client'
+import { auth } from '@/lib/auth';
+import { redirect, notFound } from 'next/navigation';
+import { seasonService } from '@/lib/services/season.service';
+import { SeasonDetailPageClient } from './SeasonDetailPageClient';
+import { UserRole } from '@/lib/domain/enums/user-role.enum';
 
-import { use, useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
-import { SeasonForm } from "@/components/season/SeasonForm";
-import { useSeason, useSeasonActions } from "@/hooks/season.hook";
-import { Button, Card, Column, ConfirmModal, DataTable, ErrorMessage, StatusBadge } from "@/components/ui";
-import { UpdateSeasonInput } from "@/lib/schemas/season.input";
-import { useWorkshopPriceActions } from "@/hooks/workshopPrice.hook";
-import { WorkshopPriceSlideOver } from "@/components/workshop/WorkshopPriceSlideOver";
-import { WorkshopPriceWithWorkshopInfoDTO } from "@/lib/dto/workshopPrice.dto";
-import { MembershipDTO, MembershipWithMemberDTO } from "@/lib/dto/membership.dto";
-
-export default function SeasonDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const router = useRouter();
-  const resolvedParams = use(params);
+export default async function SeasonDetailPage({ 
+  params 
+}: { 
+  params: Promise<{ id: string }> 
+}) {
+  // 1. Vérifier l'authentification
+  const session = await auth();
+  
+  if (!session) {
+    redirect('/signin');
+  }
+  
+  // 2. Vérifier les permissions (tous les rôles peuvent voir)
+  const allowedRoles: UserRole[] = [
+    UserRole.ADMIN, 
+    UserRole.MANAGER, 
+    UserRole.VIEWER
+  ];
+  if (!allowedRoles.includes(session.user.role)) {
+    redirect('/unauthorized');
+  }
+  
+  // 3. Résoudre les params
+  const resolvedParams = await params;
   const seasonId = parseInt(resolvedParams.id);
-  const { season, isLoading: seasonLoading, mutate } = useSeason(seasonId);
-
-  const { update, remove, isLoading: mutationLoading, error } = useSeasonActions();
-  const { create: createPrice, remove: removePrice } = useWorkshopPriceActions()
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [isAddingPrice, setIsAddingPrice] = useState(false);
-  const [selectedPrice, setSelectedPrice] = useState<WorkshopPriceWithWorkshopInfoDTO | null>(null);
-  const [isConfirmModalDeleteSeasonOpen, setIsConfirmModalDeleteSeasonOpen] = useState(false);
-  const [isConfirmModalDeleteWorkshopPriceOpen, setIsConfirmModalDeleteWorkshopPriceOpen] = useState(false);
-
-  const handleUpdate = async (data: UpdateSeasonInput) => {
-    await update(seasonId, data);
-    setIsEditing(false);
-    mutate();
-  };
-
-  const handleDeleteRequest = async () => {
-    setIsConfirmModalDeleteSeasonOpen(true);
-  };
-
-  const handleDelete = async () => {
-    await remove(seasonId);
-    router.push('/seasons');   
-  };
-
-  const handleAddPriceSuccess = () => {
-    mutate();
-  };
-
-  const handleDeletePriceRequest = async(price: WorkshopPriceWithWorkshopInfoDTO) => {
-    setIsConfirmModalDeleteWorkshopPriceOpen(true);
-    setSelectedPrice(price);
+  
+  // 4. Fetch season côté serveur
+  const initialSeason = await seasonService.getById(seasonId);
+  
+  // 5. Vérifier que la saison existe
+  if (!initialSeason) {
+    notFound();
   }
-
-  const handleDeletePrice = async () => {
-    if (!selectedPrice) return;
-    try {
-      await removePrice(selectedPrice.id);
-      mutate();
-    } catch (error) {
-      console.error('Failed to delete price:', error);
-    } finally {
-      setSelectedPrice(null);
-    }
-  };
-
-  if (seasonLoading) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-      </div>
-    );
-  }
-
-  if (!season) {
-    return (
-      <div className="container mx-auto p-6">
-        <Card>
-          <p>Saison introuvable</p>
-        </Card>
-      </div>
-    );
-  }
-
-  const priceColumns: Column<WorkshopPriceWithWorkshopInfoDTO>[] = [
-    {
-      type: 'computed',
-      label: 'Atelier',
-      render: (price) => `${price.workshop.name}` || '-',
-    },
-    {
-      type: 'field',
-      key: 'amount',
-      label: 'Prix (€)',
-      render: (price) => `${price.amount} €`,
-    },
-    {
-      type: 'action',
-      label: 'Actions',
-      render: (price) => (
-        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-          <Button
-            size="sm"
-            variant="danger"
-            onClick={() => handleDeletePriceRequest(price)}
-            disabled={selectedPrice?.id === price.id}
-            Icon={Trash2}
-          >
-            {selectedPrice?.id === price.id ? 'Suppression...' : ''}
-          </Button>
-        </div>
-      ),
-    },
-  ];
-
-  const membershipColumns: Column<MembershipWithMemberDTO>[] = [
-    {
-      type: 'field',
-      key: "memberName",
-      label:'Membre'
-    },
-    {
-      type: 'field',
-      key: 'status',
-      label: 'Adhésion',
-      render: (v: MembershipDTO) => (
-        <StatusBadge status={v.status} type='membership' />
-      )
-    }
-    // ajouter une colonne avec le nombre d'inscriptionx aux ateliers ?
-  ];
-
+  
+  // 6. Passer au Client Component avec le rôle
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      <Link
-        href="/seasons"
-        className="mb-2 inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Retour
-      </Link>
-      <div className="mb-6 flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            Saison {season.startYear} - {season.endYear}
-              <StatusBadge type="season" status={season.status} />
-          </h1>
-          <p className="text-gray-600 mt-1">
-            
-          </p>
-        </div>
-        <div className="flex gap-2">
-          {!isEditing && (
-            <>
-              <Button onClick={() => setIsEditing(true)} Icon={Pencil}/>
-              <Button variant="danger" onClick={handleDeleteRequest} Icon={Trash2} />
-            </>
-          )}
-        </div>
-      </div>
-
-      {error && <ErrorMessage error={error} />}
-
-      {isEditing ? (
-        <SeasonForm
-          initialData={season}
-          onSubmit={handleUpdate}
-          onCancel={() => setIsEditing(false)}
-          isLoading={mutationLoading}
-        />
-      ) : (
-        <div className="space-y-6">
-          <Card title="Détails">
-            <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Periode</dt>
-                <dd className="mt-1 text-sm text-gray-900">
-                  {season.startYear} - {season.endYear}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Montant Adhésion</dt>
-                <dd className="mt-1 text-sm text-gray-900 font-semibold">
-                  {Number(season.membershipAmount)} €
-                </dd>
-              </div>
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Réduction</dt>
-                <dd className="mt-1">
-                  {season.discountPercent} %
-                </dd>
-              </div>
-            </dl>
-          </Card>
-
-          <Card
-            title="Ateliers de la saison"
-            actions={
-              !isAddingPrice && (
-                <Button size="sm" onClick={() => setIsAddingPrice(true)}>
-                  Ajouter un atelier
-                </Button>
-              )
-            }
-          >
-            <DataTable<WorkshopPriceWithWorkshopInfoDTO>
-              data={season.prices}
-              columns={priceColumns}
-              emptyMessage="Aucun tarif défini"
-            />
-            {isAddingPrice && 
-              <WorkshopPriceSlideOver 
-                isOpen={isAddingPrice}
-                onClose={() => setIsAddingPrice(false)}
-                onSuccess={handleAddPriceSuccess}
-                seasonId={season.id}
-              />
-            }
-          </Card>
-
-          <Card
-            title="Membres de la saison"
-          >
-            <DataTable<MembershipWithMemberDTO>
-              data={season.memberships}
-              columns={membershipColumns}
-              emptyMessage="Aucun membre"
-            /> 
-          </Card>
-
-        </div>
-      )}
-      <ConfirmModal
-        isOpen={isConfirmModalDeleteWorkshopPriceOpen}
-        title={"Supprimer l'atelier"}
-        content={'Etes-vous sûr de vouloir supprimer cet atelier pour cette saison ?'}
-        onClose={() => {
-          setIsConfirmModalDeleteWorkshopPriceOpen(false);
-          setSelectedPrice(null);
-        }}
-        onConfirm={handleDeletePrice}
-      />
-      <ConfirmModal
-        isOpen={isConfirmModalDeleteSeasonOpen}
-        title={'Supprimer la saison'}
-        content={'Etes-vous sûr de vouloir supprimer cette saison ?'}
-        onClose={() => {
-          setIsConfirmModalDeleteSeasonOpen(false);
-        }}
-        onConfirm={handleDelete}
-      />
-    </div>
+    <SeasonDetailPageClient 
+      initialSeason={initialSeason}
+      userRole={session.user.role}
+    />
   );
 }
