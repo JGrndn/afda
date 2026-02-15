@@ -6,30 +6,22 @@ import useSWR from 'swr';
 import { MemberWithFamilyNameDTO } from '@/lib/dto/member.dto';
 import { DataTable, Button, ErrorMessage, Column, FormField, ConfirmModal } from '@/components/ui';
 import { MemberSlideOver } from '@/components/member/MemberSlideOver';
-import { useMemberActions } from '@/hooks/member.hook';
+import { useMembers, useMemberActions } from '@/hooks/member.hook';
 import { Trash2, UserRoundPlus } from 'lucide-react';
 import { UserRole, UserRolePermissions } from '@/lib/domain/enums/user-role.enum';
 
 interface MembersPageClientProps {
-  initialMembers: MemberWithFamilyNameDTO[];
   userRole: UserRole;
 }
 
 export function MembersPageClient({ 
-  initialMembers, 
   userRole 
 }: MembersPageClientProps) {
   const router = useRouter();
   const [search, setSearch] = useState('');
   
   // SWR avec données initiales du serveur
-  const url = search ? `/api/members?search=${search}` : '/api/members';
-  const { data: members = initialMembers, mutate } = useSWR<MemberWithFamilyNameDTO[]>(
-    url,
-    {
-      fallbackData: initialMembers,
-    }
-  );
+  const {data:members, isLoading, mutate } = useMembers({search});
   
   const { remove, error } = useMemberActions();
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -108,7 +100,7 @@ export function MembersPageClient({
             disabled={deletingId === member.id}
             Icon={Trash2}
           >
-            {deletingId === member.id ? 'Suppression...' : 'Supprimer'}
+            {deletingId === member.id ? 'Suppression...' : ''}
           </Button>
         </div>
       ),

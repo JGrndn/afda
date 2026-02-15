@@ -1,99 +1,36 @@
-'use client';
+import { auth } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import { seasonService } from '@/lib/services/season.service';
+import { SeasonsPageClient } from './SeasonsPageClient';
+import { UserRole } from '@/lib/domain/enums/user-role.enum';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSeasons, useSeasonActions } from '@/hooks/season.hook';
-import { DataTable, Button, StatusBadge, ErrorMessage, Column } from '@/components/ui';
-import { SeasonDTO } from '@/lib/dto/season.dto';
-import { SEASON_STATUS } from '@/lib/domain/enums/season.enum';
-import { CalendarPlus } from 'lucide-react';
-import { SeasonSlideOver } from '@/components/season/SeasonSlideOver';
-
-export default function SeasonsPage() {
-  const router = useRouter();
-  const { data:seasons, isLoading, mutate } = useSeasons();
-  const { update, isLoading: isUpdating } = useSeasonActions();
+export default async function SeasonsPage() {
+  // 1. Vérifier l'authentification
+  const session = await auth();
   
-  const [activatingId, setActivatingId] = useState<number | null>(null);
-  const [error, setError] = useState<Error | null>(null);
-  const [isSlideOverOpen, setIsSlideOverOpen] = useState(false);
-
-  const handleActivate = async (seasonId: number) => {
-    setActivatingId(seasonId);
-    setError(null);
-    try {
-      // L'API gère automatiquement la désactivation de l'ancienne saison active
-      await update(seasonId, {status: SEASON_STATUS.ACTIVE});
-      await mutate();
-    } catch (error:any) {
-      setError(error);
-    } finally {
-      setActivatingId(null);
-    }
-  };
-
-  const handleCreateSucess = async() => {
-    await mutate();
+  if (!session) {
+    redirect('/signin');
   }
-
-  const columns : Column<SeasonDTO>[]= [
-    {
-      type: 'computed',
-      label: 'Saison',
-      render: (season: SeasonDTO) => `${season.startYear}-${season.endYear}`,
-    },
-    {
-      type: 'field',
-      key: 'membershipAmount',
-      label: 'Adhésion (€)',
-    },
-    {
-      type: 'field',
-      key: 'status',
-      label: 'Statut',
-      render: (season: SeasonDTO) => (
-        <StatusBadge status={season.status} type='season' />
-      ),
-    },
-    {
-      type: 'action',
-      label: 'Actions',
-      render: (season: SeasonDTO) => (
-        season.status === SEASON_STATUS.INACTIVE && (
-          <Button
-            size="sm"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleActivate(season.id);
-            }}
-            disabled={activatingId === season.id}
-          >
-            {activatingId === season.id ? 'Activation...' : 'Activer'}
-          </Button>
-        )
-      ),
-    },
+  
+  // 2. Vérifier les permissions (tous les rôles peuvent voir)
+  const allowedRoles: UserRole[] = [
+    UserRole.ADMIN, 
+    UserRole.MANAGER, 
+    UserRole.VIEWER
   ];
-
+  if (!allowedRoles.includes(session.user.role)) {
+    redirect('/unauthorized');
+  }
+  
+  // 3. Fetch data côté serveur
+  const initialSeasons = await seasonService.getAll({
+    orderBy: { startYear: 'desc' },
+  });
+  
+  // 4. Passer au Client Component avec le rôle
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Saisons</h1>
-        <Button onClick={() => setIsSlideOverOpen(true)} Icon={CalendarPlus}/>
-      </div>
-      {error && <ErrorMessage error={error}/>}
-      <DataTable<SeasonDTO>
-        data={seasons}
-        columns={columns}
-        onRowClick={(season) => router.push(`/seasons/${season.id}`)}
-        isLoading={isLoading}
-        emptyMessage="Aucune donnée"
-      />
-      <SeasonSlideOver 
-        isOpen={isSlideOverOpen}
-        onClose={() => setIsSlideOverOpen(false)}
-        onSuccess={handleCreateSucess}
-      />
-    </div>
+    <SeasonsPageClient
+      userRole={session.user.role}
+    />
   );
 }

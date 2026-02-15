@@ -1,7 +1,7 @@
 'use client'
 
 import { useResource } from "@/lib/hooks/useResources";
-import { createSeason, updateSeason, deleteSeason } from "@/app/seasons/seasons.actions";
+import { createSeason, updateSeason, deleteSeason } from "@/app/(app)/seasons/seasons.actions";
 import useSWR from "swr";
 import { SeasonDTO, SeasonWithFullDetailsDTO, SeasonWithPricesAndWorkshopDTO } from "@/lib/dto/season.dto";
 import { CreateSeasonInput, UpdateSeasonInput } from "@/lib/schemas/season.input";

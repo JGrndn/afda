@@ -27,8 +27,7 @@ export default async function MembersPage() {
   
   // 4. Passer au Client Component avec le rôle
   return (
-    <MembersPageClient 
-      initialMembers={initialMembers}
+    <MembersPageClient
       userRole={session.user.role}
     />
   );
