@@ -22,9 +22,6 @@ export default async function MembersPage() {
     redirect('/unauthorized');
   }
   
-  // 3. Fetch data côté serveur
-  const initialMembers = await memberService.getAll();
-  
   // 4. Passer au Client Component avec le rôle
   return (
     <MembersPageClient

@@ -22,11 +22,6 @@ export default async function SeasonsPage() {
     redirect('/unauthorized');
   }
   
-  // 3. Fetch data côté serveur
-  const initialSeasons = await seasonService.getAll({
-    orderBy: { startYear: 'desc' },
-  });
-  
   // 4. Passer au Client Component avec le rôle
   return (
     <SeasonsPageClient
