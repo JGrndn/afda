@@ -1,6 +1,6 @@
 'use client';
 
-import { createRegistration, updateRegistration, deleteRegistration } from '@/app/registrations/registrations.actions';
+import { createRegistration, updateRegistration, deleteRegistration } from '@/app/(app)/registrations/registrations.actions';
 import { RegistrationDTO } from '@/lib/dto/registration.dto';
 import { CreateRegistrationInput, UpdateRegistrationInput } from '@/lib/schemas/registration.input';
 import { createCrudActionsHook } from '@/lib/actions/useServerActions';

@@ -1,9 +1,14 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { paymentService } from '@/lib/services/payment.service';
 import { parseQueryParams } from '@/lib/hooks/apiHelper';
 import { PaymentStatusSchema } from '@/lib/schemas/payment.schema';
+import { requireAuth } from '@/lib/auth/api-protection';
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
+  // tout utilisateur authentifié peut lire
+  const sessionOrError = await requireAuth(request);
+  if (sessionOrError instanceof NextResponse) return sessionOrError;
+  
   try {
     const options = parseQueryParams(request, { status: PaymentStatusSchema });
     const { searchParams } = new URL(request.url);

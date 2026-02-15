@@ -6,7 +6,7 @@ import {
   createPayment,
   updatePayment,
   deletePayment,
-} from '@/app/payments/payments.actions';
+} from '@/app/(app)/payments/payments.actions';
 import {
   PaymentDTO,
   PaymentWithDetailsDTO,

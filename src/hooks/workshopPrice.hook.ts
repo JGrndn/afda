@@ -1,6 +1,6 @@
 'use client'
 
-import { createWorkshopPrice, deleteWorkshopPrice, updateWorkshopPrice } from "@/app/workshops/workshops.actions";
+import { createWorkshopPrice, deleteWorkshopPrice, updateWorkshopPrice } from "@/app/(app)/workshops/workshops.actions";
 import { createCrudActionsHook } from "@/lib/actions/useServerActions";
 import { WorkshopPriceDTO } from "@/lib/dto/workshopPrice.dto";
 import { CreateWorkshopPriceInput, UpdateWorkshopPriceInput } from "@/lib/schemas/workshop.input";

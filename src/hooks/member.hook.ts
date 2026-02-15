@@ -2,7 +2,7 @@
 
 import useSWR from 'swr';
 import { useResource } from '@/lib/hooks/useResources';
-import { createMember, updateMember, deleteMember } from '@/app/members/members.actions';
+import { createMember, updateMember, deleteMember } from '@/app/(app)/members/members.actions';
 import { MemberDTO, MemberWithFamilyNameDTO, MemberWithFullDetailsDTO } from '@/lib/dto/member.dto';
 import { CreateMemberInput, UpdateMemberInput } from '@/lib/schemas/member.input';
 import { createCrudActionsHook } from '@/lib/actions/useServerActions';

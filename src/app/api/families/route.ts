@@ -1,8 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { familyService } from '@/lib/services/family.service';
 import { parseQueryParams } from '@/lib/hooks/apiHelper';
+import { requireAuth, requireRole } from '@/lib/auth/api-protection';
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
+  // tout utilisateur authentifié peut lire
+  const sessionOrError = await requireAuth(request);
+  if (sessionOrError instanceof NextResponse) return sessionOrError;
+
   try {
     const options = parseQueryParams(request);
     const { searchParams } = new URL(request.url);
@@ -21,7 +26,11 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+// Seuls ADMIN et MANAGER peuvent créer
+  const sessionOrError = await requireRole(request, ['ADMIN', 'MANAGER']);
+  if (sessionOrError instanceof NextResponse) return sessionOrError;
+  
   try {
     const data = await request.json();
     const family = await familyService.create(data);

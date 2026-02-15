@@ -1,6 +1,7 @@
 'use client'
 
 import { navItems, SideBarItem, AppVersion, useNavigation } from "@/components/navigation";
+import { UserMenu } from '@/components/auth/UserMenu';
 import { Menu } from "lucide-react";
 import Link from "next/link";
 
@@ -17,6 +18,7 @@ export function SideBar({ title } : {
         ${isCollapsed ? 'w-20' : 'w-64'}
       `}
     >
+      {/* Header */}
       <div className="h-16 flex items-center justify-between px-4 border-b border-blue-800">
         {!isCollapsed && <Link href="/" className="text-xl font-bold">{title}</Link>}
         <button
@@ -28,12 +30,19 @@ export function SideBar({ title } : {
         </button>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-1">
+      {/* Navigation */}
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => (
           <SideBarItem key={item.id} item={item} />
         ))}
       </nav>
 
+      {/* User Menu */}
+      <div className="border-t border-blue-800 p-3">
+        <UserMenu collapsed={isCollapsed} />
+      </div>
+
+      {/* Version */}
       <AppVersion collapsed={isCollapsed}/>
     </aside>
   );

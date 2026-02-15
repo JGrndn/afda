@@ -1,34 +1,53 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useMembers, useMemberActions } from '@/hooks/member.hook';
-import { DataTable, Button, ErrorMessage, Column, FormField, ConfirmModal } from '@/components/ui';
+import useSWR from 'swr';
 import { MemberWithFamilyNameDTO } from '@/lib/dto/member.dto';
-import { Trash2, UserRoundPlus } from 'lucide-react';
+import { DataTable, Button, ErrorMessage, Column, FormField, ConfirmModal } from '@/components/ui';
 import { MemberSlideOver } from '@/components/member/MemberSlideOver';
+import { useMemberActions } from '@/hooks/member.hook';
+import { Trash2, UserRoundPlus } from 'lucide-react';
+import { UserRole, UserRolePermissions } from '@/lib/domain/enums/user-role.enum';
 
-export default function MembersPage() {
+interface MembersPageClientProps {
+  initialMembers: MemberWithFamilyNameDTO[];
+  userRole: UserRole;
+}
+
+export function MembersPageClient({ 
+  initialMembers, 
+  userRole 
+}: MembersPageClientProps) {
   const router = useRouter();
   const [search, setSearch] = useState('');
   
-  const { data: members, isLoading, mutate } = useMembers({ 
-    search,
-  });
+  // SWR avec données initiales du serveur
+  const url = search ? `/api/members?search=${search}` : '/api/members';
+  const { data: members = initialMembers, mutate } = useSWR<MemberWithFamilyNameDTO[]>(
+    url,
+    {
+      fallbackData: initialMembers,
+    }
+  );
   
   const { remove, error } = useMemberActions();
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [isSlideOverOpen, setIsSlideOverOpen] = useState(false);
   const [isConfirmModalDeleteOpen, setIsConfirmModalDeleteOpen] = useState(false);
-
-  const handleDeleteRequest = async (memberId: number) => {
+  
+  // Permissions dérivées du rôle
+  const canCreate = UserRolePermissions.canCreate(userRole);
+  const canDelete = UserRolePermissions.canDelete(userRole);
+  
+  const handleDeleteRequest = (memberId: number) => {
     setIsConfirmModalDeleteOpen(true);
     setDeletingId(memberId);
-  }
+  };
 
-  const handleCreateSucess = async () =>{
+  const handleCreateSuccess = async () => {
     await mutate();
-  }
+  };
 
   const handleDelete = async () => {
     if (!deletingId) return;
@@ -41,8 +60,9 @@ export default function MembersPage() {
       setDeletingId(null);
     }
   };
-
-  const columns: Column<MemberWithFamilyNameDTO>[] = [
+  
+  // ✅ Colonnes définies avec useMemo pour éviter les re-renders
+  const columns: Column<MemberWithFamilyNameDTO>[] = useMemo(() => [
     {
       type: 'computed',
       label: 'Nom',
@@ -76,10 +96,10 @@ export default function MembersPage() {
         </span>
       ),
     },
-    {
-      type: 'action',
+    ...(canDelete ? [{
+      type: 'action' as const,
       label: 'Actions',
-      render: (member) => (
+      render: (member: MemberWithFamilyNameDTO) => (
         <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
           <Button
             size="icon"
@@ -88,55 +108,57 @@ export default function MembersPage() {
             disabled={deletingId === member.id}
             Icon={Trash2}
           >
-            {deletingId === member.id ? (
-              'Suppression...'
-            ) : ''}
+            {deletingId === member.id ? 'Suppression...' : 'Supprimer'}
           </Button>
         </div>
       ),
-    },
-  ];
-
+    }] : []),
+  ], [canDelete, deletingId]); // ✅ Dépendances pour useMemo
+  
   return (
     <div className="container mx-auto p-6">
-      <div className="mb-6 flex justify-between items-center">
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Membres</h1>
-        <Button onClick={() => setIsSlideOverOpen(true)} Icon={UserRoundPlus}/>
+        
+        {canCreate && (
+          <Button onClick={() => setIsSlideOverOpen(true)} Icon={UserRoundPlus}>
+            Nouveau membre
+          </Button>
+        )}
       </div>
-
-      {/* Filtres */}
-      <div className="mb-6 bg-white p-4 rounded-lg shadow">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FormField
-            label="Recherche"
-            name="search"
-            type="text"
-            value={search}
-            onChange={setSearch}
-            placeholder="Nom, prénom, email..."
-            compact
-          />
-        </div>
-      </div>
-
+      
       {error && <ErrorMessage error={error} />}
-
-      <DataTable<MemberWithFamilyNameDTO>
-        data={members as MemberWithFamilyNameDTO[]}
+      
+      <div className="mb-4">
+        <FormField
+          label="Rechercher"
+          name="search"
+          type="text"
+          value={search}
+          onChange={setSearch}
+          placeholder="Nom, email..."
+          compact
+        />
+      </div>
+      
+      <DataTable 
+        data={members}
         columns={columns}
         onRowClick={(member) => router.push(`/members/${member.id}`)}
-        isLoading={isLoading}
+        isLoading={false}
         emptyMessage="Aucun membre"
       />
-      <MemberSlideOver 
+      
+      <MemberSlideOver
         isOpen={isSlideOverOpen}
         onClose={() => setIsSlideOverOpen(false)}
-        onSuccess={handleCreateSucess}
+        onSuccess={handleCreateSuccess}
       />
+      
       <ConfirmModal
         isOpen={isConfirmModalDeleteOpen}
-        title={"Supprimer le membre"}
-        content={'Etes-vous sûr de vouloir supprimer ce membre ?'}
+        title="Supprimer le membre"
+        content="Êtes-vous sûr de vouloir supprimer ce membre ?"
         onClose={() => {
           setIsConfirmModalDeleteOpen(false);
           setDeletingId(null);
