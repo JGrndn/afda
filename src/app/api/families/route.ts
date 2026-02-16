@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { familyService } from '@/lib/services/family.service';
 import { parseQueryParams } from '@/lib/hooks/apiHelper';
 import { requireAuth, requireRole } from '@/lib/auth/api-protection';
+import { CreateFamilySchema } from '@/lib/schemas/family.input';
+import { validateBody, isNextResponse } from '@/lib/api/validation';
 
 export async function GET(request: NextRequest) {
   // tout utilisateur authentifié peut lire
@@ -10,7 +12,6 @@ export async function GET(request: NextRequest) {
 
   try {
     const options = parseQueryParams(request);
-    const { searchParams } = new URL(request.url);
 
     const families = await familyService.getAll({
       ...options,
@@ -27,13 +28,16 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-// Seuls ADMIN et MANAGER peuvent créer
+  // Seuls ADMIN et MANAGER peuvent créer
   const sessionOrError = await requireRole(request, ['ADMIN', 'MANAGER']);
   if (sessionOrError instanceof NextResponse) return sessionOrError;
   
+  // ✅ Validation Zod
+  const dataOrError = await validateBody(request, CreateFamilySchema);
+  if (isNextResponse(dataOrError)) return dataOrError;
+
   try {
-    const data = await request.json();
-    const family = await familyService.create(data);
+    const family = await familyService.create(dataOrError);
     return NextResponse.json(family, { status: 201 });
   } catch (error) {
     console.error('Failed to create family:', error);

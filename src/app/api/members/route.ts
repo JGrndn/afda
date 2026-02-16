@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { memberService } from '@/lib/services/member.service';
 import { parseQueryParams } from '@/lib/hooks/apiHelper';
 import { requireAuth, requireRole } from '@/lib/auth/api-protection';
+import { CreateMemberSchema } from '@/lib/schemas/member.input';
+import { validateBody, isNextResponse } from '@/lib/api/validation';
 
 export async function GET(request: NextRequest) {
   // tout utilisateur authentifié peut lire
@@ -30,9 +32,12 @@ export async function POST(request: NextRequest) {
   const sessionOrError = await requireRole(request, ['ADMIN', 'MANAGER']);
   if (sessionOrError instanceof NextResponse) return sessionOrError;
 
+  // ✅ Validation Zod
+  const dataOrError = await validateBody(request, CreateMemberSchema);
+  if (isNextResponse(dataOrError)) return dataOrError;
+
   try {
-    const data = await request.json();
-    const member = await memberService.create(data);
+    const member = await memberService.create(dataOrError);
     return NextResponse.json(member, { status: 201 });
   } catch (error) {
     console.error('Failed to create member:', error);
