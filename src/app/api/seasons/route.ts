@@ -3,6 +3,8 @@ import { seasonService } from '@/lib/services/season.service';
 import { parseQueryParams } from '@/lib/hooks/apiHelper';
 import { SeasonStatusSchema } from '@/lib/schemas/season.schema';
 import { requireAuth, requireRole } from '@/lib/auth/api-protection';
+import { CreateSeasonSchema } from '@/lib/schemas/season.input';
+import { validateBody, isNextResponse } from '@/lib/api/validation';
 
 export async function GET(request: NextRequest) {
   // tout utilisateur authentifié peut lire
@@ -10,8 +12,7 @@ export async function GET(request: NextRequest) {
   if (sessionOrError instanceof NextResponse) return sessionOrError;
   
   try {
-    const { searchParams } = new URL(request.url);
-    const options = parseQueryParams(request, { status:SeasonStatusSchema});
+    const options = parseQueryParams(request, { status: SeasonStatusSchema });
 
     const seasons = await seasonService.getAll({
       ...options,
@@ -31,9 +32,12 @@ export async function POST(request: NextRequest) {
   const sessionOrError = await requireRole(request, ['ADMIN', 'MANAGER']);
   if (sessionOrError instanceof NextResponse) return sessionOrError;
   
+  // ✅ Validation Zod
+  const dataOrError = await validateBody(request, CreateSeasonSchema);
+  if (isNextResponse(dataOrError)) return dataOrError;
+
   try {
-    const data = await request.json();
-    const season = await seasonService.create(data);
+    const season = await seasonService.create(dataOrError);
     return NextResponse.json(season, { status: 201 });
   } catch (error) {
     return NextResponse.json(
