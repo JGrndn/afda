@@ -151,3 +151,46 @@ export const validCreateRegistrationInput = {
   totalPrice: 130,
   discountPercent: 0,
 };
+
+// ── WorkshopPrice ────────────────────────────
+export const buildPrismaWorkshopPrice = (overrides = {}) => ({
+  id: 1,
+  workshopId: 1,
+  seasonId: 1,
+  amount: new Decimal('130.00'),
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-01-01'),
+  ...overrides,
+});
+
+// ── Payment ──────────────────────────────────
+export const buildPrismaPayment = (overrides = {}) => ({
+  id: 1,
+  familyId: 1,
+  seasonId: 1,
+  amount: new Decimal('100.00'),
+  paymentType: 'cash',
+  paymentDate: new Date('2025-09-15'),
+  cashingDate: null,
+  status: 'completed',
+  reference: null,
+  notes: null,
+  createdAt: new Date('2024-01-01'),
+  updatedAt: new Date('2024-01-01'),
+  ...overrides,
+});
+
+// ── CreateWorkshopPriceInput valides ──────────
+export const validCreateWorkshopPriceInput = {
+  workshopId: 1,
+  seasonId: 1,
+  amount: 130,
+};
+
+// ── CreatePaymentInput valides ────────────────
+export const validCreatePaymentInput = {
+  familyId: 1,
+  seasonId: 1,
+  amount: 100,
+  paymentType: 'cash' as const,
+};
