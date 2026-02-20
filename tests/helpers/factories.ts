@@ -1,11 +1,9 @@
-
+import { Decimal } from '@prisma/client/runtime/client';
 
 // ─────────────────────────────────────────────
 //  Factories : données mock qui reflètent exactement
 //  les types Prisma du projet AFDA
 // ─────────────────────────────────────────────
-
-import { Decimal } from "@prisma/client/runtime/client";
 
 let idCounter = 1;
 const nextId = () => idCounter++;
@@ -58,7 +56,7 @@ export const buildPrismaSeason = (overrides = {}) => ({
   id: nextId(),
   startYear: 2025,
   endYear: 2026,
-  status: 'active',
+  status: 'active', // 'active' ou 'inactive' requis par le schéma
   membershipAmount: new Decimal('120.00'),
   discountPercent: 10,
   totalDonations: new Decimal('0.00'),
@@ -66,6 +64,10 @@ export const buildPrismaSeason = (overrides = {}) => ({
   updatedAt: new Date('2024-01-01'),
   ...overrides,
 });
+
+// Helper pour créer une saison inactive
+export const buildInactiveSeason = (overrides = {}) =>
+  buildPrismaSeason({ status: 'inactive', ...overrides });
 
 // ── Workshop ─────────────────────────────────
 export const buildPrismaWorkshop = (overrides = {}) => ({

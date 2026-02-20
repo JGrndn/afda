@@ -49,10 +49,10 @@ describe('memberService', () => {
       });
       const membership = buildPrismaMembership({
         memberId: 42,
-        season: { id: 1, startYear: 2025, endYear: 2026 },
+        season: { id: 1, startYear: 2025, endYear: 2026, status:'active' },
       });
 
-      vi.mocked(prisma.member.findUnique).mockResolvedValue({
+      (prisma as any).member.findUnique.mockResolvedValue({
         ...member,
         family,
         registrations: [registration],
@@ -70,7 +70,7 @@ describe('memberService', () => {
     });
 
     it("retourne null quand le membre n'existe pas", async () => {
-      vi.mocked(prisma.member.findUnique).mockResolvedValue(null);
+      (prisma as any).member.findUnique.mockResolvedValue(null);
 
       const result = await memberService.getById(9999);
 
@@ -87,7 +87,7 @@ describe('memberService', () => {
         ...validCreateMemberInput,
         id: 10,
       });
-      vi.mocked(prisma.member.create).mockResolvedValue(created as any);
+      (prisma as any).member.create.mockResolvedValue(created as any);
 
       const result = await memberService.create(validCreateMemberInput);
 
@@ -96,12 +96,12 @@ describe('memberService', () => {
         data: validCreateMemberInput,
       });
       expect(result.id).toBe(10);
-      expect(result.firstName).toBe('Martin');
+      expect(result.firstName).toBe('Sophie');
     });
 
     it('crée un membre mineur avec les infos tuteur', async () => {
       const created = buildPrismaMinorMember({ id: 11 });
-      vi.mocked(prisma.member.create).mockResolvedValue(created as any);
+      (prisma as any).member.create.mockResolvedValue(created as any);
 
       const result = await memberService.create(validCreateMinorInput);
 
@@ -131,7 +131,7 @@ describe('memberService', () => {
     });
 
     it('lève FAMILY_NOT_FOUND si la famille est introuvable (erreur Prisma P2003)', async () => {
-      vi.mocked(prisma.member.create).mockRejectedValue(prismaError('P2003'));
+      (prisma as any).member.create.mockRejectedValue(prismaError('P2003'));
 
       await expect(
         memberService.create({ ...validCreateMemberInput, familyId: 9999 })
@@ -140,7 +140,7 @@ describe('memberService', () => {
 
     it('propage les erreurs inattendues sans les transformer', async () => {
       const unexpectedError = new Error('DB connection lost');
-      vi.mocked(prisma.member.create).mockRejectedValue(unexpectedError);
+      (prisma as any).member.create.mockRejectedValue(unexpectedError);
 
       await expect(memberService.create(validCreateMemberInput)).rejects.toThrow(
         'DB connection lost'
@@ -154,7 +154,7 @@ describe('memberService', () => {
   describe('update', () => {
     it('met à jour un membre existant', async () => {
       const updated = buildPrismaMember({ id: 1, firstName: 'Pierre' });
-      vi.mocked(prisma.member.update).mockResolvedValue(updated as any);
+      (prisma as any).member.update.mockResolvedValue(updated as any);
 
       const result = await memberService.update(1, { firstName: 'Pierre' });
 
@@ -166,7 +166,7 @@ describe('memberService', () => {
     });
 
     it('lève MEMBER_NOT_FOUND si le membre est introuvable (P2025)', async () => {
-      vi.mocked(prisma.member.update).mockRejectedValue(prismaError('P2025'));
+      (prisma as any).member.update.mockRejectedValue(prismaError('P2025'));
 
       await expect(
         memberService.update(9999, { firstName: 'Test' })
@@ -174,7 +174,7 @@ describe('memberService', () => {
     });
 
     it('lève FAMILY_NOT_FOUND si la nouvelle famille est invalide (P2003)', async () => {
-      vi.mocked(prisma.member.update).mockRejectedValue(prismaError('P2003'));
+      (prisma as any).member.update.mockRejectedValue(prismaError('P2003'));
 
       await expect(
         memberService.update(1, { familyId: 9999 })
@@ -187,7 +187,7 @@ describe('memberService', () => {
   // ─────────────────────────────────────────
   describe('delete', () => {
     it('supprime un membre existant sans erreur', async () => {
-      vi.mocked(prisma.member.delete).mockResolvedValue(
+      (prisma as any).member.delete.mockResolvedValue(
         buildPrismaMember() as any
       );
 
@@ -196,7 +196,7 @@ describe('memberService', () => {
     });
 
     it('lève MEMBER_NOT_FOUND si le membre est introuvable (P2025)', async () => {
-      vi.mocked(prisma.member.delete).mockRejectedValue(prismaError('P2025'));
+      (prisma as any).member.delete.mockRejectedValue(prismaError('P2025'));
 
       await expect(memberService.delete(9999)).rejects.toMatchObject({
         code: 'MEMBER_NOT_FOUND',
@@ -213,7 +213,7 @@ describe('memberService', () => {
         { ...buildPrismaMember({ lastName: 'Arnaud' }), family: null },
         { ...buildPrismaMember({ lastName: 'Dupont' }), family: null },
       ];
-      vi.mocked(prisma.member.findMany).mockResolvedValue(members as any);
+      (prisma as any).member.findMany.mockResolvedValue(members as any);
 
       const result = await memberService.getAll();
 
@@ -226,7 +226,7 @@ describe('memberService', () => {
     });
 
     it('filtre par recherche textuelle (nom, prénom, email)', async () => {
-      vi.mocked(prisma.member.findMany).mockResolvedValue([]);
+      (prisma as any).member.findMany.mockResolvedValue([]);
 
       await memberService.getAll({ search: 'dupont' });
 
@@ -244,7 +244,7 @@ describe('memberService', () => {
     });
 
     it('filtre par familyId si fourni', async () => {
-      vi.mocked(prisma.member.findMany).mockResolvedValue([]);
+      (prisma as any).member.findMany.mockResolvedValue([]);
 
       await memberService.getAll({ familyId: 5 });
 
