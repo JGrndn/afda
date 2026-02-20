@@ -11,9 +11,9 @@ export function toSeasonDTO(season: PrismaSeason): SeasonDTO{
     startYear: season.startYear,
     endYear: season.endYear,
     status: SeasonStatusSchema.parse(season.status),
-    membershipAmount: season.membershipAmount.toNumber(),
+    membershipAmount: season.membershipAmount?.toNumber(),
     discountPercent: season.discountPercent,
-    totalDonations: season.totalDonations.toNumber(),
+    totalDonations: season.totalDonations?.toNumber(),
     createdAt: season.createdAt,
     updatedAt: season.updatedAt,
   };

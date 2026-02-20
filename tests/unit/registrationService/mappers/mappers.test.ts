@@ -129,7 +129,7 @@ describe('toMemberWithFullDetailsDTO', () => {
     const family = buildPrismaFamily();
     const workshop = buildPrismaWorkshop();
     const registration = { ...buildPrismaRegistration(), workshop };
-    const season = { id: 1, startYear: 2025, endYear: 2026 };
+    const season = { id: 1, startYear: 2025, endYear: 2026, status:'active' };
     const membership = { ...buildPrismaMembership(), season };
 
     const member = {

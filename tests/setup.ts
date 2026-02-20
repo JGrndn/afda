@@ -5,7 +5,7 @@ import { vi, beforeEach, afterAll } from 'vitest';
 //  Mock global de Prisma pour les tests unitaires
 //  (les tests d'intégration utilisent une vraie DB de test)
 // ─────────────────────────────────────────────
-vi.mock('@/lib/prisma', () => ({
+vi.mock('@/generated/prisma', () => ({
   prisma: {
     member: {
       findMany: vi.fn(),
