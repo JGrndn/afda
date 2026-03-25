@@ -1,25 +1,45 @@
 'use client';
 
+import { useState } from 'react';
+import { FileText } from 'lucide-react';
 import { InvoiceDTO } from '@/lib/dto/invoice.dto';
+import { InvoiceModal } from './InvoiceModal';
+import { Button } from '@/components/ui';
 
 export function InvoiceButton({
-  invoice,
+  invoice: initialInvoice,
+  onInvoiceIssued,
 }: {
   invoice: InvoiceDTO;
+  onInvoiceIssued?: (issued: InvoiceDTO) => void;
 }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [invoice, setInvoice] = useState<InvoiceDTO>(initialInvoice);
+
+  const handleIssued = (issued: InvoiceDTO) => {
+    setInvoice(issued);
+    onInvoiceIssued?.(issued);
+  };
+
   const isDraft = invoice.status === 'draft';
 
-  const href = isDraft
-    ? `/api/invoice/preview?familyId=${invoice.familyId}&seasonId=${invoice.seasonId}`
-    : `/api/invoice/${invoice.id}/pdf`;
-
   return (
-    <a
-      href={href}
-      target="_blank"
-      className="inline-flex items-center gap-2 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-    >
-      {isDraft ? 'Voir la facture (brouillon)' : 'Voir la facture'}
-    </a>
+    <>
+      <Button
+        variant={isDraft ? 'secondary' : 'primary'}
+        size="sm"
+        Icon={FileText}
+        onClick={() => setIsOpen(true)}
+      >
+        {isDraft ? 'Aperçu facture' : 'Voir la facture'}
+      </Button>
+
+      <InvoiceModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        invoice={invoice}
+        onInvoiceIssued={handleIssued}
+      />
+    </>
   );
 }
