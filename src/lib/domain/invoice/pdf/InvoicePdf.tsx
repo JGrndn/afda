@@ -152,7 +152,7 @@ export function createInvoiceDocument(invoice: InvoiceDTO) {
             </Text>
             <Text style={styles.meta}>
               Date : {invoice.issuedAt
-                ? invoice.issuedAt.toLocaleDateString()
+                ? new Date(invoice.issuedAt).toLocaleDateString('fr-FR')
                 : '—'}
             </Text>
             <Text style={styles.meta}>

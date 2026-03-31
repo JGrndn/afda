@@ -26,7 +26,7 @@ export function InvoiceButton({
   return (
     <>
       <Button
-        variant={isDraft ? 'secondary' : 'primary'}
+        //variant={isDraft ? 'secondary' : 'primary'}
         size="sm"
         Icon={FileText}
         onClick={() => setIsOpen(true)}

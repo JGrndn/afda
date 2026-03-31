@@ -13,7 +13,7 @@ export interface InvoiceDTO {
   season: string;
   status: 'draft' | 'issued' | 'partially_paid' | 'paid' | 'cancelled';
   invoiceNumber?: string | null;
-  issuedAt?: Date | null;
+  issuedAt?: Date | string | null;
   totalAmount: number;
   itemsByMember: InvoiceItemByMemberDTO[];
 }

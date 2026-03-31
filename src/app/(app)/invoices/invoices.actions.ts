@@ -4,33 +4,32 @@ import { InvoiceDTO } from '@/lib/dto/invoice.dto';
 import { buildInvoiceForFamily } from '@/lib/domain/invoice/buildInvoiceForFamily';
 import { invoiceService } from '@/lib/services/invoice.service';
 
-let invoiceCounter = 0;
-
-function generateInvoiceNumber(familyId: number, seasonId: number): string {
+function generateInvoiceNumber(familyId: number): string {
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
   const random = Math.floor(Math.random() * 9000) + 1000;
-  return `AFDA-${year}${month}-${familyId}-${random}`;
+  return `${year}${month}-${familyId}`;
 }
 
 export async function issueInvoice(
   familyId: number,
   seasonId: number
 ): Promise<InvoiceDTO> {
-  // Check if already issued
+  // If already issued, return the existing one
   const existing = await invoiceService.findByFamilyAndSeason(familyId, seasonId);
   if (existing && existing.status !== 'draft') {
     return existing;
   }
 
-  // Build the invoice data
+  // Build from the draft — source of truth with itemsByMember structure
   const draft = await buildInvoiceForFamily(familyId, seasonId);
 
-  // Flatten items from all members
+  // Flatten items, preserving memberName as a dedicated field
   const items = draft.itemsByMember.flatMap((member) =>
     member.items.map((item) => ({
-      label: `${member.memberName} — ${item.label}`,
+      memberName: member.memberName,
+      label: item.label,
       description: item.description ?? undefined,
       unitPrice: item.unitPrice,
       quantity: item.quantity,
@@ -38,15 +37,13 @@ export async function issueInvoice(
     }))
   );
 
-  const invoiceNumber = generateInvoiceNumber(familyId, seasonId);
+  const invoiceNumber = generateInvoiceNumber(familyId);
 
-  const issued = await invoiceService.createIssuedInvoice({
+  return invoiceService.createIssuedInvoice({
     familyId,
     seasonId,
     invoiceNumber,
     totalAmount: draft.totalAmount,
     items,
   });
-
-  return issued;
 }

@@ -189,14 +189,15 @@ model Invoice {
 
 
 model InvoiceItem {
-  id            Int @id @default(autoincrement())
-  invoiceId     Int @map("invoice_id")
-  label         String @db.VarChar(255)
+  id            Int     @id @default(autoincrement())
+  invoiceId     Int     @map("invoice_id")
+  memberName    String? @map("member_name") @db.VarChar(255)
+  label         String  @db.VarChar(255)
   description   String? @db.Text
   unitPrice     Decimal @db.Decimal(10, 2) @map("unit_price")
   quantity      Int
   lineTotal     Decimal @db.Decimal(10, 2) @map("line_total")
-
+ 
   invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 }
 
