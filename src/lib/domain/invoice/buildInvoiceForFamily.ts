@@ -68,7 +68,7 @@ export async function buildInvoiceForFamily(
     invoiceNumber: null,
     issuedAt: null,
     itemsByMember,
-    familyName: family ? ('M. ou Mme ' + family?.name) : '',
+    familyName: family?.name ? `M. ou Mme ${family.name}` : '',
     familyAddress: family?.address ?? null,
     totalAmount,
   };

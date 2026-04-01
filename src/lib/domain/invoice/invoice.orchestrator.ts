@@ -24,7 +24,7 @@ export async function getInvoiceForFamilyAndSeason(
     }
     if (!existing.familyName && family?.name)
     {
-      existing.familyName = 'M. ou Mme ' + family.name;
+      existing.familyName = `M. ou Mme ${family.name}`;
     }
     return existing;
   }
