@@ -3,10 +3,10 @@ import { mapInvoiceToDTO } from '@/lib/mappers/invoice.mapper';
 import { Prisma } from '@/generated/prisma';
 
 export const invoiceService = {
-  async getById(id:number){
+  async getById(id: number) {
     const invoice: PrismaInvoiceDetails | null = await prisma.invoice.findUnique({
-      where: {id : id },
-      include: {items : true }
+      where: { id },
+      include: { items: true },
     });
     return invoice ? mapInvoiceToDTO(invoice) : null;
   },
@@ -25,33 +25,31 @@ export const invoiceService = {
     invoiceNumber: string;
     totalAmount: number;
     items: {
-    label: string;
-    description?: string;
-    unitPrice: number;
-    quantity: number;
-    lineTotal: number;
-    }[]
+      memberName: string;
+      label: string;
+      description?: string;
+      unitPrice: number;
+      quantity: number;
+      lineTotal: number;
+    }[];
   }) {
-  const invoice = await prisma.invoice.create({
-    data: {
-      familyId: data.familyId,
-      seasonId: data.seasonId,
-      status: 'issued',
-      invoiceNumber: data.invoiceNumber,
-      issuedAt: new Date(),
-      totalAmount: data.totalAmount,
-      items: { create: data.items },
-    },
-    include: { items: true },
-  });
+    const invoice = await prisma.invoice.create({
+      data: {
+        familyId: data.familyId,
+        seasonId: data.seasonId,
+        status: 'issued',
+        invoiceNumber: data.invoiceNumber,
+        issuedAt: new Date(),
+        totalAmount: data.totalAmount,
+        items: { create: data.items },
+      },
+      include: { items: true },
+    });
 
-  return mapInvoiceToDTO(invoice);
-  }
-}
+    return mapInvoiceToDTO(invoice);
+  },
+};
 
-export type PrismaInvoiceDetails =
-  Prisma.InvoiceGetPayload<{
-    include: {
-      items:true
-    }
-  }>;
+export type PrismaInvoiceDetails = Prisma.InvoiceGetPayload<{
+  include: { items: true };
+}>;
