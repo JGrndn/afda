@@ -68,14 +68,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   cellLabel: {
-    width: '50%',
+    width: '40%',
     paddingLeft: 6,
   },
   cellQty: {
-    width: '15%',
+    width: '10%',
     textAlign: 'right',
   },
   cellUnit: {
+    width: '15%',
+    textAlign: 'right',
+  },
+  cellDiscount: {
     width: '15%',
     textAlign: 'right',
   },
@@ -189,6 +193,7 @@ export function createInvoiceDocument(invoice: InvoiceDTO) {
             <Text style={styles.cellLabel}>Désignation</Text>
             <Text style={styles.cellQty}>Qté</Text>
             <Text style={styles.cellUnit}>Prix unit.</Text>
+            <Text style={styles.cellDiscount}>Réduction</Text>
             <Text style={styles.cellTotal}>Total</Text>
           </View>
 
@@ -209,24 +214,18 @@ export function createInvoiceDocument(invoice: InvoiceDTO) {
                   </Text>
                   <Text style={styles.cellQty}></Text>
                   <Text style={styles.cellUnit}></Text>
+                  <Text style={styles.cellDiscount}></Text>
                   <Text style={styles.cellTotal}></Text>
                 </View>
 
                 {/* Items */}
                 {member.items.map((item, i) => (
                   <View key={i} style={styles.row}>
-                    <Text style={styles.cellLabel}>
-                      {item.label}
-                    </Text>
-                    <Text style={styles.cellQty}>
-                      {item.quantity}
-                    </Text>
-                    <Text style={styles.cellUnit}>
-                      {item.unitPrice.toFixed(2)} €
-                    </Text>
-                    <Text style={styles.cellTotal}>
-                      {item.lineTotal.toFixed(2)} €
-                    </Text>
+                    <Text style={styles.cellLabel}>{item.label}</Text>
+                    <Text style={styles.cellQty}>{item.quantity}</Text>
+                    <Text style={styles.cellUnit}>{item.unitPrice.toFixed(2)} €</Text>
+                    <Text style={styles.cellDiscount}>{item.discountPercent ? `${item.discountPercent}%`:'-'}</Text>
+                    <Text style={styles.cellTotal}>{item.lineTotal.toFixed(2)} €</Text>
                   </View>
                 ))}
 

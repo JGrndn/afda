@@ -13,7 +13,6 @@ export async function createRegistration(
   input: CreateRegistrationInput
 ): Promise<RegistrationDTO> {
   const data = CreateRegistrationSchema.parse(input);
-  console.log('ACTION INSCRIPTION')
   const result = await registrationService.create(data);
   return result;
 }

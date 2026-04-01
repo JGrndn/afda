@@ -2,6 +2,7 @@ export interface InvoiceItemDTO {
   label: string;
   description?: string | null;
   unitPrice: number;
+  discountPercent?: number;
   quantity: number;
   lineTotal: number;
 }
