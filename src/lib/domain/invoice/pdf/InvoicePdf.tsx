@@ -1,5 +1,4 @@
-// lib/domain/invoice/InvoicePdf.tsx
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
 import { InvoiceDTO } from '@/lib/dto/invoice.dto';
 
 const styles = StyleSheet.create({
@@ -12,88 +11,90 @@ const styles = StyleSheet.create({
     fontFamily: 'Helvetica',
     color: '#111',
   },
-
-  header: {
+  headerSection: {
+    marginBottom: 24,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  headerImageSmall: {
+    width: 90,
+    height: 'auto',
+  },
+  company: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginLeft: 12,
+  },
+  invoiceTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'left',
+  },
+  metaSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 24,
   },
-
-  company: {
-    fontSize: 12,
-    fontWeight: 'bold',
+  metaBlock: {
+    width: '40%',
   },
-
-  invoiceTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'right',
+  metaLine: {
+    fontSize: 10,
+    marginBottom: 3,
   },
-
-  meta: {
-    marginTop: 4,
-    textAlign: 'right',
-  },
-
   table: {
     width: '100%',
     borderWidth: 1,
     borderColor: '#000',
     marginTop: 20,
   },
-
   row: {
     flexDirection: 'row',
     paddingVertical: 6,
     borderBottomWidth: 0.5,
     borderColor: '#ccc',
   },
-
   headerRow: {
     backgroundColor: '#f2f2f2',
     fontWeight: 'bold',
     borderBottomWidth: 1,
     borderColor: '#000',
   },
-
   memberRow: {
     backgroundColor: '#fafafa',
     fontWeight: 'bold',
   },
-
   cellLabel: {
     width: '50%',
     paddingLeft: 6,
   },
-
   cellQty: {
     width: '15%',
     textAlign: 'right',
   },
-
   cellUnit: {
     width: '15%',
     textAlign: 'right',
   },
-
   cellTotal: {
     width: '20%',
     textAlign: 'right',
     paddingRight: 6,
   },
-
   totals: {
     marginTop: 20,
     alignSelf: 'flex-end',
     width: '40%',
+    fontWeight: 'bold'
   },
-
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 4,
   },
-
   totalFinal: {
     fontWeight: 'bold',
     fontSize: 12,
@@ -101,12 +102,10 @@ const styles = StyleSheet.create({
     borderColor: '#000',
     paddingTop: 6,
   },
-
-  conditions:{
-    fontSize:8,
-    textAlign:'left'
+  conditions: {
+    fontSize: 8,
+    textAlign: 'left',
   },
-
   footer: {
     position: 'absolute',
     bottom: 32,
@@ -117,48 +116,69 @@ const styles = StyleSheet.create({
     borderColor: '#000',
     paddingTop: 8,
   },
-
   footerRow: {
     flexDirection: 'row',
     paddingVertical: 2,
   },
-
   footerLabel: {
-    width: '30%',
+   // width: '30%',
     fontWeight: 'bold',
   },
-
   footerValue: {
-    width: '70%',
+    //width: '70%',
+    marginLeft:10
   },
+  separator:{
+    marginTop:50
+  }
 });
 
+const LOGO_URL = typeof window === 'undefined'
+  // Côté serveur : chemin absolu système de fichiers pour @react-pdf
+  ? `${process.cwd()}/public/logo.png`
+  // Côté client : URL relative suffit pour le PDFViewer dans le browser
+  : '/logo.png';
 
 export function createInvoiceDocument(invoice: InvoiceDTO) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-
+        
         {/* ===== HEADER ===== */}
-        <View style={styles.header}>
-          <View>
+        <View style={styles.headerSection}>
+          <View style={styles.headerTop}>
+            <Image style={styles.headerImageSmall} src={LOGO_URL} />
             <Text style={styles.company}>Compagnie théâtrale Au Fil Des Actes</Text>
           </View>
+          <Text style={styles.invoiceTitle}>FACTURE</Text>
+        </View>
 
-          <View>
-            <Text style={styles.invoiceTitle}>FACTURE</Text>
-            <Text style={styles.meta}>
-              Référence facture : {invoice.invoiceNumber ?? '—'}
+        {/* ===== META + DESTINATAIRE ===== */}
+        <View style={styles.metaSection}>
+
+          {/* Gauche — métadonnées facture */}
+          <View style={styles.metaBlock}>
+            <Text style={styles.metaLine}>
+              Numéro : {invoice.invoiceNumber ?? '—'}
             </Text>
-            <Text style={styles.meta}>
+            <Text style={styles.metaLine}>
               Date : {invoice.issuedAt
                 ? new Date(invoice.issuedAt).toLocaleDateString('fr-FR')
                 : '—'}
             </Text>
-            <Text style={styles.meta}>
+            <Text style={styles.metaLine}>
               Saison : {invoice.season}
             </Text>
           </View>
+
+          {/* Droite — destinataire */}
+          <View style={styles.metaBlock}>
+            <Text style={styles.metaLine}>{invoice.familyName}</Text>
+            {invoice.familyAddress && (
+              <Text style={styles.metaLine}>{invoice.familyAddress}</Text>
+            )}
+          </View>
+
         </View>
 
         {/* ===== TABLE ===== */}
@@ -223,7 +243,7 @@ export function createInvoiceDocument(invoice: InvoiceDTO) {
           </View>
         </View>
 
-        <Text>
+        <Text style={styles.separator}>
           Pour faire valoir ce que de droit
         </Text>
 
@@ -260,7 +280,8 @@ export function createInvoiceDocument(invoice: InvoiceDTO) {
           </View>
 
           <View style={styles.footerRow}>
-            <Text style={styles.footerLabel}>Numéro au Répertoire National des Associations (RNA) : W772010686</Text>
+            <Text style={styles.footerLabel}>Numéro au Répertoire National des Associations (RNA)</Text>
+            <Text style={styles.footerValue}>W772010686</Text>
           </View>
           <View style={styles.footerRow}>
             <Text style={styles.footerLabel}>SIREN</Text>

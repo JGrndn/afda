@@ -64,14 +64,15 @@ function rebuildItemsByMember(items: PrismaInvoiceItem[]): InvoiceItemByMemberDT
 
 export function mapInvoiceToDTO(invoice: PrismaInvoiceDetails): InvoiceDTO {
   return {
-    id: invoice.id,
-    familyId: invoice.familyId,
-    seasonId: invoice.seasonId,
-    season: '',
-    status: invoice.status as InvoiceDTO['status'],
-    invoiceNumber: invoice.invoiceNumber,
-    issuedAt: invoice.issuedAt,
-    totalAmount: invoice.totalAmount.toNumber(),
-    itemsByMember: invoice.items ? rebuildItemsByMember(invoice.items) : [],
-  };
+  id: invoice.id,
+  familyId: invoice.familyId,
+  seasonId: invoice.seasonId,
+  season: '',
+  status: invoice.status as InvoiceDTO['status'],
+  invoiceNumber: invoice.invoiceNumber,
+  issuedAt: invoice.issuedAt,
+  totalAmount: invoice.totalAmount.toNumber(),
+  itemsByMember: invoice.items ? rebuildItemsByMember(invoice.items) : [],
+  familyName: '',
+};
 }

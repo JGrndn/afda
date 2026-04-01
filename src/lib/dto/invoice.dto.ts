@@ -14,6 +14,8 @@ export interface InvoiceDTO {
   status: 'draft' | 'issued' | 'partially_paid' | 'paid' | 'cancelled';
   invoiceNumber?: string | null;
   issuedAt?: Date | string | null;
+  familyName: string;
+  familyAddress?: string | null;
   totalAmount: number;
   itemsByMember: InvoiceItemByMemberDTO[];
 }

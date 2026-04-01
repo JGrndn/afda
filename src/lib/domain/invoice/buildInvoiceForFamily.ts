@@ -1,5 +1,6 @@
 import { InvoiceDTO, InvoiceItemByMemberDTO, InvoiceItemDTO } from '@/lib/dto/invoice.dto';
 import {
+  familyService,
   memberService,
   membershipService,
   registrationService,
@@ -15,6 +16,7 @@ export async function buildInvoiceForFamily(
 
   const members = await memberService.getAll({ familyId });
   const memberIds = members.map((m) => m.id);
+  const family = await familyService.getById(familyId);
 
   const workshopPrices = await workshopPriceService.getAllForSeason(seasonId);
   const memberships = await membershipService.getAll({ memberIds, seasonId });
@@ -65,6 +67,8 @@ export async function buildInvoiceForFamily(
     invoiceNumber: null,
     issuedAt: null,
     itemsByMember,
+    familyName: family ? ('M. ou Mme ' + family?.name) : '',
+    familyAddress: family?.address ?? null,
     totalAmount,
   };
 }
