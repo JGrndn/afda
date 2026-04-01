@@ -32,6 +32,7 @@ export async function issueInvoice(
       label: item.label,
       description: item.description ?? undefined,
       unitPrice: item.unitPrice,
+      discountPercent: item.discountPercent ?? 0,
       quantity: item.quantity,
       lineTotal: item.lineTotal,
     }))

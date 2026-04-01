@@ -43,7 +43,8 @@ export async function buildInvoiceForFamily(
           if (ws){
             data.items.push({
               label: ws.workshop.name,
-              unitPrice: ws.amount * (1-r.discountPercent/100),
+              unitPrice: ws.amount,
+              discountPercent: r.discountPercent,
               quantity: r.quantity,
               lineTotal: r.totalPrice
             });

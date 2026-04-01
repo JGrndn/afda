@@ -54,6 +54,7 @@ function rebuildItemsByMember(items: PrismaInvoiceItem[]): InvoiceItemByMemberDT
       label: item.label,
       description: item.description,
       unitPrice: item.unitPrice.toNumber(),
+      discountPercent: item.discountPercent.toNumber(),
       quantity: item.quantity,
       lineTotal: item.lineTotal.toNumber(),
     });
