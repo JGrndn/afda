@@ -131,6 +131,277 @@ async function main(){
   ];
   const payments = await prisma.payment.createManyAndReturn({data: paymentData });
   console.log('✅ Payments created');
+
+
+    console.log('🌱 Seeding clients, quotes & invoices...');
+ 
+  // ── Récupérer la saison active (créée par le seed principal) ──
+  const activeSeason = await prisma.season.findFirst({
+    where: { status: 'active' },
+  });
+ 
+  if (!activeSeason) {
+    throw new Error(
+      '❌ Aucune saison active trouvée. Lance d\'abord le seed principal (prisma/seed.ts).'
+    );
+  }
+ 
+  console.log(`✅ Saison active trouvée : ${activeSeason.startYear}-${activeSeason.endYear}`);
+ 
+  // ── Clients ───────────────────────────────────────────────────
+  const clientsData: Prisma.ClientCreateManyInput[] = [
+    {
+      name: 'Commune de Presles-en-Brie',
+      address: '1 place de la Mairie, 77220 Presles-en-Brie',
+      phone: '01 64 38 00 00',
+      email: 'mairie@presles-en-brie.fr',
+      contact: 'Mme Dupuis - Service culturel',
+    },
+    {
+      name: 'Commune de Fontenay-Trésigny',
+      address: '2 rue de la Liberté, 77610 Fontenay-Trésigny',
+      phone: '01 64 25 91 00',
+      email: 'culture@fontenay-tresigny.fr',
+      contact: 'M. Bernard',
+    },
+    {
+      name: 'Association Les Jeunes Pouces',
+      address: '14 allée des Acacias, 77000 Melun',
+      phone: '06 12 34 56 78',
+      email: 'contact@jeunespouces.org',
+      contact: 'Mme Leclerc',
+    },
+    {
+      name: 'École primaire Jules Ferry',
+      address: '8 rue Jules Ferry, 77220 Tournan-en-Brie',
+      phone: '01 64 42 00 10',
+      email: 'ce.0771234a@ac-creteil.fr',
+      contact: 'M. Martin - Directeur',
+    },
+  ];
+ 
+  const clients = await prisma.client.createManyAndReturn({ data: clientsData });
+  console.log(`✅ ${clients.length} clients créés`);
+ 
+  const [commune1, commune2, asso, ecole] = clients;
+ 
+  // ── Devis ─────────────────────────────────────────────────────
+  // On crée des devis dans différents états pour couvrir tous les cas
+  // d'interface : draft, sent, accepted, rejected, invoiced
+ 
+  // 1. Devis facturé + facture PAYÉE (commune1)
+  const quote1 = await prisma.quote.create({
+    data: {
+      clientId: commune1.id,
+      title: 'Animation théâtre — Fête de la commune',
+      description:
+        'Spectacle de théâtre d\'improvisation pour la fête annuelle de la commune, en plein air.',
+      status: 'invoiced',
+      quoteNumber: 'D202509-1001',
+      issuedAt: new Date('2025-09-01'),
+      validUntil: new Date('2025-10-01'),
+      totalAmount: new Prisma.Decimal(850),
+      notes: 'Prévoir sono et scène. Durée : 1h30.',
+      items: {
+        create: [
+          {
+            label: 'Prestation artistique (3 comédiens)',
+            description: 'Spectacle d\'improvisation — 1h30',
+            unitPrice: new Prisma.Decimal(250),
+            quantity: 3,
+            lineTotal: new Prisma.Decimal(750),
+          },
+          {
+            label: 'Frais de déplacement',
+            unitPrice: new Prisma.Decimal(100),
+            quantity: 1,
+            lineTotal: new Prisma.Decimal(100),
+          },
+        ],
+      },
+    },
+  });
+ 
+  await prisma.quoteInvoice.create({
+    data: {
+      quoteId: quote1.id,
+      seasonId: activeSeason.id,
+      invoiceNumber: 'F202509-1001',
+      status: 'paid',
+      issuedAt: new Date('2025-09-15'),
+      paidAt: new Date('2025-10-03'),
+      paymentMethod: 'transfer',
+      totalAmount: new Prisma.Decimal(850),
+    },
+  });
+ 
+  console.log('✅ Devis 1 créé (invoiced + paid)');
+ 
+  // 2. Devis facturé + facture EN ATTENTE (commune2)
+  const quote2 = await prisma.quote.create({
+    data: {
+      clientId: commune2.id,
+      title: 'Atelier théâtre enfants — Mercredi culturel',
+      description:
+        'Trois ateliers d\'initiation au théâtre pour enfants de 7 à 12 ans, les mercredis après-midi.',
+      status: 'invoiced',
+      quoteNumber: 'D202510-1002',
+      issuedAt: new Date('2025-10-01'),
+      validUntil: new Date('2025-11-01'),
+      totalAmount: new Prisma.Decimal(540),
+      notes: null,
+      items: {
+        create: [
+          {
+            label: 'Atelier d\'initiation théâtre (2h)',
+            description: 'Animé par 1 comédien, groupe de 15 enfants max',
+            unitPrice: new Prisma.Decimal(180),
+            quantity: 3,
+            lineTotal: new Prisma.Decimal(540),
+          },
+        ],
+      },
+    },
+  });
+ 
+  await prisma.quoteInvoice.create({
+    data: {
+      quoteId: quote2.id,
+      seasonId: activeSeason.id,
+      invoiceNumber: 'F202510-1002',
+      status: 'issued',
+      issuedAt: new Date('2025-10-20'),
+      totalAmount: new Prisma.Decimal(540),
+    },
+  });
+ 
+  console.log('✅ Devis 2 créé (invoiced + issued)');
+ 
+  // 3. Devis ACCEPTÉ — prêt à être facturé (asso)
+  const quote3 = await prisma.quote.create({
+    data: {
+      clientId: asso.id,
+      title: 'Stage intensif improvisation — Vacances de Noël',
+      description:
+        'Stage de 3 jours d\'improvisation théâtrale pour adolescents et adultes pendant les vacances scolaires.',
+      status: 'accepted',
+      quoteNumber: 'D202511-1003',
+      issuedAt: new Date('2025-11-05'),
+      validUntil: new Date('2025-12-05'),
+      totalAmount: new Prisma.Decimal(1200),
+      notes: 'Salle fournie par l\'association. Matériel pédagogique inclus.',
+      items: {
+        create: [
+          {
+            label: 'Journée de stage (2 animateurs)',
+            description: '9h-17h, pause déjeuner non incluse',
+            unitPrice: new Prisma.Decimal(400),
+            quantity: 3,
+            lineTotal: new Prisma.Decimal(1200),
+          },
+        ],
+      },
+    },
+  });
+ 
+  console.log('✅ Devis 3 créé (accepted)');
+ 
+  // 4. Devis ENVOYÉ — en attente de réponse (école)
+  const quote4 = await prisma.quote.create({
+    data: {
+      clientId: ecole.id,
+      title: 'Intervention théâtre en classe — Cycle CM1/CM2',
+      description:
+        'Quatre interventions d\'1h en classe pour sensibiliser les élèves à l\'art dramatique, en lien avec le programme scolaire.',
+      status: 'sent',
+      quoteNumber: 'D202511-1004',
+      issuedAt: new Date('2025-11-10'),
+      validUntil: new Date('2025-12-10'),
+      totalAmount: new Prisma.Decimal(480),
+      notes: 'Dates à convenir avec l\'enseignant référent.',
+      items: {
+        create: [
+          {
+            label: 'Intervention théâtrale en classe (1h)',
+            unitPrice: new Prisma.Decimal(120),
+            quantity: 4,
+            lineTotal: new Prisma.Decimal(480),
+          },
+        ],
+      },
+    },
+  });
+ 
+  console.log('✅ Devis 4 créé (sent)');
+ 
+  // 5. Devis BROUILLON (commune1 — nouvelle demande)
+  const quote5 = await prisma.quote.create({
+    data: {
+      clientId: commune1.id,
+      title: 'Spectacle de fin d\'année — Décembre 2025',
+      description: 'Spectacle familial pour les fêtes de fin d\'année.',
+      status: 'draft',
+      quoteNumber: 'D202511-1005',
+      issuedAt: new Date('2025-11-20'),
+      validUntil: new Date('2025-12-20'),
+      totalAmount: new Prisma.Decimal(1050),
+      notes: null,
+      items: {
+        create: [
+          {
+            label: 'Prestation artistique (3 comédiens)',
+            unitPrice: new Prisma.Decimal(300),
+            quantity: 3,
+            lineTotal: new Prisma.Decimal(900),
+          },
+          {
+            label: 'Création costumes et accessoires',
+            unitPrice: new Prisma.Decimal(150),
+            quantity: 1,
+            lineTotal: new Prisma.Decimal(150),
+          },
+        ],
+      },
+    },
+  });
+ 
+  console.log('✅ Devis 5 créé (draft)');
+ 
+  // 6. Devis REFUSÉ (commune2)
+  const quote6 = await prisma.quote.create({
+    data: {
+      clientId: commune2.id,
+      title: 'Résidence artistique — Été 2025',
+      description: 'Résidence d\'une semaine avec restitution publique.',
+      status: 'rejected',
+      quoteNumber: 'D202506-1006',
+      issuedAt: new Date('2025-06-01'),
+      validUntil: new Date('2025-07-01'),
+      totalAmount: new Prisma.Decimal(3200),
+      notes: 'Budget refusé par le conseil municipal.',
+      items: {
+        create: [
+          {
+            label: 'Résidence artistique (5 jours, 4 comédiens)',
+            unitPrice: new Prisma.Decimal(640),
+            quantity: 5,
+            lineTotal: new Prisma.Decimal(3200),
+          },
+        ],
+      },
+    },
+  });
+ 
+  console.log('✅ Devis 6 créé (rejected)');
+ 
+  // ── Résumé ────────────────────────────────────────────────────
+  console.log('\n📊 Résumé du seed :');
+  console.log(`   • Clients        : ${clients.length}`);
+  console.log(`   • Devis          : 6`);
+  console.log(`   • Factures       : 2 (1 payée, 1 en attente)`);
+  console.log('\n🎭 Statuts couverts : draft, sent, accepted, rejected, invoiced');
+  console.log('💶 Factures        : issued (en attente), paid (encaissée)');
+
 }
 
 
@@ -143,7 +414,10 @@ async function clearDatabase(){
     prisma.workshop.deleteMany(),
     prisma.workshopPrice.deleteMany(),
     prisma.family.deleteMany(),
-    prisma.member.deleteMany()
+    prisma.member.deleteMany(),
+    prisma.quoteInvoice.deleteMany(),
+    prisma.quote.deleteMany(),
+    prisma.client.deleteMany(),
   ]);
 }
 

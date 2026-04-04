@@ -1,5 +1,5 @@
 import { NavItem } from "@/components/navigation/navigation.types";
-import { Calendar, Drama, Euro, UserRound, Users } from "lucide-react";
+import { Building2, Calendar, Drama, Euro, FileText, ReceiptText, UserRound, Users } from "lucide-react";
 
 
 export const navItems: NavItem[] = [
@@ -28,5 +28,20 @@ export const navItems: NavItem[] = [
     label: "Paiements",
     icon: Euro,
     href: "/payments"
-  }
+  }, { 
+    id: 'list-clients',
+    label: 'Clients',
+    icon: Building2,
+    href: '/clients'
+  }, {
+    id: 'list-quotes',
+    label: 'Devis',
+    icon: FileText,
+    href: '/quotes'
+  }, {
+    id: 'list-quote-invoices',
+    label: 'Factures prestations',
+    icon: ReceiptText,
+    href: '/quote-invoices'
+  },
 ];

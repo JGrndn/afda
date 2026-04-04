@@ -2,6 +2,8 @@ import { MembershipStatus } from "@/lib/domain/enums/membership.enum";
 import { PaymentStatus } from "@/lib/domain/enums/payment.enum";
 import { SeasonStatus } from "@/lib/domain/enums/season.enum";
 import { WorkshopStatus } from "@/lib/domain/enums/workshop.enum";
+import { QuoteStatus } from '@/lib/domain/enums/quote.enum';
+import { QuoteInvoiceStatus } from '@/lib/domain/enums/quoteInvoice.enum';
 
 // Season Status
 export const SEASON_STATUS_TRANSLATIONS: Record<SeasonStatus, string> = {
@@ -21,4 +23,18 @@ export const PAYMENT_STATUS_TRANSLATIONS: Record<PaymentStatus, string> = {
   pending: "En attente",
   cancelled: "Annulé",
   completed: "Payé"
+};
+
+export const QUOTE_STATUS_TRANSLATIONS: Record<QuoteStatus, string> = {
+  draft:    'Brouillon',
+  sent:     'Envoyé',
+  accepted: 'Accepté',
+  rejected: 'Refusé',
+  invoiced: 'Facturé',
+};
+
+export const QUOTE_INVOICE_STATUS_TRANSLATIONS: Record<QuoteInvoiceStatus, string> = {
+  issued: 'Émise',
+  paid: 'Payée',
+  cancelled: 'Annulée',
 };
