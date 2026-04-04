@@ -19,7 +19,8 @@ import { SEASON_STATUS } from '@/lib/domain/enums/season.enum';
 import { getStatusOptionsWithAll } from '@/lib/i18n/statusOptions';
 import { QUOTE_INVOICE_STATUS_TRANSLATIONS } from '@/lib/i18n/translations';
 import { UserRole, UserRolePermissions } from '@/lib/domain/enums/user-role.enum';
-import { CheckCircle, Ban, FileText } from 'lucide-react';
+import { CheckCircle, Ban } from 'lucide-react';
+import { QuoteInvoicePdfButton } from '@/components/quote/QuoteInvoicePdfButton';
 import { ConfirmModal } from '@/components/ui';
 
 interface QuoteInvoicesPageClientProps {
@@ -146,15 +147,7 @@ export function QuoteInvoicesPageClient({ userRole }: QuoteInvoicesPageClientPro
         label: 'Actions',
         render: (inv: QuoteInvoiceWithDetailsDTO) => (
           <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-            {/* PDF toujours disponible */}
-            <a
-              href={`/api/quotes/${inv.quoteId}/invoice/pdf`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Button size="icon" variant="ghost" Icon={FileText} />
-            </a>
+            <QuoteInvoicePdfButton invoice={inv} />
 
             {/* Actions selon statut — MANAGER/ADMIN uniquement */}
             {canUpdate && inv.status === QUOTE_INVOICE_STATUS.ISSUED && (
