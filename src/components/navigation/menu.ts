@@ -1,5 +1,5 @@
 import { NavItem } from "@/components/navigation/navigation.types";
-import { Building2, Calendar, Drama, Euro, FileText, UserRound, Users } from "lucide-react";
+import { Building2, Calendar, Drama, Euro, FileText, ReceiptText, UserRound, Users } from "lucide-react";
 
 
 export const navItems: NavItem[] = [
@@ -38,5 +38,10 @@ export const navItems: NavItem[] = [
     label: 'Devis',
     icon: FileText,
     href: '/quotes'
+  }, {
+    id: 'list-quote-invoices',
+    label: 'Factures prestations',
+    icon: ReceiptText,
+    href: '/quote-invoices'
   },
 ];
