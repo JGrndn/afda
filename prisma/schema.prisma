@@ -203,6 +203,71 @@ model InvoiceItem {
 }
 
 
+model Client {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(200)
+  address   String?  @db.Text
+  phone     String?  @db.VarChar(20)
+  email     String?  @db.VarChar(255)
+  contact   String?  @db.VarChar(200)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  quotes    Quote[]
+
+  @@map("clients")
+}
+
+model Quote {
+  id          Int       @id @default(autoincrement())
+  clientId    Int       @map("client_id")
+  title       String    @db.VarChar(200)
+  description String?   @db.Text
+  status      String    @default("draft") @db.VarChar(20)
+  quoteNumber String?   @unique @db.VarChar(50) @map("quote_number")
+  issuedAt    DateTime? @map("issued_at")
+  validUntil  DateTime? @map("valid_until")
+  totalAmount Decimal   @db.Decimal(10, 2) @map("total_amount")
+  notes       String?   @db.Text
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  client       Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  items        QuoteItem[]
+  quoteInvoice QuoteInvoice?
+
+  @@index([clientId])
+  @@index([status])
+  @@map("quotes")
+}
+
+model QuoteItem {
+  id          Int     @id @default(autoincrement())
+  quoteId     Int     @map("quote_id")
+  label       String  @db.VarChar(255)
+  description String? @db.Text
+  unitPrice   Decimal @db.Decimal(10, 2) @map("unit_price")
+  quantity    Int     @default(1)
+  lineTotal   Decimal @db.Decimal(10, 2) @map("line_total")
+
+  quote Quote @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@map("quote_items")
+}
+
+model QuoteInvoice {
+  id            Int      @id @default(autoincrement())
+  quoteId       Int      @unique @map("quote_id")
+  invoiceNumber String   @unique @map("invoice_number") @db.VarChar(50)
+  issuedAt      DateTime @default(now()) @map("issued_at")
+  totalAmount   Decimal  @db.Decimal(10, 2) @map("total_amount")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
+
+  quote Quote @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@map("quote_invoices")
+}
 
 
 
