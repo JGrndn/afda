@@ -3,9 +3,11 @@ import { WorkshopStatus } from '@/lib/domain/enums/workshop.enum';
 import { MembershipStatus } from '@/lib/domain/enums/membership.enum';
 import { PaymentStatus } from '@/lib/domain/enums/payment.enum';
 import { QuoteStatus } from '@/lib/domain/enums/quote.enum';
+import { QuoteInvoiceStatus } from '@/lib/domain/enums/quoteInvoice.enum';
 import {
   MEMBERSHIP_STATUS_TRANSLATIONS,
   PAYMENT_STATUS_TRANSLATIONS,
+  QUOTE_INVOICE_STATUS_TRANSLATIONS,
   QUOTE_STATUS_TRANSLATIONS,
   SEASON_STATUS_TRANSLATIONS,
   WORKSHOP_STATUS_TRANSLATIONS
@@ -46,6 +48,11 @@ export const QUOTE_STATUS_COLORS: Record<QuoteStatus, ColorKey> = {
   rejected: 'red',
   invoiced: 'green',
 };
+export const QUOTE_INVOICE_STATUS_COLORS: Record<QuoteInvoiceStatus, ColorKey> = {
+  issued: 'yellow',
+  paid: 'green',
+  cancelled: 'red',
+};
 
 // Mapping type -> translations et couleurs
 type StatusConfigEntry<Status extends string> = {
@@ -72,7 +79,11 @@ const STATUS_CONFIG = {
   quote: {
     translations: QUOTE_STATUS_TRANSLATIONS,
     colors: QUOTE_STATUS_COLORS,
-  } satisfies StatusConfigEntry<QuoteStatus>
+  } satisfies StatusConfigEntry<QuoteStatus>,
+  quoteInvoice: {
+    translations: QUOTE_INVOICE_STATUS_TRANSLATIONS,
+    colors: QUOTE_INVOICE_STATUS_COLORS
+  } satisfies StatusConfigEntry<QuoteInvoiceStatus>
 } as const;
 
 // type generique

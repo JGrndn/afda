@@ -11,6 +11,10 @@ import type {
   QuoteInvoiceDTO,
 } from '@/lib/dto/quote.dto';
 import { QuoteStatusSchema } from '@/lib/schemas/quote.schema';
+import {
+  QuoteInvoiceStatusSchema,
+  QuoteInvoicePaymentMethodSchema,
+} from '@/lib/schemas/quoteInvoice.schema';
 
 function dec(v: any): number {
   return v?.toNumber?.() ?? Number(v);
@@ -32,8 +36,14 @@ export function toQuoteInvoiceDTO(invoice: PrismaQuoteInvoice): QuoteInvoiceDTO 
   return {
     id: invoice.id,
     quoteId: invoice.quoteId,
+    seasonId: invoice.seasonId,
     invoiceNumber: invoice.invoiceNumber,
+    status: QuoteInvoiceStatusSchema.parse(invoice.status),
     issuedAt: invoice.issuedAt,
+    paidAt: invoice.paidAt,
+    paymentMethod: invoice.paymentMethod
+      ? QuoteInvoicePaymentMethodSchema.parse(invoice.paymentMethod)
+      : null,
     totalAmount: dec(invoice.totalAmount),
     createdAt: invoice.createdAt,
     updatedAt: invoice.updatedAt,

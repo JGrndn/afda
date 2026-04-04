@@ -7,6 +7,10 @@ import {
   UpdateQuoteInput,
   UpdateQuoteSchema,
 } from '@/lib/schemas/quote.input';
+import {
+  MarkInvoicePaidInput,
+  MarkInvoicePaidSchema,
+} from '@/lib/schemas/quoteInvoice.schema';
 import { quoteService } from '@/lib/services/quote.service';
 
 export async function createQuote(input: CreateQuoteInput): Promise<QuoteDTO> {
@@ -25,4 +29,16 @@ export async function deleteQuote(id: number): Promise<void> {
 
 export async function issueQuoteInvoice(quoteId: number): Promise<QuoteInvoiceDTO> {
   return quoteService.issueInvoice(quoteId);
+}
+
+export async function markQuoteInvoicePaid(
+  quoteInvoiceId: number,
+  input: MarkInvoicePaidInput
+): Promise<QuoteInvoiceDTO> {
+  const data = MarkInvoicePaidSchema.parse(input);
+  return quoteService.markInvoicePaid(quoteInvoiceId, data);
+}
+
+export async function cancelQuoteInvoice(quoteInvoiceId: number): Promise<QuoteInvoiceDTO> {
+  return quoteService.cancelInvoice(quoteInvoiceId);
 }

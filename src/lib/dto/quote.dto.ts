@@ -1,4 +1,5 @@
 import { QuoteStatus } from '@/lib/domain/enums/quote.enum';
+import { QuoteInvoiceStatus, QuoteInvoicePaymentMethod } from '@/lib/domain/enums/quoteInvoice.enum';
 
 export type QuoteItemDTO = {
   id: number;
@@ -38,8 +39,12 @@ export type QuoteWithClientDTO = QuoteDTO & {
 export type QuoteInvoiceDTO = {
   id: number;
   quoteId: number;
+  seasonId: number | null;
   invoiceNumber: string;
+  status: QuoteInvoiceStatus;
   issuedAt: Date;
+  paidAt: Date | null;
+  paymentMethod: QuoteInvoicePaymentMethod | null;
   totalAmount: number;
   createdAt: Date;
   updatedAt: Date;

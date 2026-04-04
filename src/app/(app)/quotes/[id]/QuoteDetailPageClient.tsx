@@ -5,15 +5,17 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft, Pencil, Trash2, Send, CheckCircle,
-  XCircle, FileText, FileCheck,
+  XCircle, FileText, FileCheck, Ban,
 } from 'lucide-react';
 import { QuoteForm } from '@/components/quote/QuoteForm';
 import { QuotePdfModal } from '@/components/quote/QuotePdfModal';
-import { useQuote, useQuoteActions, useIssueInvoice } from '@/hooks/quote.hook';
+import { MarkInvoicePaidModal } from '@/components/quote/MarkInvoicePaidModal';
+import { useQuote, useQuoteActions, useIssueInvoice, useCancelInvoice } from '@/hooks/quote.hook';
 import { useClient } from '@/hooks/client.hook';
 import { Button, Card, ErrorMessage, StatusBadge, ConfirmModal } from '@/components/ui';
 import { QuoteWithDetailsDTO, QuoteItemDTO } from '@/lib/dto/quote.dto';
 import { QUOTE_STATUS } from '@/lib/domain/enums/quote.enum';
+import { QUOTE_INVOICE_STATUS } from '@/lib/domain/enums/quoteInvoice.enum';
 import { UpdateQuoteInput } from '@/lib/schemas/quote.input';
 import { UserRole, UserRolePermissions } from '@/lib/domain/enums/user-role.enum';
 
@@ -27,6 +29,7 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
   const { quote, mutate } = useQuote(initialQuote.id);
   const { update, remove, isLoading: mutationLoading, error } = useQuoteActions();
   const { issue, isLoading: isIssuing, error: invoiceError } = useIssueInvoice();
+  const { cancel, isLoading: isCancelling, error: cancelError } = useCancelInvoice();
 
   const data = quote ?? initialQuote;
   const { client } = useClient(data.clientId);
@@ -34,11 +37,13 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
   const [isEditing, setIsEditing] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [isConfirmInvoiceOpen, setIsConfirmInvoiceOpen] = useState(false);
+  const [isConfirmCancelInvoiceOpen, setIsConfirmCancelInvoiceOpen] = useState(false);
+  const [isMarkPaidOpen, setIsMarkPaidOpen] = useState(false);
   const [pdfModal, setPdfModal] = useState<'quote' | 'invoice' | null>(null);
 
   const canUpdate = UserRolePermissions.canEdit(userRole);
   const canDelete = UserRolePermissions.canDelete(userRole);
-  const isLocked = data.status === QUOTE_STATUS.INVOICED || data.status === QUOTE_STATUS.REJECTED;
+  const isLocked = data.status === QUOTE_STATUS.REJECTED;
 
   const handleStatusChange = async (status: UpdateQuoteInput['status']) => {
     await update(data.id, { status });
@@ -55,31 +60,26 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
     if (inv) mutate();
   };
 
-  const actionButtons = useMemo(() => {
+  const handleCancelInvoice = async () => {
+    if (!data.invoice) return;
+    const result = await cancel(data.invoice.id);
+    if (result) mutate();
+  };
+
+  // ── Boutons d'action selon statut du devis ─────────────
+  const quoteActionButtons = useMemo(() => {
     const pdfQuoteBtn = (
       <Button size="sm" variant="secondary" Icon={FileText} onClick={() => setPdfModal('quote')}>
         PDF devis
       </Button>
     );
 
-    if (!canUpdate) {
-      if (data.status === QUOTE_STATUS.INVOICED) {
-        return (
-          <div className="flex gap-2">
-            {pdfQuoteBtn}
-            <Button size="sm" Icon={FileText} onClick={() => setPdfModal('invoice')}>
-              Voir la facture PDF
-            </Button>
-          </div>
-        );
-      }
-      return pdfQuoteBtn;
-    }
+    if (!canUpdate) return pdfQuoteBtn;
 
     switch (data.status) {
       case QUOTE_STATUS.DRAFT:
         return (
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {pdfQuoteBtn}
             <Button size="sm" Icon={Send} onClick={() => handleStatusChange(QUOTE_STATUS.SENT)} isLoading={mutationLoading}>
               Marquer envoyé
@@ -88,7 +88,7 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
         );
       case QUOTE_STATUS.SENT:
         return (
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {pdfQuoteBtn}
             <Button size="sm" Icon={CheckCircle} onClick={() => handleStatusChange(QUOTE_STATUS.ACCEPTED)} isLoading={mutationLoading}>
               Accepté
@@ -100,7 +100,7 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
         );
       case QUOTE_STATUS.ACCEPTED:
         return (
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {pdfQuoteBtn}
             <Button size="sm" Icon={FileCheck} onClick={() => setIsConfirmInvoiceOpen(true)} isLoading={isIssuing}>
               Générer la facture
@@ -108,20 +108,56 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
           </div>
         );
       case QUOTE_STATUS.INVOICED:
-        return (
-          <div className="flex gap-2">
-            {pdfQuoteBtn}
-            <Button size="sm" Icon={FileText} onClick={() => setPdfModal('invoice')}>
-              Voir la facture PDF
-            </Button>
-          </div>
-        );
       case QUOTE_STATUS.REJECTED:
         return pdfQuoteBtn;
       default:
         return null;
     }
   }, [data.status, canUpdate, mutationLoading, isIssuing]);
+
+  // ── Boutons d'action sur la facture ────────────────────
+  const invoiceActionButtons = useMemo(() => {
+    if (!data.invoice) return null;
+    const inv = data.invoice;
+
+    const pdfInvoiceBtn = (
+      <Button size="sm" variant="secondary" Icon={FileText} onClick={() => setPdfModal('invoice')}>
+        PDF facture
+      </Button>
+    );
+
+    if (inv.status === QUOTE_INVOICE_STATUS.PAID) {
+      return (
+        <div className="flex gap-2 flex-wrap">
+          {pdfInvoiceBtn}
+          <span className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 rounded-md">
+            ✓ Payée le {new Date(inv.paidAt!).toLocaleDateString('fr-FR')}
+          </span>
+        </div>
+      );
+    }
+
+    if (inv.status === QUOTE_INVOICE_STATUS.CANCELLED) {
+      return pdfInvoiceBtn;
+    }
+
+    // issued
+    return (
+      <div className="flex gap-2 flex-wrap">
+        {pdfInvoiceBtn}
+        {canUpdate && (
+          <>
+            <Button size="sm" Icon={CheckCircle} onClick={() => setIsMarkPaidOpen(true)}>
+              Marquer payée
+            </Button>
+            <Button size="sm" variant="danger" Icon={Ban} onClick={() => setIsConfirmCancelInvoiceOpen(true)} isLoading={isCancelling}>
+              Annuler la facture
+            </Button>
+          </>
+        )}
+      </div>
+    );
+  }, [data.invoice, canUpdate, isCancelling]);
 
   return (
     <div className="container mx-auto p-6 max-w-6xl">
@@ -136,17 +172,19 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
           <StatusBadge type="quote" status={data.status} />
         </div>
         <div className="flex gap-2 items-center flex-wrap">
-          {actionButtons}
-          {!isEditing && !isLocked && canUpdate && (
+          {quoteActionButtons}
+          {!isEditing && !isLocked && data.status !== QUOTE_STATUS.INVOICED && canUpdate && (
             <Button onClick={() => setIsEditing(true)} Icon={Pencil} />
           )}
-          {!isLocked && canDelete && (
+          {!isLocked && data.status !== QUOTE_STATUS.INVOICED && canDelete && (
             <Button variant="danger" onClick={() => setIsConfirmDeleteOpen(true)} Icon={Trash2} />
           )}
         </div>
       </div>
 
-      {(error || invoiceError) && <ErrorMessage error={(error || invoiceError)!} />}
+      {(error || invoiceError || cancelError) && (
+        <ErrorMessage error={(error || invoiceError || cancelError)!} />
+      )}
 
       {isEditing ? (
         <QuoteForm
@@ -162,6 +200,7 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
         />
       ) : (
         <div className="space-y-6">
+          {/* Métadonnées devis */}
           <Card title="Informations">
             <dl className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -188,12 +227,6 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
                   {data.validUntil ? new Date(data.validUntil).toLocaleDateString('fr-FR') : '—'}
                 </dd>
               </div>
-              {data.invoice && (
-                <div>
-                  <dt className="text-sm font-medium text-gray-500">N° facture</dt>
-                  <dd className="mt-1 text-sm text-gray-900 font-semibold">{data.invoice.invoiceNumber}</dd>
-                </div>
-              )}
               {data.description && (
                 <div className="md:col-span-3">
                   <dt className="text-sm font-medium text-gray-500">Description</dt>
@@ -203,6 +236,47 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
             </dl>
           </Card>
 
+          {/* Bloc facture */}
+          {data.invoice && (
+            <Card title="Facture">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <dl className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1">
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500">N° facture</dt>
+                    <dd className="mt-1 text-sm font-semibold text-gray-900">{data.invoice.invoiceNumber}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500">Statut</dt>
+                    <dd className="mt-1">
+                      <StatusBadge type="quoteInvoice" status={data.invoice.status} />
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500">Émise le</dt>
+                    <dd className="mt-1 text-sm text-gray-900">
+                      {new Date(data.invoice.issuedAt).toLocaleDateString('fr-FR')}
+                    </dd>
+                  </div>
+                  {data.invoice.paidAt && (
+                    <div>
+                      <dt className="text-sm font-medium text-gray-500">Payée le</dt>
+                      <dd className="mt-1 text-sm text-gray-900">
+                        {new Date(data.invoice.paidAt).toLocaleDateString('fr-FR')}
+                        {data.invoice.paymentMethod && (
+                          <span className="ml-2 text-xs text-gray-400">
+                            ({data.invoice.paymentMethod})
+                          </span>
+                        )}
+                      </dd>
+                    </div>
+                  )}
+                </dl>
+                <div className="flex-shrink-0">{invoiceActionButtons}</div>
+              </div>
+            </Card>
+          )}
+
+          {/* Lignes */}
           <Card title="Lignes du devis">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 text-sm">
@@ -246,6 +320,7 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
         </div>
       )}
 
+      {/* PDF Modal */}
       {pdfModal && (
         <QuotePdfModal
           isOpen
@@ -256,6 +331,16 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
         />
       )}
 
+      {/* Mark paid Modal */}
+      {data.invoice && (
+        <MarkInvoicePaidModal
+          isOpen={isMarkPaidOpen}
+          onClose={() => setIsMarkPaidOpen(false)}
+          invoice={data.invoice}
+          onSuccess={() => { mutate(); setIsMarkPaidOpen(false); }}
+        />
+      )}
+
       <ConfirmModal
         isOpen={isConfirmDeleteOpen}
         title="Supprimer le devis"
@@ -263,13 +348,19 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
         onClose={() => setIsConfirmDeleteOpen(false)}
         onConfirm={handleDelete}
       />
-
       <ConfirmModal
         isOpen={isConfirmInvoiceOpen}
         title="Générer la facture"
-        content="Cette action est irréversible. La facture sera créée définitivement et le devis passera en statut « Facturé »."
+        content="Cette action est irréversible. La facture sera créée définitivement et rattachée à la saison active."
         onClose={() => setIsConfirmInvoiceOpen(false)}
         onConfirm={handleIssueInvoice}
+      />
+      <ConfirmModal
+        isOpen={isConfirmCancelInvoiceOpen}
+        title="Annuler la facture"
+        content="La facture sera marquée comme annulée et le devis repassera en statut « Accepté », ce qui permettra d'en réémettre une nouvelle."
+        onClose={() => setIsConfirmCancelInvoiceOpen(false)}
+        onConfirm={handleCancelInvoice}
       />
     </div>
   );
