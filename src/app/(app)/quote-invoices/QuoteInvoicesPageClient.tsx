@@ -136,13 +136,6 @@ export function QuoteInvoicesPageClient({ userRole }: QuoteInvoicesPageClientPro
         render: (inv) => new Date(inv.issuedAt).toLocaleDateString('fr-FR'),
       },
       {
-        type: 'field',
-        key: 'paidAt',
-        label: 'Payée le',
-        render: (inv) =>
-          inv.paidAt ? new Date(inv.paidAt).toLocaleDateString('fr-FR') : '—',
-      },
-      {
         type: 'action',
         label: 'Actions',
         render: (inv: QuoteInvoiceWithDetailsDTO) => (
