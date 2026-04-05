@@ -26,6 +26,7 @@ export function PaymentForm({
     familyId: familyId || 0,
     seasonId: seasonId || 0,
     amount: 0,
+    donationAmount: null,
     paymentType: PAYMENT_TYPE.TRANSFER,
     cashingDate: null,
     reference: null,
@@ -61,7 +62,7 @@ export function PaymentForm({
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
-          label="Montant (€)"
+          label="Montant total (€)"
           name="amount"
           type="number"
           value={formData.amount}
@@ -107,6 +108,20 @@ export function PaymentForm({
         )}
 
         <FormField
+          label="Dont don (€)"
+          name="donationAmount"
+          type="number"
+          value={formData.donationAmount ?? ''}
+          onChange={(v) =>
+            updateField(
+              'donationAmount',
+              v === '' || v === null ? null : parseFloat(v.toString())
+            )
+          }
+          helpText="Partie du paiement considérée comme un don à l'association"
+        />
+
+        <FormField
           label="Référence"
           name="reference"
           type="text"
@@ -125,7 +140,7 @@ export function PaymentForm({
           />
         </div>
       </div>
-      
+
       <div className="mt-4 p-4 bg-blue-50 rounded-lg">
         <p className="text-sm text-blue-800">
           <strong>Note :</strong> Le statut du paiement sera déterminé automatiquement :

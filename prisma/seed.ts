@@ -12,9 +12,9 @@ async function main(){
   console.log('✅ Database cleaned');
   
   const seasonsData : Prisma.SeasonCreateInput[] = [
-    { startYear: 2023, endYear: 2024, status: 'inactive', membershipAmount: 10, totalDonations: 0 },
-    { startYear: 2024, endYear: 2025, status: 'inactive', membershipAmount: 20, discountPercent: 5, totalDonations: 0 },
-    { startYear: 2025, endYear: 2026, status: 'active', membershipAmount: 50, discountPercent:10, totalDonations: 0 },
+    { startYear: 2023, endYear: 2024, status: 'inactive', membershipAmount: 10 },
+    { startYear: 2024, endYear: 2025, status: 'inactive', membershipAmount: 20, discountPercent: 5 },
+    { startYear: 2025, endYear: 2026, status: 'active', membershipAmount: 50, discountPercent: 10 },
   ];
   const seasons = await prisma.season.createManyAndReturn({data : seasonsData });
   console.log('✅ Seasons created');
@@ -31,24 +31,22 @@ async function main(){
 
   const pricesData : Prisma.WorkshopPriceCreateManyInput[] = [
     // Season 2023-2024
-    { workshopId: workshops[0].id, seasonId: seasons[0].id, amount: 110 }, // Théâtre
-    { workshopId: workshops[1].id, seasonId: seasons[0].id, amount: 90 },  // Musique
-    { workshopId: workshops[2].id, seasonId: seasons[0].id, amount: 140 }, // Cuisine
-    { workshopId: workshops[3].id, seasonId: seasons[0].id, amount: 80 },  // Photographie
-    { workshopId: workshops[4].id, seasonId: seasons[0].id, amount: 70 },  // Impro
-    
+    { workshopId: workshops[0].id, seasonId: seasons[0].id, amount: 110 },
+    { workshopId: workshops[1].id, seasonId: seasons[0].id, amount: 90 },
+    { workshopId: workshops[2].id, seasonId: seasons[0].id, amount: 140 },
+    { workshopId: workshops[3].id, seasonId: seasons[0].id, amount: 80 },
+    { workshopId: workshops[4].id, seasonId: seasons[0].id, amount: 70 },
     // Season 2024-2025
-    { workshopId: workshops[0].id, seasonId: seasons[1].id, amount: 120 }, // Théâtre
-    { workshopId: workshops[1].id, seasonId: seasons[1].id, amount: 100 }, // Musique
-    { workshopId: workshops[2].id, seasonId: seasons[1].id, amount: 150 }, // Cuisine
-    { workshopId: workshops[3].id, seasonId: seasons[1].id, amount: 85 },  // Photographie
-    { workshopId: workshops[4].id, seasonId: seasons[1].id, amount: 75 },  // Impro
-        
+    { workshopId: workshops[0].id, seasonId: seasons[1].id, amount: 120 },
+    { workshopId: workshops[1].id, seasonId: seasons[1].id, amount: 100 },
+    { workshopId: workshops[2].id, seasonId: seasons[1].id, amount: 150 },
+    { workshopId: workshops[3].id, seasonId: seasons[1].id, amount: 85 },
+    { workshopId: workshops[4].id, seasonId: seasons[1].id, amount: 75 },
     // Season 2025-2026 (active)
-    { workshopId: workshops[0].id, seasonId: seasons[2].id, amount: 130 }, // Théâtre
-    { workshopId: workshops[1].id, seasonId: seasons[2].id, amount: 110 }, // Musique
-    { workshopId: workshops[2].id, seasonId: seasons[2].id, amount: 160 }, // Cuisine
-    { workshopId: workshops[4].id, seasonId: seasons[2].id, amount: 140 },  // Impro
+    { workshopId: workshops[0].id, seasonId: seasons[2].id, amount: 130 },
+    { workshopId: workshops[1].id, seasonId: seasons[2].id, amount: 110 },
+    { workshopId: workshops[2].id, seasonId: seasons[2].id, amount: 160 },
+    { workshopId: workshops[4].id, seasonId: seasons[2].id, amount: 140 },
   ];
   const workshopPrices = await prisma.workshopPrice.createManyAndReturn({ data: pricesData });
   console.log('✅ Workshop Prices created');
@@ -98,28 +96,21 @@ async function main(){
 
   const registrationsData : Prisma.RegistrationCreateManyInput[] = [
     // 2023/2024
-    //    membre de la famille Dupont (memberid : 0 | 1)
     { memberId: members[0].id, seasonId: seasons[0].id, workshopId: workshops[0].id, totalPrice: 110, discountPercent: 0, quantity: 1 },
     { memberId: members[0].id, seasonId: seasons[0].id, workshopId: workshops[1].id, totalPrice: 90, discountPercent: 0, quantity: 1 },
     { memberId: members[1].id, seasonId: seasons[0].id, workshopId: workshops[0].id, totalPrice: 99, discountPercent: seasons[0].discountPercent, quantity: 1 },
-    //    membre de la famille Martin (memberid : 3 | 5)
     { memberId: members[3].id, seasonId: seasons[0].id, workshopId: workshops[0].id, totalPrice: 110, discountPercent: 0, quantity: 1 },
     { memberId: members[5].id, seasonId: seasons[0].id, workshopId: workshops[3].id, totalPrice: 72, discountPercent: seasons[0].discountPercent, quantity: 1 },
     // 2024/2025
-    //    membre de la famille Dupont (memberid : 0 | 2)
     { memberId: members[0].id, seasonId: seasons[1].id, workshopId: workshops[0].id, totalPrice: 110, discountPercent: 0, quantity: 1 },
     { memberId: members[2].id, seasonId: seasons[1].id, workshopId: workshops[0].id, totalPrice: 104.5, discountPercent: seasons[1].discountPercent, quantity: 1 },
-    //    membre de la famille Martin (memberid : 3 )
     { memberId: members[3].id, seasonId: seasons[1].id, workshopId: workshops[0].id, totalPrice: 110, discountPercent: 0, quantity: 1 },
     // 2025/2026
-    //    membre de la famille Dupont (memberid : 0 | 1)
     { memberId: members[0].id, seasonId: seasons[2].id, workshopId: workshops[0].id, totalPrice: 110, discountPercent: 0, quantity: 1 },
     { memberId: members[1].id, seasonId: seasons[2].id, workshopId: workshops[0].id, totalPrice: 99, discountPercent: seasons[2].discountPercent, quantity: 1 },
-    //    membre de la famille Martin (memberid : 3 | 4)
     { memberId: members[3].id, seasonId: seasons[2].id, workshopId: workshops[0].id, totalPrice: 130, discountPercent: 0, quantity: 1 },
     { memberId: members[3].id, seasonId: seasons[2].id, workshopId: workshops[1].id, totalPrice: 117, discountPercent: 0, quantity: 1 },
     { memberId: members[4].id, seasonId: seasons[2].id, workshopId: workshops[0].id, totalPrice: 130, discountPercent: seasons[2].discountPercent, quantity: 1 },
-    //    membre de la famille Etc (memberid : 6 )
     { memberId: members[6].id, seasonId: seasons[2].id, workshopId: workshops[0].id, totalPrice: 130, discountPercent: 0, quantity: 1 },
     { memberId: members[6].id, seasonId: seasons[2].id, workshopId: workshops[2].id, totalPrice: 160, discountPercent: 0, quantity: 1 },
   ];
@@ -127,28 +118,31 @@ async function main(){
   console.log('✅ Workshop registrations created');
 
   const paymentData: Prisma.PaymentCreateManyInput[] = [
-    { familyId: families[2].id, seasonId: seasons[2].id, amount: '100', paymentType: 'cash', paymentDate: new Date(2025, 8, 15).toISOString() }
+    {
+      familyId: families[2].id,
+      seasonId: seasons[2].id,
+      amount: '120',
+      donationAmount: '20',
+      paymentType: 'cash',
+      paymentDate: new Date(2025, 8, 15).toISOString(),
+      status:'completed'
+    }
   ];
   const payments = await prisma.payment.createManyAndReturn({data: paymentData });
   console.log('✅ Payments created');
 
+  console.log('🌱 Seeding clients, quotes & invoices...');
 
-    console.log('🌱 Seeding clients, quotes & invoices...');
- 
-  // ── Récupérer la saison active (créée par le seed principal) ──
   const activeSeason = await prisma.season.findFirst({
     where: { status: 'active' },
   });
- 
+
   if (!activeSeason) {
-    throw new Error(
-      '❌ Aucune saison active trouvée. Lance d\'abord le seed principal (prisma/seed.ts).'
-    );
+    throw new Error('❌ Aucune saison active trouvée.');
   }
- 
+
   console.log(`✅ Saison active trouvée : ${activeSeason.startYear}-${activeSeason.endYear}`);
- 
-  // ── Clients ───────────────────────────────────────────────────
+
   const clientsData: Prisma.ClientCreateManyInput[] = [
     {
       name: 'Commune de Presles-en-Brie',
@@ -179,23 +173,17 @@ async function main(){
       contact: 'M. Martin - Directeur',
     },
   ];
- 
+
   const clients = await prisma.client.createManyAndReturn({ data: clientsData });
   console.log(`✅ ${clients.length} clients créés`);
- 
+
   const [commune1, commune2, asso, ecole] = clients;
- 
-  // ── Devis ─────────────────────────────────────────────────────
-  // On crée des devis dans différents états pour couvrir tous les cas
-  // d'interface : draft, sent, accepted, rejected, invoiced
- 
-  // 1. Devis facturé + facture PAYÉE (commune1)
+
   const quote1 = await prisma.quote.create({
     data: {
       clientId: commune1.id,
       title: 'Animation théâtre — Fête de la commune',
-      description:
-        'Spectacle de théâtre d\'improvisation pour la fête annuelle de la commune, en plein air.',
+      description: 'Spectacle de théâtre d\'improvisation pour la fête annuelle de la commune, en plein air.',
       status: 'invoiced',
       quoteNumber: 'D202509-1001',
       issuedAt: new Date('2025-09-01'),
@@ -204,24 +192,13 @@ async function main(){
       notes: 'Prévoir sono et scène. Durée : 1h30.',
       items: {
         create: [
-          {
-            label: 'Prestation artistique (3 comédiens)',
-            description: 'Spectacle d\'improvisation — 1h30',
-            unitPrice: new Prisma.Decimal(250),
-            quantity: 3,
-            lineTotal: new Prisma.Decimal(750),
-          },
-          {
-            label: 'Frais de déplacement',
-            unitPrice: new Prisma.Decimal(100),
-            quantity: 1,
-            lineTotal: new Prisma.Decimal(100),
-          },
+          { label: 'Prestation artistique (3 comédiens)', description: 'Spectacle d\'improvisation — 1h30', unitPrice: new Prisma.Decimal(250), quantity: 3, lineTotal: new Prisma.Decimal(750) },
+          { label: 'Frais de déplacement', unitPrice: new Prisma.Decimal(100), quantity: 1, lineTotal: new Prisma.Decimal(100) },
         ],
       },
     },
   });
- 
+
   await prisma.quoteInvoice.create({
     data: {
       quoteId: quote1.id,
@@ -234,36 +211,27 @@ async function main(){
       totalAmount: new Prisma.Decimal(850),
     },
   });
- 
+
   console.log('✅ Devis 1 créé (invoiced + paid)');
- 
-  // 2. Devis facturé + facture EN ATTENTE (commune2)
+
   const quote2 = await prisma.quote.create({
     data: {
       clientId: commune2.id,
       title: 'Atelier théâtre enfants — Mercredi culturel',
-      description:
-        'Trois ateliers d\'initiation au théâtre pour enfants de 7 à 12 ans, les mercredis après-midi.',
+      description: 'Trois ateliers d\'initiation au théâtre pour enfants de 7 à 12 ans, les mercredis après-midi.',
       status: 'invoiced',
       quoteNumber: 'D202510-1002',
       issuedAt: new Date('2025-10-01'),
       validUntil: new Date('2025-11-01'),
       totalAmount: new Prisma.Decimal(540),
-      notes: null,
       items: {
         create: [
-          {
-            label: 'Atelier d\'initiation théâtre (2h)',
-            description: 'Animé par 1 comédien, groupe de 15 enfants max',
-            unitPrice: new Prisma.Decimal(180),
-            quantity: 3,
-            lineTotal: new Prisma.Decimal(540),
-          },
+          { label: 'Atelier d\'initiation théâtre (2h)', description: 'Animé par 1 comédien, groupe de 15 enfants max', unitPrice: new Prisma.Decimal(180), quantity: 3, lineTotal: new Prisma.Decimal(540) },
         ],
       },
     },
   });
- 
+
   await prisma.quoteInvoice.create({
     data: {
       quoteId: quote2.id,
@@ -274,16 +242,13 @@ async function main(){
       totalAmount: new Prisma.Decimal(540),
     },
   });
- 
+
   console.log('✅ Devis 2 créé (invoiced + issued)');
- 
-  // 3. Devis ACCEPTÉ — prêt à être facturé (asso)
-  const quote3 = await prisma.quote.create({
+
+  await prisma.quote.create({
     data: {
       clientId: asso.id,
       title: 'Stage intensif improvisation — Vacances de Noël',
-      description:
-        'Stage de 3 jours d\'improvisation théâtrale pour adolescents et adultes pendant les vacances scolaires.',
       status: 'accepted',
       quoteNumber: 'D202511-1003',
       issuedAt: new Date('2025-11-05'),
@@ -292,27 +257,18 @@ async function main(){
       notes: 'Salle fournie par l\'association. Matériel pédagogique inclus.',
       items: {
         create: [
-          {
-            label: 'Journée de stage (2 animateurs)',
-            description: '9h-17h, pause déjeuner non incluse',
-            unitPrice: new Prisma.Decimal(400),
-            quantity: 3,
-            lineTotal: new Prisma.Decimal(1200),
-          },
+          { label: 'Journée de stage (2 animateurs)', description: '9h-17h, pause déjeuner non incluse', unitPrice: new Prisma.Decimal(400), quantity: 3, lineTotal: new Prisma.Decimal(1200) },
         ],
       },
     },
   });
- 
+
   console.log('✅ Devis 3 créé (accepted)');
- 
-  // 4. Devis ENVOYÉ — en attente de réponse (école)
-  const quote4 = await prisma.quote.create({
+
+  await prisma.quote.create({
     data: {
       clientId: ecole.id,
       title: 'Intervention théâtre en classe — Cycle CM1/CM2',
-      description:
-        'Quatre interventions d\'1h en classe pour sensibiliser les élèves à l\'art dramatique, en lien avec le programme scolaire.',
       status: 'sent',
       quoteNumber: 'D202511-1004',
       issuedAt: new Date('2025-11-10'),
@@ -321,58 +277,38 @@ async function main(){
       notes: 'Dates à convenir avec l\'enseignant référent.',
       items: {
         create: [
-          {
-            label: 'Intervention théâtrale en classe (1h)',
-            unitPrice: new Prisma.Decimal(120),
-            quantity: 4,
-            lineTotal: new Prisma.Decimal(480),
-          },
+          { label: 'Intervention théâtrale en classe (1h)', unitPrice: new Prisma.Decimal(120), quantity: 4, lineTotal: new Prisma.Decimal(480) },
         ],
       },
     },
   });
- 
+
   console.log('✅ Devis 4 créé (sent)');
- 
-  // 5. Devis BROUILLON (commune1 — nouvelle demande)
-  const quote5 = await prisma.quote.create({
+
+  await prisma.quote.create({
     data: {
       clientId: commune1.id,
       title: 'Spectacle de fin d\'année — Décembre 2025',
-      description: 'Spectacle familial pour les fêtes de fin d\'année.',
       status: 'draft',
       quoteNumber: 'D202511-1005',
       issuedAt: new Date('2025-11-20'),
       validUntil: new Date('2025-12-20'),
       totalAmount: new Prisma.Decimal(1050),
-      notes: null,
       items: {
         create: [
-          {
-            label: 'Prestation artistique (3 comédiens)',
-            unitPrice: new Prisma.Decimal(300),
-            quantity: 3,
-            lineTotal: new Prisma.Decimal(900),
-          },
-          {
-            label: 'Création costumes et accessoires',
-            unitPrice: new Prisma.Decimal(150),
-            quantity: 1,
-            lineTotal: new Prisma.Decimal(150),
-          },
+          { label: 'Prestation artistique (3 comédiens)', unitPrice: new Prisma.Decimal(300), quantity: 3, lineTotal: new Prisma.Decimal(900) },
+          { label: 'Création costumes et accessoires', unitPrice: new Prisma.Decimal(150), quantity: 1, lineTotal: new Prisma.Decimal(150) },
         ],
       },
     },
   });
- 
+
   console.log('✅ Devis 5 créé (draft)');
- 
-  // 6. Devis REFUSÉ (commune2)
-  const quote6 = await prisma.quote.create({
+
+  await prisma.quote.create({
     data: {
       clientId: commune2.id,
       title: 'Résidence artistique — Été 2025',
-      description: 'Résidence d\'une semaine avec restitution publique.',
       status: 'rejected',
       quoteNumber: 'D202506-1006',
       issuedAt: new Date('2025-06-01'),
@@ -381,29 +317,23 @@ async function main(){
       notes: 'Budget refusé par le conseil municipal.',
       items: {
         create: [
-          {
-            label: 'Résidence artistique (5 jours, 4 comédiens)',
-            unitPrice: new Prisma.Decimal(640),
-            quantity: 5,
-            lineTotal: new Prisma.Decimal(3200),
-          },
+          { label: 'Résidence artistique (5 jours, 4 comédiens)', unitPrice: new Prisma.Decimal(640), quantity: 5, lineTotal: new Prisma.Decimal(3200) },
         ],
       },
     },
   });
- 
+
   console.log('✅ Devis 6 créé (rejected)');
- 
-  // ── Résumé ────────────────────────────────────────────────────
+
   console.log('\n📊 Résumé du seed :');
-  console.log(`   • Clients        : ${clients.length}`);
-  console.log(`   • Devis          : 6`);
-  console.log(`   • Factures       : 2 (1 payée, 1 en attente)`);
-  console.log('\n🎭 Statuts couverts : draft, sent, accepted, rejected, invoiced');
-  console.log('💶 Factures        : issued (en attente), paid (encaissée)');
-
+  console.log(`   • Saisons         : ${seasons.length}`);
+  console.log(`   • Ateliers        : ${workshops.length}`);
+  console.log(`   • Familles        : ${families.length}`);
+  console.log(`   • Membres         : ${members.length}`);
+  console.log(`   • Clients         : ${clients.length}`);
+  console.log(`   • Devis           : 6`);
+  console.log(`   • Factures        : 2 (1 payée, 1 en attente)`);
 }
-
 
 async function clearDatabase(){
   await prisma.$transaction([

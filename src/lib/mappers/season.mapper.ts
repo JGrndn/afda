@@ -5,7 +5,7 @@ import { PrismaSeasonWithFullDetails, PrismaSeasonWithPricesAndWorkshop } from '
 import { toWorkshopPricesWithWorkshopInfoDTO } from '@/lib/mappers/workshopPrice.mapper';
 import { toMembershipsWithMemberInfoDTO } from '@/lib/mappers/membership.mapper';
 
-export function toSeasonDTO(season: PrismaSeason): SeasonDTO{
+export function toSeasonDTO(season: PrismaSeason): SeasonDTO {
   return {
     id: season.id,
     startYear: season.startYear,
@@ -13,13 +13,12 @@ export function toSeasonDTO(season: PrismaSeason): SeasonDTO{
     status: SeasonStatusSchema.parse(season.status),
     membershipAmount: season.membershipAmount.toNumber(),
     discountPercent: season.discountPercent,
-    totalDonations: season.totalDonations.toNumber(),
     createdAt: season.createdAt,
     updatedAt: season.updatedAt,
   };
 }
 
-export function toSeasonsDTO(seasons: PrismaSeason[]) : SeasonDTO[]{
+export function toSeasonsDTO(seasons: PrismaSeason[]): SeasonDTO[] {
   return seasons.map(toSeasonDTO);
 }
 
@@ -34,6 +33,6 @@ export function toSeasonWithFullDetailsDTO(season: PrismaSeasonWithFullDetails):
   return {
     ...toSeasonDTO(season),
     prices: season.workshopPrices ? toWorkshopPricesWithWorkshopInfoDTO(season.workshopPrices) : [],
-    memberships: season.memberships ? toMembershipsWithMemberInfoDTO(season.memberships) : []
-  }
+    memberships: season.memberships ? toMembershipsWithMemberInfoDTO(season.memberships) : [],
+  };
 }

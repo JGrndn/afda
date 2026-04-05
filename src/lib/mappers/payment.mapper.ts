@@ -8,6 +8,7 @@ export function toPaymentDTO(payment: PrismaPayment): PaymentDTO {
     familyId: payment.familyId,
     seasonId: payment.seasonId,
     amount: payment.amount.toNumber(),
+    donationAmount: payment.donationAmount ? payment.donationAmount.toNumber() : null,
     paymentType: PaymentTypeSchema.parse(payment.paymentType),
     paymentDate: payment.paymentDate,
     cashingDate: payment.cashingDate,
