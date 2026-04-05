@@ -16,7 +16,6 @@ model Season {
   status            String    @default("inactive")
   membershipAmount  Decimal  @map("membership_amount") @db.Decimal(10, 2)
   discountPercent   Int      @default(10) @map("discount_percent") 
-  totalDonations    Decimal @default(0) @map("total_donations") @db.Decimal(10, 2)
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")        
 
@@ -147,21 +146,22 @@ model Registration {
 }
 
 model Payment {
-  id            Int       @id @default(autoincrement())
-  familyId      Int       @map("family_id")
-  seasonId      Int       @map("season_id")
-  amount        Decimal   @db.Decimal(10, 2)
-  paymentType   String    @map("payment_type") @db.VarChar(20)  // cash, check, transfer, card
-  paymentDate   DateTime  @map("payment_date") @db.Date
-  cashingDate   DateTime? @map("cashing_date") @db.Date
-  status        String    @default("pending") @db.VarChar(20)  // pending, completed, cancelled
-  reference     String?   @db.VarChar(50)
-  notes         String?   @db.Text
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at")
+  id              Int       @id @default(autoincrement())
+  familyId        Int       @map("family_id")
+  seasonId        Int       @map("season_id")
+  amount          Decimal   @db.Decimal(10, 2)
+  donationAmount  Decimal?  @map("donation_amount") @db.Decimal(10, 2)
+  paymentType     String    @map("payment_type") @db.VarChar(20)
+  paymentDate     DateTime  @map("payment_date") @db.Date
+  cashingDate     DateTime? @map("cashing_date") @db.Date
+  status          String    @default("pending") @db.VarChar(20)
+  reference       String?   @db.VarChar(50)
+  notes           String?   @db.Text
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at")
 
-  family        Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  season        Season    @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  family          Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  season          Season    @relation(fields: [seasonId], references: [id], onDelete: Cascade)
 
   @@index([familyId])
   @@index([seasonId])
@@ -262,7 +262,6 @@ model QuoteInvoice {
   seasonId      Int?      @map("season_id")
   invoiceNumber String    @unique @map("invoice_number") @db.VarChar(50)
   status        String    @default("issued") @db.VarChar(20)
-  // issued | paid | cancelled
   issuedAt      DateTime  @default(now()) @map("issued_at")
   paidAt        DateTime? @map("paid_at")
   paymentMethod String?   @map("payment_method") @db.VarChar(50)

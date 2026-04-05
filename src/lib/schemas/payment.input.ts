@@ -5,6 +5,7 @@ export const CreatePaymentSchema = z.object({
   familyId: z.number().int().positive(),
   seasonId: z.number().int().positive(),
   amount: z.number().positive(),
+  donationAmount: z.number().min(0).optional().nullable(),
   paymentType: PaymentTypeSchema,
   paymentDate: z.date().optional(),
   cashingDate: z.date().optional().nullable(),
@@ -16,6 +17,7 @@ export type CreatePaymentInput = z.infer<typeof CreatePaymentSchema>;
 
 export const UpdatePaymentSchema = z.object({
   amount: z.number().positive().optional(),
+  donationAmount: z.number().min(0).optional().nullable(),
   paymentType: PaymentTypeSchema.optional(),
   paymentDate: z.date().optional(),
   cashingDate: z.date().optional().nullable(),

@@ -5,6 +5,7 @@ export type PaymentDTO = {
   familyId: number;
   seasonId: number;
   amount: number;
+  donationAmount: number | null;
   paymentType: PaymentType;
   paymentDate: Date;
   cashingDate: Date | null;

@@ -9,7 +9,6 @@ export type SeasonDTO = {
   status: SeasonStatus;
   membershipAmount: number;
   discountPercent: number;
-  totalDonations: number;
   createdAt: Date;
   updatedAt: Date;
 };
