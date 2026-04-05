@@ -1,5 +1,7 @@
 'use client';
 
+import Link from "next/link";
+
 export interface WorkshopStat {
   workshopName: string;
   memberCount: number;
@@ -47,12 +49,14 @@ function KpiCard({
   sub,
   accent,
   highlight,
+  href,
 }: {
   label: string;
   value: string;
   sub?: string;
   accent: string;
   highlight?: 'warning' | 'success' | 'neutral';
+  href?: string;
 }) {
   const highlightClass =
     highlight === 'warning'
@@ -61,18 +65,28 @@ function KpiCard({
       ? 'bg-green-50'
       : 'bg-white';
 
-  return (
+    const inner = (
     <div
       style={{ borderLeftColor: accent }}
-      className={`${highlightClass} rounded-lg p-5 border-l-4 shadow-sm hover:shadow-md transition-shadow`}
+      className={`${highlightClass} rounded-lg p-5 border-l-4 shadow-sm transition-shadow ${
+        href ? 'hover:shadow-md cursor-pointer' : ''
+      }`}
     >
       <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">
         {label}
       </p>
       <p className="text-2xl font-bold text-gray-900 leading-tight">{value}</p>
       {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
+      {href && (
+        <p className="text-xs text-blue-500 mt-2 font-medium">Voir le détail →</p>
+      )}
     </div>
   );
+ 
+  if (href) {
+    return <Link href={href}>{inner}</Link>;
+  }
+  return inner;
 }
 
 function SourceCard({
@@ -174,7 +188,7 @@ export function DashboardPageClient({ data, userName }: Props) {
 
         {/* KPIs financiers — base homogène "montants dus" */}
         <SectionTitle>Situation financière</SectionTitle>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 md:grid-cols-3 gap-4">
           <KpiCard
             label="Total facturé"
             value={`${fmt(stats.totalDu)} €`}
@@ -188,9 +202,10 @@ export function DashboardPageClient({ data, userName }: Props) {
             sub={`${encaissePct}% du total facturé`}
             accent="#10b981"
             highlight="success"
+            href="/dashboard/payments?status=paid"
           />
           <KpiCard
-            label="Reste à recevoir"
+            label="Reste à encaisser"
             value={`${fmt(stats.resteARecevoir)} €`}
             sub={
               stats.totalEnAttente > 0
@@ -199,13 +214,7 @@ export function DashboardPageClient({ data, userName }: Props) {
             }
             accent={stats.resteARecevoir > 0 ? '#ef4444' : '#10b981'}
             highlight={stats.resteARecevoir > 0 ? 'warning' : 'success'}
-          />
-          <KpiCard
-            label="Dons reçus"
-            value={`${fmt(stats.donationTotal)} €`}
-            sub="Sur les paiements encaissés"
-            accent="#f59e0b"
-            highlight="neutral"
+            href="/dashboard/payments?status=not-paid"
           />
         </div>
 
@@ -252,7 +261,7 @@ export function DashboardPageClient({ data, userName }: Props) {
 
         {/* Montants facturés par source */}
         <SectionTitle>Montants par source</SectionTitle>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <SourceCard
             label="Adhésions"
             amountDue={stats.membershipAmountDue}
@@ -286,6 +295,13 @@ export function DashboardPageClient({ data, userName }: Props) {
             ]
               .filter(Boolean)
               .join(' · ') || 'Aucune facture'}
+          />
+          <SourceCard
+            label="Dons"
+            amountDue={stats.donationTotal}
+            emoji="💰"
+            color='#f59e0b'
+            sub=""
           />
         </div>
 
