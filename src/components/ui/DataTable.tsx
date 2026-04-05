@@ -81,7 +81,7 @@ export function DataTable<
             return (
               <tr
                 key={`row_${rowIndex}`}
-                className={`${onRowClick ? 'hover:bg-gray-50' : ''}`}
+                className={`${onRowClick ? 'hover:bg-gray-50 cursor-pointer' : ''}`}
                 onClick={() => onRowClick?.(item)}
               >
                 {columns.map((col, colIndex) => {
