@@ -253,4 +253,41 @@ export const quoteService = {
     ]);
     return toQuoteInvoiceDTO(result);
   },
+
+  async getInvoiceStatsBySeason(seasonId: number): Promise<{
+    paidAmount: number;
+    paidCount: number;
+    issuedAmount: number;
+    issuedCount: number;
+  }> {
+    const invoices = await prisma.quoteInvoice.findMany({
+      where: {
+        seasonId,
+        status: { in: [QUOTE_INVOICE_STATUS.PAID, QUOTE_INVOICE_STATUS.ISSUED] },
+      },
+      select: {
+        status: true,
+        totalAmount: true,
+      },
+    });
+ 
+    let paidAmount = 0;
+    let paidCount = 0;
+    let issuedAmount = 0;
+    let issuedCount = 0;
+ 
+    for (const inv of invoices) {
+      const amount = (inv.totalAmount as any).toNumber?.() ?? Number(inv.totalAmount);
+      if (inv.status === QUOTE_INVOICE_STATUS.PAID) {
+        paidAmount += amount;
+        paidCount += 1;
+      } else if (inv.status === QUOTE_INVOICE_STATUS.ISSUED) {
+        issuedAmount += amount;
+        issuedCount += 1;
+      }
+    }
+ 
+    return { paidAmount, paidCount, issuedAmount, issuedCount };
+  },
+
 };
