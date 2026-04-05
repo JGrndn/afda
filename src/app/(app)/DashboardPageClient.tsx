@@ -1,5 +1,6 @@
 'use client';
 
+import { PAYMENT_FILTER_STATUS } from "@/lib/domain/enums/paymentFilter.enum";
 import Link from "next/link";
 
 export interface WorkshopStat {
@@ -202,7 +203,7 @@ export function DashboardPageClient({ data, userName }: Props) {
             sub={`${encaissePct}% du total facturé`}
             accent="#10b981"
             highlight="success"
-            href="/dashboard/payments?status=paid"
+            href={`/dashboard/payments?status=${PAYMENT_FILTER_STATUS.PAID}`}
           />
           <KpiCard
             label="Reste à encaisser"
@@ -214,7 +215,7 @@ export function DashboardPageClient({ data, userName }: Props) {
             }
             accent={stats.resteARecevoir > 0 ? '#ef4444' : '#10b981'}
             highlight={stats.resteARecevoir > 0 ? 'warning' : 'success'}
-            href="/dashboard/payments?status=not-paid"
+            href={`/dashboard/payments?status=${PAYMENT_FILTER_STATUS.NOT_PAID}`}
           />
         </div>
 

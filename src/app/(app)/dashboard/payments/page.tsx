@@ -11,10 +11,10 @@ import { computeFinancialStats } from '@/lib/domain/finance';
 import { PaymentStatusPageClient } from './PaymentStatusPageClient';
 import type { FamilyPaymentRow, ClientPaymentRow } from './PaymentStatusPageClient';
 import type { PaymentDTO } from '@/lib/dto/payment.dto';
+import { PAYMENT_FILTER_STATUS, PaymentFilterStatus } from '@/lib/domain/enums/paymentFilter.enum';
 
-type Status = 'not-paid' | 'paid';
 
-async function getPageData(status: Status) {
+async function getPageData(status: PaymentFilterStatus) {
   const seasons = await seasonService.getAll({ filters: { status: 'active' } });
   const activeSeason = seasons[0] ?? null;
   if (!activeSeason) return { activeSeason: null, families: [], clients: [] };
@@ -48,11 +48,11 @@ async function getPageData(status: Status) {
         seasonId
       );
 
-      const isAJour = stats.balance <= 0;
+      const isPaid = stats.balance <= 0;
 
       if (
-        (status === 'not-paid' && !isAJour) ||
-        (status === 'paid' && isAJour)
+        (status === PAYMENT_FILTER_STATUS.NOT_PAID && !isPaid) ||
+        (status === PAYMENT_FILTER_STATUS.PAID && isPaid)
       ) {
         familyRows.push({
           id: family.id,
@@ -69,7 +69,7 @@ async function getPageData(status: Status) {
   familyRows.sort((a, b) => b.solde - a.solde);
 
   // --- Clients / QuoteInvoice ---
-  const quoteInvoiceStatus = status === 'not-paid' ? 'issued' : 'paid';
+  const quoteInvoiceStatus = status === PAYMENT_FILTER_STATUS.NOT_PAID ? 'issued' : 'paid';
   const allQuotes = await quoteService.getAll();
 
   // On récupère les détails de chaque quote pour accéder aux invoices
@@ -119,8 +119,8 @@ export default async function PaymentStatusPage({
   if (!session) redirect('/signin');
 
   const { status: rawStatus } = await searchParams;
-  const status: Status =
-    rawStatus === 'paid' ? 'paid' : 'not-paid';
+  const status: PaymentFilterStatus =
+    rawStatus === PAYMENT_FILTER_STATUS.PAID ? PAYMENT_FILTER_STATUS.PAID : PAYMENT_FILTER_STATUS.NOT_PAID;
 
   const data = await getPageData(status);
 

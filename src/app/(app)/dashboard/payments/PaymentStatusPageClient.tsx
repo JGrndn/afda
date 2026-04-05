@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { DataTable, Column } from '@/components/ui';
+import { PAYMENT_FILTER_STATUS, PaymentFilterStatus } from '@/lib/domain/enums/paymentFilter.enum';
 
 export interface FamilyPaymentRow extends Record<string, unknown> {
   id: number;
@@ -28,7 +29,7 @@ export interface ClientPaymentRow extends Record<string, unknown> {
 }
 
 interface Props {
-  status: 'not-paid' | 'paid';
+  status: PaymentFilterStatus;
   activeSeason: { startYear: number; endYear: number } | null;
   families: FamilyPaymentRow[];
   clients: ClientPaymentRow[];
@@ -68,9 +69,9 @@ export function PaymentStatusPageClient({
   clients,
 }: Props) {
   const router = useRouter();
-  const isEnRetard = status === 'not-paid';
+  const isNotPaid = status === PAYMENT_FILTER_STATUS.NOT_PAID;
 
-  const badgeClass = isEnRetard
+  const badgeClass = isNotPaid
     ? 'bg-red-50 text-red-700 border-red-200'
     : 'bg-green-50 text-green-700 border-green-200';
 
@@ -114,7 +115,7 @@ export function PaymentStatusPageClient({
                 className="h-1 rounded-full"
                 style={{
                   width: `${pct}%`,
-                  backgroundColor: isEnRetard ? '#ef4444' : '#10b981',
+                  backgroundColor: isNotPaid ? '#ef4444' : '#10b981',
                 }}
               />
             </div>
@@ -125,7 +126,7 @@ export function PaymentStatusPageClient({
     {
       type: 'field',
       key: 'solde',
-      label: isEnRetard ? 'Reste dû' : 'Solde',
+      label: isNotPaid ? 'Reste dû' : 'Solde',
       render: (f) => (
         <span
           className={`font-bold tabular-nums ${
@@ -171,7 +172,7 @@ export function PaymentStatusPageClient({
       render: (c) => (
         <span
           className={`font-bold tabular-nums ${
-            isEnRetard ? 'text-red-600' : 'text-green-600'
+            isNotPaid ? 'text-red-600' : 'text-green-600'
           }`}
         >
           {fmt(c.totalAmount)} €
@@ -195,7 +196,7 @@ export function PaymentStatusPageClient({
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">
-              {isEnRetard ? 'Paiements en retard' : 'Paiements à jour'}
+              {isNotPaid ? 'Paiements en retard' : 'Paiements à jour'}
             </h1>
             {activeSeason && (
               <p className="text-gray-600 mt-1">
@@ -206,10 +207,10 @@ export function PaymentStatusPageClient({
 
           {/* Toggle */}
           <div className="flex items-center bg-gray-100 rounded-lg p-1 gap-1">
-            <TabButton href="?status=not-paid" active={isEnRetard}>
+            <TabButton href={`?status=${PAYMENT_FILTER_STATUS.NOT_PAID}`} active={isNotPaid}>
               🔴 En retard
             </TabButton>
-            <TabButton href="?status=paid" active={!isEnRetard}>
+            <TabButton href={`?status=${PAYMENT_FILTER_STATUS.PAID}`} active={!isNotPaid}>
               🟢 À jour
             </TabButton>
           </div>
@@ -227,8 +228,8 @@ export function PaymentStatusPageClient({
           </div>
           {families.length > 0 && (
             <span className="text-sm text-gray-500">
-              {isEnRetard ? 'Total restant dû' : 'Total encaissé'} :{' '}
-              <span className={`font-semibold ${isEnRetard ? 'text-red-600' : 'text-green-600'}`}>
+              {isNotPaid ? 'Total restant dû' : 'Total encaissé'} :{' '}
+              <span className={`font-semibold ${isNotPaid ? 'text-red-600' : 'text-green-600'}`}>
                 {fmt(Math.abs(totalFamiliesSolde))} €
               </span>
             </span>
@@ -240,7 +241,7 @@ export function PaymentStatusPageClient({
           columns={familyColumns}
           onRowClick={(f) => router.push(`/families/${f.id}`)}
           emptyMessage={
-            isEnRetard
+            isNotPaid
               ? 'Toutes les familles sont à jour de leurs paiements.'
               : "Aucune famille n'a soldé son compte cette saison."
           }
@@ -258,8 +259,8 @@ export function PaymentStatusPageClient({
           </div>
           {clients.length > 0 && (
             <span className="text-sm text-gray-500">
-              {isEnRetard ? 'En attente' : 'Encaissé'} :{' '}
-              <span className={`font-semibold ${isEnRetard ? 'text-red-600' : 'text-green-600'}`}>
+              {isNotPaid ? 'En attente' : 'Encaissé'} :{' '}
+              <span className={`font-semibold ${isNotPaid ? 'text-red-600' : 'text-green-600'}`}>
                 {fmt(totalClientsSolde)} €
               </span>
             </span>
@@ -271,7 +272,7 @@ export function PaymentStatusPageClient({
           columns={clientColumns}
           onRowClick={(c) => router.push(`/clients/${c.id}`)}
           emptyMessage={
-            isEnRetard
+            isNotPaid
               ? 'Aucune facture de prestation en attente.'
               : 'Aucune facture de prestation payée cette saison.'
           }
