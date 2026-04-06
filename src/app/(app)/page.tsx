@@ -55,22 +55,29 @@ async function getDashboardData(): Promise<DashboardData> {
   const memberIds = new Set(memberships.map((m) => m.memberId));
   const familyCount = memberships.filter((m) => m.familyOrder === 1).length;
 
-  // --- Paiements ---
+  // --- Paiements familles ---
   const completedPayments = allPayments.filter((p) => p.status === PAYMENT_STATUS.COMPLETED);
   const pendingPayments = allPayments.filter((p) => p.status === PAYMENT_STATUS.PENDING);
 
-  const totalEncaisse = completedPayments.reduce((sum, p) => sum + p.amount, 0);
+  const familiesEncaisse = completedPayments.reduce((sum, p) => sum + p.amount, 0);
   const totalEnAttente = pendingPayments.reduce((sum, p) => sum + p.amount, 0);
   const donationTotal = completedPayments.reduce((sum, p) => sum + (p.donationAmount ?? 0), 0);
 
-  // --- Total dû ---
-  // Adhésions + Ateliers + Prestations payées (les prestations "issued" sont en attente)
   const workshopAmountDue = workshopStats.reduce((s, w) => s + w.amountDue, 0);
+
+  // --- Calculs financiers cohérents ---
+  // totalDu  : tout ce qui est attendu (adhésions + ateliers + prestations émises + prestations payées)
+  // totalEncaisse : paiements familles completed + prestations payées
+  // resteARecevoir : totalDu - totalEncaisse
+  //
+  // Les prestations payées (quoteInvoicePaidAmount) s'annulent entre totalDu et totalEncaisse,
+  // donc resteARecevoir reflète uniquement ce qui n'a pas encore été reçu.
   const totalDu =
     membershipAmountDue +
     workshopAmountDue +
-    quoteInvoiceStats.paidAmount +
-    quoteInvoiceStats.issuedAmount;
+    quoteInvoiceStats.issuedAmount + quoteInvoiceStats.paidAmount;
+
+  const totalEncaisse = familiesEncaisse + quoteInvoiceStats.paidAmount;
 
   const resteARecevoir = totalDu - totalEncaisse;
 
