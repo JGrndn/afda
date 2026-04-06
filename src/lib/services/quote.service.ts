@@ -69,7 +69,10 @@ export const quoteService = {
     const quotes = await prisma.quote.findMany({
       where,
       orderBy: finalOrderBy,
-      include: { client: { select: { name: true } } },
+      include: {
+        client: { select: { name: true } },
+        quoteInvoice: { select: { status: true, paidAt: true } },
+      },
     });
     return quotes.map(toQuoteWithClientDTO);
   },
@@ -290,4 +293,5 @@ export const quoteService = {
     return { paidAmount, paidCount, issuedAmount, issuedCount };
   },
 
+  
 };
