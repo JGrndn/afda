@@ -39,6 +39,9 @@ export const clientService = {
       include: {
         quotes: {
           orderBy: { createdAt: 'desc' },
+          include: {
+            quoteInvoice: { select: { status: true, paidAt: true } },
+          },
         },
       },
     });

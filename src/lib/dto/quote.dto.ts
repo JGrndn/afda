@@ -34,6 +34,9 @@ export type QuoteWithDetailsDTO = QuoteDTO & {
 
 export type QuoteWithClientDTO = QuoteDTO & {
   clientName: string;
+  /** null = aucune facture émise */
+  invoiceStatus: QuoteInvoiceStatus | null;
+  invoicePaidAt: Date | null;
 };
 
 export type QuoteInvoiceDTO = {

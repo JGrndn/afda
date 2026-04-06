@@ -72,11 +72,18 @@ export function toQuotesDTO(quotes: PrismaQuote[]): QuoteDTO[] {
 }
 
 export function toQuoteWithClientDTO(
-  quote: PrismaQuote & { client: { name: string } }
+  quote: PrismaQuote & {
+    client: { name: string };
+    quoteInvoice: { status: string; paidAt: Date | null } | null;
+  }
 ): QuoteWithClientDTO {
   return {
     ...toQuoteDTO(quote),
     clientName: quote.client.name,
+    invoiceStatus: quote.quoteInvoice
+      ? QuoteInvoiceStatusSchema.parse(quote.quoteInvoice.status)
+      : null,
+    invoicePaidAt: quote.quoteInvoice?.paidAt ?? null,
   };
 }
 

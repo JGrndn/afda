@@ -1,3 +1,5 @@
+import { QuoteInvoiceStatus } from '@/lib/domain/enums/quoteInvoice.enum';
+
 export type ClientDTO = {
   id: number;
   name: string;
@@ -21,4 +23,7 @@ export type ClientQuoteSummaryDTO = {
   totalAmount: number;
   issuedAt: Date | null;
   validUntil: Date | null;
+  /** null = aucune facture émise */
+  invoiceStatus: QuoteInvoiceStatus | null;
+  invoicePaidAt: Date | null;
 };

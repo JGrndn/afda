@@ -14,6 +14,7 @@ import {
   ConfirmModal,
 } from '@/components/ui';
 import { QuoteSlideOver } from '@/components/quote/QuoteSlideOver';
+import { InvoiceStatusCell } from '@/components/quote/InvoiceStatusCell';
 import { useQuotes, useQuoteActions } from '@/hooks/quote.hook';
 import { getStatusOptionsWithAll } from '@/lib/i18n/statusOptions';
 import { QUOTE_STATUS_TRANSLATIONS } from '@/lib/i18n/translations';
@@ -78,8 +79,18 @@ export function QuotesPageClient({ userRole }: QuotesPageClientProps) {
       {
         type: 'field',
         key: 'status',
-        label: 'Statut',
+        label: 'Statut devis',
         render: (q) => <StatusBadge type="quote" status={q.status} />,
+      },
+      {
+        type: 'computed',
+        label: 'Facture',
+        render: (q) => (
+          <InvoiceStatusCell
+            invoiceStatus={q.invoiceStatus}
+            invoicePaidAt={q.invoicePaidAt}
+          />
+        ),
       },
       {
         type: 'field',

@@ -1,5 +1,10 @@
-import type { Client as PrismaClient, Quote as PrismaQuote } from '@/generated/prisma/client';
+import type {
+  Client as PrismaClient,
+  Quote as PrismaQuote,
+  QuoteInvoice as PrismaQuoteInvoice,
+} from '@/generated/prisma/client';
 import type { ClientDTO, ClientWithQuotesDTO, ClientQuoteSummaryDTO } from '@/lib/dto/client.dto';
+import { QuoteInvoiceStatusSchema } from '@/lib/schemas/quoteInvoice.schema';
 
 export function toClientDTO(client: PrismaClient): ClientDTO {
   return {
@@ -18,7 +23,9 @@ export function toClientsDTO(clients: PrismaClient[]): ClientDTO[] {
   return clients.map(toClientDTO);
 }
 
-export function toClientQuoteSummaryDTO(quote: PrismaQuote): ClientQuoteSummaryDTO {
+export function toClientQuoteSummaryDTO(
+  quote: PrismaQuote & { quoteInvoice: Pick<PrismaQuoteInvoice, 'status' | 'paidAt'> | null }
+): ClientQuoteSummaryDTO {
   return {
     id: quote.id,
     title: quote.title,
@@ -27,11 +34,19 @@ export function toClientQuoteSummaryDTO(quote: PrismaQuote): ClientQuoteSummaryD
     totalAmount: (quote.totalAmount as any).toNumber?.() ?? Number(quote.totalAmount),
     issuedAt: quote.issuedAt,
     validUntil: quote.validUntil,
+    invoiceStatus: quote.quoteInvoice
+      ? QuoteInvoiceStatusSchema.parse(quote.quoteInvoice.status)
+      : null,
+    invoicePaidAt: quote.quoteInvoice?.paidAt ?? null,
   };
 }
 
 export function toClientWithQuotesDTO(
-  client: PrismaClient & { quotes: PrismaQuote[] }
+  client: PrismaClient & {
+    quotes: (PrismaQuote & {
+      quoteInvoice: Pick<PrismaQuoteInvoice, 'status' | 'paidAt'> | null;
+    })[];
+  }
 ): ClientWithQuotesDTO {
   return {
     ...toClientDTO(client),

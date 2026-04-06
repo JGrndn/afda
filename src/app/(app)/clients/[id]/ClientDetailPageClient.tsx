@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft, Pencil, Plus, Trash2 } from 'lucide-react';
 import { ClientForm } from '@/components/client/ClientForm';
 import { QuoteSlideOver } from '@/components/quote/QuoteSlideOver';
+import { InvoiceStatusCell } from '@/components/quote/InvoiceStatusCell';
 import { useClient, useClientActions } from '@/hooks/client.hook';
 import { Button, Card, ErrorMessage, DataTable, Column, StatusBadge, ConfirmModal } from '@/components/ui';
 import { ClientWithQuotesDTO, ClientQuoteSummaryDTO } from '@/lib/dto/client.dto';
@@ -60,8 +61,18 @@ export function ClientDetailPageClient({ initialClient, userRole }: ClientDetail
       {
         type: 'field',
         key: 'status',
-        label: 'Statut',
+        label: 'Statut devis',
         render: (q) => <StatusBadge type="quote" status={q.status as any} />,
+      },
+      {
+        type: 'computed',
+        label: 'Facture',
+        render: (q) => (
+          <InvoiceStatusCell
+            invoiceStatus={q.invoiceStatus}
+            invoicePaidAt={q.invoicePaidAt}
+          />
+        ),
       },
       {
         type: 'field',
