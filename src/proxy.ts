@@ -39,7 +39,7 @@ export default auth((req) => {
   // ============================================
   // 3. Routes publiques (pas d'authentification requise)
   // ============================================
-  const publicRoutes = ['/signin', '/signup', '/error', '/api/health'];
+  const publicRoutes = ['/signin', '/signup', '/error', '/api/health', '/api/auth'];
   const isPublicRoute = publicRoutes.some((route) =>
     pathname.startsWith(route)
   );
