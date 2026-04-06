@@ -191,14 +191,14 @@ export function DashboardPageClient({ data, userName }: Props) {
         <SectionTitle>Situation financière</SectionTitle>
         <div className="grid grid-cols-3 md:grid-cols-3 gap-4">
           <KpiCard
-            label="Total facturé"
+            label='Total du'//"Total facturé"
             value={`${fmt(stats.totalDu)} €`}
             sub="Adhésions + ateliers + prestations"
             accent="#6366f1"
             highlight="neutral"
           />
           <KpiCard
-            label="Encaissé"
+            label='total encaissé'//"Encaissé"
             value={`${fmt(stats.totalEncaisse)} €`}
             sub={`${encaissePct}% du total facturé`}
             accent="#10b981"
@@ -206,7 +206,7 @@ export function DashboardPageClient({ data, userName }: Props) {
             href={`/dashboard/payments?status=${PAYMENT_FILTER_STATUS.PAID}`}
           />
           <KpiCard
-            label="Reste à encaisser"
+            label='reste a recevoir'//"Reste à encaisser"
             value={`${fmt(stats.resteARecevoir)} €`}
             sub={
               stats.totalEnAttente > 0
