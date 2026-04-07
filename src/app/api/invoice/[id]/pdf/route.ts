@@ -3,10 +3,11 @@ import { invoiceService } from '@/lib/services/invoice.service';
 import { generateInvoicePdf } from '@/lib/domain/invoice/generateInvoicePdf';
 
 export async function GET(
-  _: Request,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const invoice = await invoiceService.getById(parseInt(params.id));
+  const resolvedParams = await params;
+  const invoice = await invoiceService.getById(parseInt(resolvedParams.id));
 
   if (!invoice) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
