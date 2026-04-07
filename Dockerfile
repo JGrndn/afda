@@ -35,8 +35,7 @@ COPY --from=builder /app/.next/static ./.next/static
 
 # Prisma : schema + client généré
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/src/generated ./src/generated
 
 # Script d'entrée qui lance les migrations puis démarre l'app
