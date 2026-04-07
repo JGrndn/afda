@@ -63,22 +63,6 @@ export function usePayment(id: number, includeDetails: boolean = false) {
   };
 }
 
-export function useFamilyBalance(familyId: number, seasonId: number) {
-  const url =
-    familyId && seasonId
-      ? `/api/families/${familyId}/balance?seasonId=${seasonId}`
-      : null;
-
-  const { data, error, isLoading, mutate } = useSWR<FamilyPaymentSummaryDTO>(url, fetcher);
-
-  return {
-    balance: data,
-    isLoading,
-    isError: error,
-    mutate,
-  };
-}
-
 export const usePaymentActions = createCrudActionsHook<
   CreatePaymentInput,
   UpdatePaymentInput,
