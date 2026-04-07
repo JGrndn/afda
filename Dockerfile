@@ -12,13 +12,13 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Prisma génère le client à partir du schema
-RUN npx prisma generate
-
 # Le build Next.js a besoin de DATABASE_URL pour valider les imports Prisma
 # On lui donne une valeur factice — la vraie sera injectée au runtime
 ARG DATABASE_URL=postgresql://placeholder:placeholder@placeholder:5432/placeholder
 ENV DATABASE_URL=${DATABASE_URL}
+
+# Prisma génère le client à partir du schema
+RUN npx prisma generate
 
 RUN npm run build
 
