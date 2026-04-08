@@ -15,4 +15,11 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      run: docker build . --file Dockerfile --tag afda:latest
+    - name: Export Image
+      run: docker save afda:latest -o afda.tar
+    - name: Upload Image
+      uses: actions/upload-artifact@v5
+      with:
+          name: docker-image
+          path: afda.tar
