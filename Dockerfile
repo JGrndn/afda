@@ -1,16 +1,21 @@
+FROM node:22-alpine AS base
+
 # ─── Étape 1 : dépendances ───────────────────────────────────────────────────
-FROM node:22-alpine AS deps
+FROM base AS deps
 WORKDIR /app
 
 COPY package.json package-lock.json ./
 RUN npm ci
 
 # ─── Étape 2 : build ─────────────────────────────────────────────────────────
-FROM node:22-alpine AS builder
+FROM base AS builder
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Désactive la télémtrie Nextjs
+ENV NEXT_TELEMETRY_DISABLED 1
 
 # Le build Next.js a besoin de DATABASE_URL pour valider les imports Prisma
 # On lui donne une valeur factice — la vraie sera injectée au runtime
@@ -23,10 +28,12 @@ RUN npx prisma generate
 RUN npm run build
 
 # ─── Étape 3 : image finale (standalone) ─────────────────────────────────────
-FROM node:22-alpine AS runner
+FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+# Désactive la télémtrie Nextjs
+ENV NEXT_TELEMETRY_DISABLED 1
 
 # Copier uniquement le nécessaire
 COPY --from=builder /app/public ./public
