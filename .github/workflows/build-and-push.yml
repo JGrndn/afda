@@ -37,7 +37,7 @@ jobs:
           tags: |
             # Sur push main → tag "staging" + sha court
             type=ref,event=branch,suffix=-{{sha}}
-            type=raw,value=staging,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=staging,enable=${{ github.ref == 'refs/heads/docker' }}
             # Sur tag v* → tag "latest" + version sémantique
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
