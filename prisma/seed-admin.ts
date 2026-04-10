@@ -15,7 +15,7 @@ type UserProps = {
 
 async function main() {
   console.log('🌱 Creating users...');
-  /*const users: UserProps[] = [{
+  const users: UserProps[] = [{
     email :'admin@afda.com',
     name : 'Administrateur', 
     pwd : 'admin123',
@@ -30,18 +30,7 @@ async function main() {
     name : 'Viewer', 
     pwd : 'viewer123',
     role: 'VIEWER' 
-  }];*/
-  const users: UserProps[] = [{
-    email: 'emeline@grondin.com',
-    name: 'Emeline',
-    pwd: 'Du*8uAr5993Lagef@GqrLWIB',
-    role: 'ADMIN'
-  },{
-    email: 'jerome@grondin.com',
-    name: 'Jerome',
-    pwd: '5x%qhVEcI$3Ggg#yaJk5iB&p',
-    role: 'ADMIN'
-  }] 
+  }];
 
   for(const u of users){
     await createUser(u);
