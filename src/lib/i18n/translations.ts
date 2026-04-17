@@ -4,6 +4,7 @@ import { SeasonStatus } from "@/lib/domain/enums/season.enum";
 import { WorkshopStatus } from "@/lib/domain/enums/workshop.enum";
 import { QuoteStatus } from '@/lib/domain/enums/quote.enum';
 import { QuoteInvoiceStatus } from '@/lib/domain/enums/quoteInvoice.enum';
+import { UserRole } from "../domain/enums/user-role.enum";
 
 // Season Status
 export const SEASON_STATUS_TRANSLATIONS: Record<SeasonStatus, string> = {
@@ -37,4 +38,10 @@ export const QUOTE_INVOICE_STATUS_TRANSLATIONS: Record<QuoteInvoiceStatus, strin
   issued: 'Émise',
   paid: 'Payée',
   cancelled: 'Annulée',
+};
+
+export const USER_ROLE_TRANSLATIONS: Record<UserRole, string> = {
+  [UserRole.ADMIN]:   'Administrateur',
+  [UserRole.MANAGER]: 'Gestionnaire',
+  [UserRole.VIEWER]:  'Lecteur',
 };

@@ -10,8 +10,10 @@ import {
   QUOTE_INVOICE_STATUS_TRANSLATIONS,
   QUOTE_STATUS_TRANSLATIONS,
   SEASON_STATUS_TRANSLATIONS,
+  USER_ROLE_TRANSLATIONS,
   WORKSHOP_STATUS_TRANSLATIONS
 } from '@/lib/i18n/translations';
+import { UserRole } from '@/lib/domain/enums/user-role.enum';
 
 // Couleurs typées
 const COLOR_CLASSES = {
@@ -19,6 +21,7 @@ const COLOR_CLASSES = {
   green: 'bg-green-100 text-green-800',
   red: 'bg-red-100 text-red-800',
   gray: 'bg-gray-100 text-gray-800',
+  blue: 'bg-blue-100 text-blue-800',
 } as const;
 type ColorKey = keyof typeof COLOR_CLASSES;
 
@@ -53,6 +56,11 @@ export const QUOTE_INVOICE_STATUS_COLORS: Record<QuoteInvoiceStatus, ColorKey> =
   paid: 'green',
   cancelled: 'red',
 };
+export const USER_ROLE_COLORS: Record<UserRole, ColorKey> = {
+  [UserRole.ADMIN]:   'red',
+  [UserRole.MANAGER]: 'blue',
+  [UserRole.VIEWER]:  'gray',
+};
 
 // Mapping type -> translations et couleurs
 type StatusConfigEntry<Status extends string> = {
@@ -83,7 +91,11 @@ const STATUS_CONFIG = {
   quoteInvoice: {
     translations: QUOTE_INVOICE_STATUS_TRANSLATIONS,
     colors: QUOTE_INVOICE_STATUS_COLORS
-  } satisfies StatusConfigEntry<QuoteInvoiceStatus>
+  } satisfies StatusConfigEntry<QuoteInvoiceStatus>,
+    userRole: {
+    translations: USER_ROLE_TRANSLATIONS,
+    colors: USER_ROLE_COLORS,
+  } satisfies StatusConfigEntry<UserRole>,
 } as const;
 
 // type generique

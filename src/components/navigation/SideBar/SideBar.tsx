@@ -1,14 +1,18 @@
 'use client'
 
-import { navItems, SideBarItem, AppVersion, useNavigation } from "@/components/navigation";
+import { navItems, adminNavItems, SideBarItem, AppVersion, useNavigation } from "@/components/navigation";
 import { UserMenu } from '@/components/auth/UserMenu';
 import { Menu } from "lucide-react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { UserRole } from "@/lib/domain/enums/user-role.enum";
 
 export function SideBar({ title } : {
   title: string
 }) {
   const { isCollapsed, toggleCollapse } = useNavigation();
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === UserRole.ADMIN;
 
   return (
     <aside
@@ -35,6 +39,23 @@ export function SideBar({ title } : {
         {navItems.map((item) => (
           <SideBarItem key={item.id} item={item} />
         ))}
+
+        {/* Admin section */}
+        {isAdmin && (
+          <>
+            <div className={`pt-3 pb-1 ${isCollapsed ? 'px-1' : 'px-2'}`}>
+              <div className="border-t border-blue-800/50" />
+              {!isCollapsed && (
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-blue-300/60 mt-2 px-2">
+                  Administration
+                </p>
+              )}
+            </div>
+            {adminNavItems.map((item) => (
+              <SideBarItem key={item.id} item={item} />
+            ))}
+          </>
+        )}
       </nav>
 
       {/* User Menu */}
