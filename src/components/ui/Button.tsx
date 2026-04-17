@@ -2,7 +2,7 @@ import { LucideIcon } from 'lucide-react';
 import { ReactNode, ButtonHTMLAttributes } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'ghostdanger';
   size?: 'sm' | 'md' | 'lg' | 'icon';
   children?: ReactNode;
   isLoading?: boolean;
@@ -30,6 +30,7 @@ export function Button({
     secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300',
     danger: 'bg-red-600 text-white hover:bg-red-700',
     ghost: 'bg-transparent text-blue-600 hover:bg-blue-50',
+    ghostdanger:'bg-transparent text-red-600 hover:bg-red-50'
   };
 
   const sizeClasses = {

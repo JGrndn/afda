@@ -1,5 +1,5 @@
 import { NavItem } from "@/components/navigation/navigation.types";
-import { Building2, Calendar, Drama, Euro, FileText, ReceiptText, UserRound, Users } from "lucide-react";
+import { Building2, Calendar, Drama, Euro, FileText, ReceiptText, Settings, UserRound, Users } from "lucide-react";
 
 
 export const navItems: NavItem[] = [
@@ -43,5 +43,15 @@ export const navItems: NavItem[] = [
     label: 'Factures prestations',
     icon: ReceiptText,
     href: '/quote-invoices'
+  },
+];
+
+// Admin-only nav items — merged into navItems dynamically by the sidebar when role is ADMIN
+export const adminNavItems: NavItem[] = [
+  {
+    id: 'admin-users',
+    label: 'Utilisateurs',
+    icon: Settings,
+    href: '/admin/users',
   },
 ];

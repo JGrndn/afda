@@ -1,7 +1,12 @@
+'use client';
+
+import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
+
 interface FormFieldProps {
   label?: string;
   name?: string;
-  type?: 'text' | 'email' | 'number' | 'date' | 'checkbox' | 'select' | 'textarea';
+  type?: 'text' | 'email' | 'number' | 'date' | 'password' | 'checkbox' | 'select' | 'textarea';
   value: any;
   onChange: (value: any) => void;
   options?: Array<{ value: any; label: string }>;
@@ -27,6 +32,8 @@ export function FormField({
   compact = false,
   error,
 }: FormFieldProps) {
+  const [showPassword, setShowPassword] = useState(false);
+
   const handleChange = (e: any) => {
     if (type === 'checkbox') {
       onChange(e.target.checked);
@@ -38,8 +45,8 @@ export function FormField({
   };
 
   const inputClasses = `${compact ? '' : 'mt-1'} block w-full rounded-md shadow-sm ${
-    error 
-      ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+    error
+      ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
       : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
   } ${disabled ? 'bg-gray-100' : ''} ${compact ? 'text-sm py-1 px-2' : ''}`;
 
@@ -56,10 +63,11 @@ export function FormField({
           disabled={disabled}
           rows={compact ? 2 : 4}
           className={inputClasses}
+          suppressHydrationWarning
         />
       );
     }
-    
+
     if (type === 'select') {
       return (
         <select
@@ -70,8 +78,9 @@ export function FormField({
           required={required}
           disabled={disabled}
           className={inputClasses}
+          suppressHydrationWarning
         >
-          <option value="">{placeholder ? placeholder : 'Sélectionner...'}</option>
+          <option value="">{placeholder ?? 'Sélectionner...'}</option>
           {options?.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
@@ -80,7 +89,7 @@ export function FormField({
         </select>
       );
     }
-    
+
     if (type === 'checkbox') {
       return (
         <div className={compact ? '' : 'mt-2'}>
@@ -92,11 +101,39 @@ export function FormField({
             onChange={handleChange}
             disabled={disabled}
             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            suppressHydrationWarning
           />
         </div>
       );
     }
-    
+
+    if (type === 'password') {
+      return (
+        <div className="mt-1 relative">
+          <input
+            id={name}
+            name={name}
+            type={showPassword ? 'text' : 'password'}
+            value={value || ''}
+            onChange={handleChange}
+            placeholder={placeholder}
+            required={required}
+            disabled={disabled}
+            className={`${inputClasses} pr-10 mt-0`}
+            suppressHydrationWarning
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((v) => !v)}
+            className="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-gray-600"
+            tabIndex={-1}
+          >
+            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
+        </div>
+      );
+    }
+
     return (
       <input
         id={name}
@@ -108,11 +145,11 @@ export function FormField({
         required={required}
         disabled={disabled}
         className={inputClasses}
+        suppressHydrationWarning
       />
     );
   };
 
-  // Mode compact pour l'édition inline
   if (compact) {
     return (
       <div>
@@ -122,7 +159,6 @@ export function FormField({
     );
   }
 
-  // Mode formulaire normal
   return (
     <div className="mb-4">
       <label htmlFor={name} className="block text-sm font-medium text-gray-700">
