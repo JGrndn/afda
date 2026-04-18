@@ -21,7 +21,7 @@ function LayoutContent({ children, title }: {
           ${isCollapsed ? 'lg:ml-20' : 'lg:ml-64'}
         `}
       >
-        <div className="p-6">
+        <div className="p-3 sm:p-6">
           {children}
         </div>
       </main>

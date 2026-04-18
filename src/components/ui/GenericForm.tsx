@@ -20,21 +20,21 @@ export function GenericForm({
   cancelLabel = 'Annuler',
 }: GenericFormProps) {
   return (
-    <div className="bg-white shadow-md rounded-lg p-6">
+    <div className="bg-white shadow-md rounded-lg p-4 sm:p-6">
       {title && (
-        <h2 className="text-2xl font-bold mb-6 text-gray-900">{title}</h2>
+        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-gray-900">{title}</h2>
       )}
 
       <form onSubmit={onSubmit}>
         {children}
 
-        <div className="flex gap-3 mt-6 pt-4 border-t">
+        <div className="flex flex-wrap gap-3 mt-6 pt-4 border-t">
           {onCancel && (
             <button
               type="button"
               onClick={onCancel}
               disabled={isLoading}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              className="flex-1 sm:flex-none px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50"
             >
               {cancelLabel}
             </button>
@@ -42,7 +42,7 @@ export function GenericForm({
           <button
             type="submit"
             disabled={isLoading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+            className="flex-1 sm:flex-none px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
           >
             {isLoading ? 'Saving...' : submitLabel}
           </button>
