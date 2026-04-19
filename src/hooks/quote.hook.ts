@@ -10,6 +10,7 @@ import {
   issueQuoteInvoice,
   markQuoteInvoicePaid,
   cancelQuoteInvoice,
+  updateQuoteStatus,
 } from '@/app/(app)/quotes/quotes.actions';
 import { QuoteDTO, QuoteInvoiceDTO, QuoteWithDetailsDTO } from '@/lib/dto/quote.dto';
 import { CreateQuoteInput, UpdateQuoteInput } from '@/lib/schemas/quote.input';
@@ -111,4 +112,22 @@ export function useCancelInvoice() {
     }
   }, []);
   return { cancel, isLoading, error };
+}
+
+export function useUpdateQuoteStatus() {
+  const [isLoading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const updateStatus = useCallback(async (id: number, status: QuoteStatus): Promise<QuoteDTO | null> => {
+    setLoading(true);
+    setError(null);
+    try {
+      return await updateQuoteStatus(id, status);
+    } catch (e) {
+      setError(e as Error);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  return { updateStatus, isLoading, error };
 }
