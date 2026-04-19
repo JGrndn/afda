@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { MoreVertical, LucideIcon } from 'lucide-react';
 
 export type DropdownItem = {
@@ -25,20 +25,23 @@ export function ActionsDropdown({ items }: ActionsDropdownProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   const visible = items.filter((i) => !i.hidden);
+
+  // Fermeture au clic extérieur via onBlur sur le container focusable
+  const handleBlur = (e: React.FocusEvent<HTMLDivElement>) => {
+    if (!ref.current?.contains(e.relatedTarget as Node)) {
+      setIsOpen(false);
+    }
+  };
+
   if (visible.length === 0) return null;
 
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    if (isOpen) document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen]);
-
   return (
-    <div ref={ref} className="relative hidden sm:block">
+    <div
+      ref={ref}
+      className="relative hidden sm:block"
+      onBlur={handleBlur}
+      tabIndex={-1}
+    >
       <button
         onClick={() => setIsOpen((v) => !v)}
         className="p-2 rounded-md hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700"
@@ -60,9 +63,7 @@ export function ActionsDropdown({ items }: ActionsDropdownProps) {
                 className={`
                   flex items-center gap-3 w-full px-4 py-2.5 text-sm transition-colors
                   disabled:opacity-40
-                  ${isDanger
-                    ? 'text-red-600 hover:bg-red-50'
-                    : 'text-gray-700 hover:bg-gray-50'}
+                  ${isDanger ? 'text-red-600 hover:bg-red-50' : 'text-gray-700 hover:bg-gray-50'}
                 `}
               >
                 <Icon className="w-4 h-4 flex-shrink-0" />
