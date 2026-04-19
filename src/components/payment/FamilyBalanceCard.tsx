@@ -15,7 +15,7 @@ export function FamilyBalanceCard({
   return (
     <Card title='Situation financière'>
       <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           <div className="bg-blue-50 p-4 rounded-lg">
             <dt className="text-sm font-medium text-blue-600">Montant total dû</dt>
             <dd className="mt-1 text-2xl font-bold text-blue-900">

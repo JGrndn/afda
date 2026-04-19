@@ -66,18 +66,18 @@ function KpiCard({
       ? 'bg-green-50'
       : 'bg-white';
 
-    const inner = (
+  const inner = (
     <div
       style={{ borderLeftColor: accent }}
-      className={`${highlightClass} rounded-lg p-5 border-l-4 shadow-sm transition-shadow ${
+      className={`${highlightClass} rounded-lg p-4 border-l-4 shadow-sm transition-shadow ${
         href ? 'hover:shadow-md cursor-pointer' : ''
       }`}
     >
       <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">
         {label}
       </p>
-      <p className="text-2xl font-bold text-gray-900 leading-tight">{value}</p>
-      {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
+      <p className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">{value}</p>
+      {sub && <p className="text-xs text-gray-400 mt-1 leading-snug">{sub}</p>}
       {href && (
         <p className="text-xs text-blue-500 mt-2 font-medium">Voir le détail →</p>
       )}
@@ -104,22 +104,22 @@ function SourceCard({
   color: string;
 }) {
   return (
-    <div className="bg-white rounded-lg p-5 shadow-sm">
+    <div className="bg-white rounded-lg p-4 shadow-sm">
       <div className="flex items-center justify-between mb-3">
-        <div>
-          <p className={`text-xs font-semibold uppercase tracking-widest mb-0.5`} style={{ color }}>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-widest mb-0.5 truncate" style={{ color }}>
             {label}
           </p>
-          <p className="text-2xl font-bold text-gray-900">{fmt(amountDue)} €</p>
+          <p className="text-xl sm:text-2xl font-bold text-gray-900">{fmt(amountDue)} €</p>
         </div>
         <div
-          className="w-10 h-10 rounded-full flex items-center justify-center text-lg"
+          className="w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0 ml-2"
           style={{ backgroundColor: `${color}18` }}
         >
           {emoji}
         </div>
       </div>
-      <p className="text-xs text-gray-400">{sub}</p>
+      <p className="text-xs text-gray-400 leading-snug">{sub}</p>
     </div>
   );
 }
@@ -147,7 +147,7 @@ export function DashboardPageClient({ data, userName }: Props) {
   if (!activeSeason || !stats) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center px-4">
           <div className="text-5xl mb-4">🎭</div>
           <h2 className="text-xl font-bold text-gray-700 mb-2">Aucune saison active</h2>
           <p className="text-gray-400 text-sm">
@@ -167,8 +167,8 @@ export function DashboardPageClient({ data, userName }: Props) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-100 px-8 py-6">
-        <div className="max-w-6xl mx-auto flex items-end justify-between">
+      <div className="bg-white border-b border-gray-100 px-4 sm:px-8 py-4 sm:py-6">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
           <div>
             <p className="text-sm text-gray-400 mb-0.5">
               {greeting}
@@ -178,27 +178,27 @@ export function DashboardPageClient({ data, userName }: Props) {
               Tableau de bord
             </h1>
           </div>
-          <span className="inline-flex items-center gap-2 bg-green-50 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-green-200">
+          <span className="inline-flex items-center gap-2 bg-green-50 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-green-200 self-start sm:self-auto">
             <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
             Saison {activeSeason.startYear}–{activeSeason.endYear} active
           </span>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-8 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-6 sm:py-8">
 
-        {/* KPIs financiers — base homogène "montants dus" */}
+        {/* KPIs financiers */}
         <SectionTitle>Situation financière</SectionTitle>
-        <div className="grid grid-cols-3 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           <KpiCard
-            label='Total du'//"Total facturé"
+            label="Total dû"
             value={`${fmt(stats.totalDu)} €`}
             sub="Adhésions + ateliers + prestations"
             accent="#6366f1"
             highlight="neutral"
           />
           <KpiCard
-            label='total encaissé'//"Encaissé"
+            label="Total encaissé"
             value={`${fmt(stats.totalEncaisse)} €`}
             sub={`${encaissePct}% du total facturé`}
             accent="#10b981"
@@ -206,11 +206,11 @@ export function DashboardPageClient({ data, userName }: Props) {
             href={`/dashboard/payments?status=${PAYMENT_FILTER_STATUS.PAID}`}
           />
           <KpiCard
-            label='reste a recevoir'//"Reste à encaisser"
+            label="Reste à recevoir"
             value={`${fmt(stats.resteARecevoir)} €`}
             sub={
               stats.totalEnAttente > 0
-                ? `dont ${fmt(stats.totalEnAttente)} € en attente d'encaissement`
+                ? `dont ${fmt(stats.totalEnAttente)} € en attente`
                 : 'Aucun paiement en attente'
             }
             accent={stats.resteARecevoir > 0 ? '#ef4444' : '#10b981'}
@@ -219,8 +219,8 @@ export function DashboardPageClient({ data, userName }: Props) {
           />
         </div>
 
-        {/* Barre de progression globale */}
-        <div className="mt-4 bg-white rounded-lg px-5 py-4 shadow-sm">
+        {/* Barre de progression */}
+        <div className="mt-4 bg-white rounded-lg px-4 sm:px-5 py-4 shadow-sm">
           <div className="flex justify-between items-center mb-2">
             <span className="text-xs font-semibold text-gray-500">
               Taux d'encaissement global
@@ -243,7 +243,7 @@ export function DashboardPageClient({ data, userName }: Props) {
 
         {/* Membres */}
         <SectionTitle>Participation</SectionTitle>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           <KpiCard
             label="Membres inscrits"
             value={stats.members.toString()}
@@ -260,26 +260,22 @@ export function DashboardPageClient({ data, userName }: Props) {
           />
         </div>
 
-        {/* Montants facturés par source */}
+        {/* Montants par source */}
         <SectionTitle>Montants par source</SectionTitle>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           <SourceCard
             label="Adhésions"
             amountDue={stats.membershipAmountDue}
             emoji="🎫"
             color="#3b82f6"
-            sub={`${stats.members} membre${stats.members > 1 ? 's' : ''} · ${activeSeason.membershipAmount} € / pers.${
-              activeSeason.discountPercent > 0
-                ? ` · −${activeSeason.discountPercent}% à partir du 2ème`
-                : ''
-            }`}
+            sub={`${stats.members} membre${stats.members > 1 ? 's' : ''} · ${activeSeason.membershipAmount} € / pers.`}
           />
           <SourceCard
             label="Ateliers"
             amountDue={stats.workshopAmountDue}
             emoji="🎭"
             color="#8b5cf6"
-            sub={`${stats.workshopStats.length} atelier${stats.workshopStats.length > 1 ? 's' : ''} · ${stats.workshopStats.reduce((s, w) => s + w.memberCount, 0)} inscription${stats.workshopStats.reduce((s, w) => s + w.memberCount, 0) > 1 ? 's' : ''}`}
+            sub={`${stats.workshopStats.length} atelier${stats.workshopStats.length > 1 ? 's' : ''}`}
           />
           <SourceCard
             label="Prestations"
@@ -288,10 +284,10 @@ export function DashboardPageClient({ data, userName }: Props) {
             color="#10b981"
             sub={[
               stats.quoteInvoicePaidCount > 0
-                ? `${stats.quoteInvoicePaidCount} payée${stats.quoteInvoicePaidCount > 1 ? 's' : ''} (${fmt(stats.quoteInvoicePaidAmount)} €)`
+                ? `${stats.quoteInvoicePaidCount} payée${stats.quoteInvoicePaidCount > 1 ? 's' : ''}`
                 : null,
               stats.quoteInvoiceIssuedCount > 0
-                ? `${stats.quoteInvoiceIssuedCount} en attente (${fmt(stats.quoteInvoiceIssuedAmount)} €)`
+                ? `${stats.quoteInvoiceIssuedCount} en attente`
                 : null,
             ]
               .filter(Boolean)
@@ -310,17 +306,17 @@ export function DashboardPageClient({ data, userName }: Props) {
         {stats.workshopStats.length > 0 && (
           <>
             <SectionTitle>Détail par atelier</SectionTitle>
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-              <table className="w-full">
+            <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
+              <table className="w-full min-w-[400px]">
                 <thead>
                   <tr className="border-b border-gray-100">
-                    <th className="text-left text-xs font-semibold uppercase tracking-wider text-gray-400 px-5 py-3">
+                    <th className="text-left text-xs font-semibold uppercase tracking-wider text-gray-400 px-4 sm:px-5 py-3">
                       Atelier
                     </th>
-                    <th className="text-center text-xs font-semibold uppercase tracking-wider text-gray-400 px-4 py-3 w-40">
+                    <th className="text-center text-xs font-semibold uppercase tracking-wider text-gray-400 px-3 sm:px-4 py-3 w-32 sm:w-40">
                       Participants
                     </th>
-                    <th className="text-right text-xs font-semibold uppercase tracking-wider text-gray-400 px-5 py-3 w-48">
+                    <th className="text-right text-xs font-semibold uppercase tracking-wider text-gray-400 px-4 sm:px-5 py-3 w-36 sm:w-48">
                       Montant facturé
                     </th>
                   </tr>
@@ -331,12 +327,12 @@ export function DashboardPageClient({ data, userName }: Props) {
                     const cntPct = Math.round((ws.memberCount / maxWorkshopCount) * 100);
                     return (
                       <tr key={i} className="hover:bg-gray-50/50 transition-colors">
-                        <td className="px-5 py-4">
+                        <td className="px-4 sm:px-5 py-3 sm:py-4">
                           <span className="font-medium text-gray-800 text-sm">
                             {ws.workshopName}
                           </span>
                         </td>
-                        <td className="px-4 py-4">
+                        <td className="px-3 sm:px-4 py-3 sm:py-4">
                           <div className="flex items-center gap-2">
                             <div className="flex-1 bg-gray-100 rounded-full h-1.5">
                               <div
@@ -349,9 +345,9 @@ export function DashboardPageClient({ data, userName }: Props) {
                             </span>
                           </div>
                         </td>
-                        <td className="px-5 py-4">
+                        <td className="px-4 sm:px-5 py-3 sm:py-4">
                           <div className="flex items-center gap-2 justify-end">
-                            <div className="w-16 bg-gray-100 rounded-full h-1.5">
+                            <div className="w-12 sm:w-16 bg-gray-100 rounded-full h-1.5">
                               <div
                                 className="bg-purple-400 h-1.5 rounded-full"
                                 style={{ width: `${duePct}%` }}
@@ -368,13 +364,13 @@ export function DashboardPageClient({ data, userName }: Props) {
                 </tbody>
                 <tfoot>
                   <tr className="border-t border-gray-200 bg-gray-50">
-                    <td className="px-5 py-3 text-xs font-bold uppercase tracking-wider text-gray-500">
+                    <td className="px-4 sm:px-5 py-3 text-xs font-bold uppercase tracking-wider text-gray-500">
                       Total
                     </td>
-                    <td className="px-4 py-3 text-center text-sm font-bold text-gray-700">
+                    <td className="px-3 sm:px-4 py-3 text-center text-sm font-bold text-gray-700">
                       {stats.workshopStats.reduce((s, w) => s + w.memberCount, 0)}
                     </td>
-                    <td className="px-5 py-3 text-right text-sm font-bold text-gray-800 tabular-nums">
+                    <td className="px-4 sm:px-5 py-3 text-right text-sm font-bold text-gray-800 tabular-nums">
                       {fmt(stats.workshopAmountDue)} €
                     </td>
                   </tr>
