@@ -7,13 +7,13 @@ import { ArrowLeft, Pencil, Trash2, Send, CheckCircle, XCircle, FileText, FileCh
 import { QuoteForm } from '@/components/quote/QuoteForm';
 import { QuotePdfModal } from '@/components/quote/QuotePdfModal';
 import { MarkInvoicePaidModal } from '@/components/quote/MarkInvoicePaidModal';
-import { useQuote, useQuoteActions, useIssueInvoice, useCancelInvoice } from '@/hooks/quote.hook';
+import { useQuote, useQuoteActions, useIssueInvoice, useCancelInvoice, useUpdateQuoteStatus } from '@/hooks/quote.hook';
 import { useClient } from '@/hooks/client.hook';
 import { Button, Card, ErrorMessage, StatusBadge, ConfirmModal } from '@/components/ui';
 import { ActionBar } from '@/components/ui/ActionBar';
 import { ActionsDropdown } from '@/components/ui/ActionsDropdown';
 import { QuoteWithDetailsDTO, QuoteItemDTO } from '@/lib/dto/quote.dto';
-import { QUOTE_STATUS } from '@/lib/domain/enums/quote.enum';
+import { QUOTE_STATUS, QuoteStatus } from '@/lib/domain/enums/quote.enum';
 import { QUOTE_INVOICE_STATUS } from '@/lib/domain/enums/quoteInvoice.enum';
 import { UpdateQuoteInput } from '@/lib/schemas/quote.input';
 import { UserRole, UserRolePermissions } from '@/lib/domain/enums/user-role.enum';
@@ -45,9 +45,11 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
   const isLocked = data.status === QUOTE_STATUS.REJECTED;
   const isInvoiced = data.status === QUOTE_STATUS.INVOICED;
 
-  const handleStatusChange = async (status: UpdateQuoteInput['status']) => {
-    await update(data.id, { status });
-    mutate();
+  const { updateStatus, isLoading: isUpdatingStatus, error: statusError } = useUpdateQuoteStatus();
+
+  const handleStatusChange = async (status: QuoteStatus) => {
+    const result = await updateStatus(data.id, status);
+    if (result) mutate();
   };
 
   const handleDelete = async () => {
@@ -84,8 +86,9 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
     }
   })();
 
+  const isEditable = data.status === QUOTE_STATUS.DRAFT;
   const editDeleteActions = [
-    { label: 'Modifier', icon: Pencil, onClick: () => setIsEditing(true), hidden: !canUpdate || isEditing || isLocked || isInvoiced },
+    { label: 'Modifier', icon: Pencil, onClick: () => setIsEditing(true), hidden: !canUpdate || isEditing || !isEditable },
     { label: 'Supprimer', icon: Trash2, onClick: () => setIsConfirmDeleteOpen(true), variant: 'danger' as const, hidden: !canDelete || isLocked || isInvoiced },
   ];
 
@@ -130,7 +133,7 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
         </div>
       </div>
 
-      {(error || invoiceError || cancelError) && <ErrorMessage error={(error || invoiceError || cancelError)!} />}
+      {(error || invoiceError || cancelError || statusError) && <ErrorMessage error={(error || invoiceError || cancelError || statusError)!} />}
 
       {isEditing ? (
         <QuoteForm

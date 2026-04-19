@@ -1,5 +1,6 @@
 'use server';
 
+import { QuoteStatus } from '@/lib/domain/enums/quote.enum';
 import { QuoteDTO, QuoteInvoiceDTO } from '@/lib/dto/quote.dto';
 import {
   CreateQuoteInput,
@@ -21,6 +22,10 @@ export async function createQuote(input: CreateQuoteInput): Promise<QuoteDTO> {
 export async function updateQuote(id: number, input: UpdateQuoteInput): Promise<QuoteDTO> {
   const data = UpdateQuoteSchema.parse(input);
   return quoteService.update(id, data);
+}
+
+export async function updateQuoteStatus(id: number, status: QuoteStatus): Promise<QuoteDTO> {
+  return quoteService.updateStatus(id, status);
 }
 
 export async function deleteQuote(id: number): Promise<void> {
