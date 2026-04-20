@@ -115,7 +115,7 @@ export function QuotesPageClient({ userRole }: QuotesPageClientProps) {
                 <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                   <Button
                     size="icon"
-                    variant="danger"
+                    variant="softdanger"
                     Icon={Trash2}
                     onClick={() => handleDeleteRequest(q.id)}
                     disabled={deletingId === q.id}

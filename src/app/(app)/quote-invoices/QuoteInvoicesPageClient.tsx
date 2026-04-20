@@ -147,6 +147,7 @@ export function QuoteInvoicesPageClient({ userRole }: QuoteInvoicesPageClientPro
               <>
                 <Button
                   size="sm"
+                  variant="soft"
                   Icon={CheckCircle}
                   onClick={() => handleMarkPaidRequest(inv)}
                 >
@@ -154,7 +155,7 @@ export function QuoteInvoicesPageClient({ userRole }: QuoteInvoicesPageClientPro
                 </Button>
                 <Button
                   size="sm"
-                  variant="danger"
+                  variant="softdanger"
                   Icon={Ban}
                   onClick={() => handleCancelRequest(inv)}
                   disabled={isCancelling && selectedInvoice?.id === inv.id}

@@ -118,7 +118,7 @@ export function FamilyDetailPageClient({ initialFamily, userRole }: FamilyDetail
           {canUpdate && p.status === PAYMENT_STATUS.PENDING && p.paymentType === PAYMENT_TYPE.CHECK && (
             <Button size="sm" onClick={() => handleCash(p)}>Encaisser</Button>
           )}
-          {canDelete && <Button size="sm" variant="danger" onClick={() => handleDeletePaymentClick(p)} Icon={Trash2} />}
+          {canDelete && <Button size="sm" variant="softdanger" onClick={() => handleDeletePaymentClick(p)} Icon={Trash2} />}
         </div>
       ),
     }] : []),

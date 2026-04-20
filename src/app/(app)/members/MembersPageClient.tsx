@@ -95,7 +95,7 @@ export function MembersPageClient({
         <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
           <Button
             size="icon"
-            variant="danger"
+            variant="softdanger"
             onClick={() => handleDeleteRequest(member.id)}
             disabled={deletingId === member.id}
             Icon={Trash2}

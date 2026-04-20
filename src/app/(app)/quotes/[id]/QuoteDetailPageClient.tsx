@@ -13,10 +13,11 @@ import { Button, Card, ErrorMessage, StatusBadge, ConfirmModal } from '@/compone
 import { ActionBar } from '@/components/ui/ActionBar';
 import { ActionsDropdown } from '@/components/ui/ActionsDropdown';
 import { QuoteWithDetailsDTO, QuoteItemDTO } from '@/lib/dto/quote.dto';
-import { QUOTE_STATUS } from '@/lib/domain/enums/quote.enum';
+import { QUOTE_STATUS, QuoteStatus } from '@/lib/domain/enums/quote.enum';
 import { QUOTE_INVOICE_STATUS } from '@/lib/domain/enums/quoteInvoice.enum';
 import { UpdateQuoteInput } from '@/lib/schemas/quote.input';
 import { UserRole, UserRolePermissions } from '@/lib/domain/enums/user-role.enum';
+import { updateQuoteStatus } from '../quotes.actions';
 
 interface QuoteDetailPageClientProps {
   initialQuote: QuoteWithDetailsDTO;
@@ -44,10 +45,11 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
   const canDelete = UserRolePermissions.canDelete(userRole);
   const isLocked = data.status === QUOTE_STATUS.REJECTED;
   const isInvoiced = data.status === QUOTE_STATUS.INVOICED;
+  const isSent = data.status === QUOTE_STATUS.SENT || data.status === QUOTE_STATUS.ACCEPTED;
 
-  const handleStatusChange = async (status: UpdateQuoteInput['status']) => {
-    await update(data.id, { status });
-    mutate();
+  const handleStatusChange = async (status: QuoteStatus) => {
+    const result = await updateQuoteStatus(data.id, status );
+    if (result) mutate();
   };
 
   const handleDelete = async () => {
@@ -85,7 +87,7 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
   })();
 
   const editDeleteActions = [
-    { label: 'Modifier', icon: Pencil, onClick: () => setIsEditing(true), hidden: !canUpdate || isEditing || isLocked || isInvoiced },
+    { label: 'Modifier', icon: Pencil, onClick: () => setIsEditing(true), hidden: !canUpdate || isEditing || isLocked || isInvoiced || isSent},
     { label: 'Supprimer', icon: Trash2, onClick: () => setIsConfirmDeleteOpen(true), variant: 'danger' as const, hidden: !canDelete || isLocked || isInvoiced },
   ];
 
@@ -95,8 +97,8 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
     if (!data.invoice || !canUpdate) return [];
     if (data.invoice.status === QUOTE_INVOICE_STATUS.ISSUED) {
       return [
-        { label: 'Marquer payée', icon: CheckCircle, onClick: () => setIsMarkPaidOpen(true) },
-        { label: 'Annuler la facture', icon: Ban, onClick: () => setIsConfirmCancelInvoiceOpen(true), variant: 'danger' as const },
+        { label: 'Marquer payée', icon: CheckCircle, onClick: () => setIsMarkPaidOpen(true), variant:'soft' as const},
+        { label: 'Annuler la facture', icon: Ban, onClick: () => setIsConfirmCancelInvoiceOpen(true), variant: 'softdanger' as const },
       ];
     }
     return [];
@@ -180,7 +182,7 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
                 {invoiceActions.length > 0 && (
                   <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
                     {invoiceActions.map((a, i) => (
-                      <Button key={i} size="sm" variant={a.variant === 'danger' ? 'danger' : 'secondary'} Icon={a.icon} onClick={a.onClick}>
+                      <Button key={i} size="sm" variant={a.variant} Icon={a.icon} onClick={a.onClick}>
                         {a.label}
                       </Button>
                     ))}
