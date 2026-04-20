@@ -7,13 +7,13 @@ import { ArrowLeft, Pencil, Trash2, Send, CheckCircle, XCircle, FileText, FileCh
 import { QuoteForm } from '@/components/quote/QuoteForm';
 import { QuotePdfModal } from '@/components/quote/QuotePdfModal';
 import { MarkInvoicePaidModal } from '@/components/quote/MarkInvoicePaidModal';
-import { useQuote, useQuoteActions, useIssueInvoice, useCancelInvoice, useUpdateQuoteStatus } from '@/hooks/quote.hook';
+import { useQuote, useQuoteActions, useIssueInvoice, useCancelInvoice } from '@/hooks/quote.hook';
 import { useClient } from '@/hooks/client.hook';
 import { Button, Card, ErrorMessage, StatusBadge, ConfirmModal } from '@/components/ui';
 import { ActionBar } from '@/components/ui/ActionBar';
 import { ActionsDropdown } from '@/components/ui/ActionsDropdown';
 import { QuoteWithDetailsDTO, QuoteItemDTO } from '@/lib/dto/quote.dto';
-import { QUOTE_STATUS, QuoteStatus } from '@/lib/domain/enums/quote.enum';
+import { QUOTE_STATUS } from '@/lib/domain/enums/quote.enum';
 import { QUOTE_INVOICE_STATUS } from '@/lib/domain/enums/quoteInvoice.enum';
 import { UpdateQuoteInput } from '@/lib/schemas/quote.input';
 import { UserRole, UserRolePermissions } from '@/lib/domain/enums/user-role.enum';
@@ -45,11 +45,9 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
   const isLocked = data.status === QUOTE_STATUS.REJECTED;
   const isInvoiced = data.status === QUOTE_STATUS.INVOICED;
 
-  const { updateStatus, isLoading: isUpdatingStatus, error: statusError } = useUpdateQuoteStatus();
-
-  const handleStatusChange = async (status: QuoteStatus) => {
-    const result = await updateStatus(data.id, status);
-    if (result) mutate();
+  const handleStatusChange = async (status: UpdateQuoteInput['status']) => {
+    await update(data.id, { status });
+    mutate();
   };
 
   const handleDelete = async () => {
@@ -86,9 +84,8 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
     }
   })();
 
-  const isEditable = data.status === QUOTE_STATUS.DRAFT;
   const editDeleteActions = [
-    { label: 'Modifier', icon: Pencil, onClick: () => setIsEditing(true), hidden: !canUpdate || isEditing || !isEditable },
+    { label: 'Modifier', icon: Pencil, onClick: () => setIsEditing(true), hidden: !canUpdate || isEditing || isLocked || isInvoiced },
     { label: 'Supprimer', icon: Trash2, onClick: () => setIsConfirmDeleteOpen(true), variant: 'danger' as const, hidden: !canDelete || isLocked || isInvoiced },
   ];
 
@@ -133,7 +130,7 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
         </div>
       </div>
 
-      {(error || invoiceError || cancelError || statusError) && <ErrorMessage error={(error || invoiceError || cancelError || statusError)!} />}
+      {(error || invoiceError || cancelError) && <ErrorMessage error={(error || invoiceError || cancelError)!} />}
 
       {isEditing ? (
         <QuoteForm
@@ -194,7 +191,26 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
           )}
 
           <Card title="Lignes du devis">
-            <div className="overflow-x-auto">
+            {/* Mobile : layout 2 colonnes */}
+            <div className="sm:hidden divide-y divide-gray-100">
+              {data.items.map((item: QuoteItemDTO, i: number) => (
+                <div key={i} className="flex items-start justify-between gap-3 py-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900">{item.label}</p>
+                    {item.description && <p className="text-xs text-gray-400 mt-0.5">{item.description}</p>}
+                    <p className="text-xs text-gray-400 mt-1">{item.quantity} × {item.unitPrice.toFixed(2)} €</p>
+                  </div>
+                  <p className="text-sm font-semibold text-gray-900 flex-shrink-0">{item.lineTotal.toFixed(2)} €</p>
+                </div>
+              ))}
+              <div className="flex justify-between pt-3 font-semibold text-gray-900">
+                <span>Total HT</span>
+                <span>{data.totalAmount.toFixed(2)} €</span>
+              </div>
+            </div>
+
+            {/* Desktop : tableau classique */}
+            <div className="hidden sm:block overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 text-sm">
                 <thead className="bg-gray-50">
                   <tr>
