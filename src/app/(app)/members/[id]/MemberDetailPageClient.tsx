@@ -80,7 +80,7 @@ export function MemberDetailPageClient({ initialMember, userRole }: MemberDetail
       type: 'action' as const, label: 'Actions',
       render: (r: RegistrationWithWorkshopDetailsDTO) => (
         <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-          <Button size="sm" variant="danger" onClick={() => { setSelectedRegistration(r); setIsConfirmDeleteRegistrationOpen(true); }} Icon={Trash2} />
+          <Button size="sm" variant="softdanger" onClick={() => { setSelectedRegistration(r); setIsConfirmDeleteRegistrationOpen(true); }} Icon={Trash2} />
         </div>
       ),
     }] : []),

@@ -142,7 +142,7 @@ export function PaymentsPageClient({
         <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
           <Button
             size="sm"
-            variant="danger"
+            variant="softdanger"
             onClick={() => handleDeleteRequest(payment.id)}
             disabled={deletingId === payment.id}
             Icon={Trash2}

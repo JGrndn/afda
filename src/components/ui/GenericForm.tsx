@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { Button } from './Button';
 
 interface GenericFormProps {
   title?: string;
@@ -30,22 +31,21 @@ export function GenericForm({
 
         <div className="flex flex-wrap gap-3 mt-6 pt-4 border-t">
           {onCancel && (
-            <button
-              type="button"
+            <Button
+              variant="secondary"
               onClick={onCancel}
               disabled={isLoading}
-              className="flex-1 sm:flex-none px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50"
             >
               {cancelLabel}
-            </button>
+            </Button>
           )}
-          <button
+          <Button
+            variant="primary"
             type="submit"
             disabled={isLoading}
-            className="flex-1 sm:flex-none px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
           >
             {isLoading ? 'Saving...' : submitLabel}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

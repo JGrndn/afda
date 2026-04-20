@@ -96,7 +96,7 @@ export function WorkshopsPageClient({
           <Button
             size="icon"
             Icon={Trash2}
-            variant="danger"
+            variant="softdanger"
             onClick={() => handleDeleteRequest(workshop.id)}
             disabled={deletingId === workshop.id}
           >

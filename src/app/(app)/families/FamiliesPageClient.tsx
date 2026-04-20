@@ -77,7 +77,7 @@ export function FamiliesPageClient({
         <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
           <Button
             size="icon"
-            variant="danger"
+            variant="softdanger"
             onClick={() => handleDeleteRequest(family.id)}
             disabled={deletingId === family.id}
             Icon={Trash2}

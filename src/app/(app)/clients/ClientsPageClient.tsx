@@ -72,7 +72,7 @@ export function ClientsPageClient({ userRole }: ClientsPageClientProps) {
                 <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                   <Button
                     size="icon"
-                    variant="danger"
+                    variant="softdanger"
                     Icon={Trash2}
                     onClick={() => handleDeleteRequest(client.id)}
                     disabled={deletingId === client.id}

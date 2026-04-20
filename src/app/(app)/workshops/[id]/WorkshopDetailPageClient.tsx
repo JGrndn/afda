@@ -44,7 +44,7 @@ export function WorkshopDetailPageClient({ initialWorkshop, userRole }: Workshop
       type: 'action' as const, label: 'Actions',
       render: (p: WorkshopPriceWithSeasonInfoDTO) => (
         <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-          <Button size="sm" variant="danger" onClick={() => { setSelectedPrice(p); setIsConfirmDeletePriceOpen(true); }} disabled={selectedPrice?.id === p.id} Icon={Trash2} />
+          <Button size="sm" variant="softdanger" onClick={() => { setSelectedPrice(p); setIsConfirmDeletePriceOpen(true); }} disabled={selectedPrice?.id === p.id} Icon={Trash2} />
         </div>
       ),
     }] : []),

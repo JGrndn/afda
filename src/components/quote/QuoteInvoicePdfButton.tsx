@@ -44,7 +44,7 @@ export function QuoteInvoicePdfButton({ invoice }: QuoteInvoicePdfButtonProps) {
     <>
       <Button
         size="icon"
-        variant="ghost"
+        variant="soft"
         Icon={FileText}
         onClick={(e) => { e.stopPropagation(); handleOpen(); }}
         isLoading={isLoading}
