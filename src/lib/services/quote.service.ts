@@ -126,8 +126,9 @@ export const quoteService = {
   async updateStatus(id: number, status: QuoteStatus): Promise<QuoteDTO> {
     const existing = await prisma.quote.findUnique({ where: { id } });
     if (!existing) throw new DomainError('Devis introuvable', 'QUOTE_NOT_FOUND');
-    if (existing.status === QUOTE_STATUS.INVOICED) {
-      throw new DomainError('Un devis facturé ne peut plus être modifié', 'QUOTE_ALREADY_INVOICED');
+    const nonDeletableStatuses = [QUOTE_STATUS.SENT, QUOTE_STATUS.ACCEPTED, QUOTE_STATUS.INVOICED];
+    if (nonDeletableStatuses.includes(existing.status as any)) {
+      throw new DomainError('Ce devis ne peut pas être supprimé', 'QUOTE_NOT_DELETABLE');
     }
     const result = await prisma.quote.update({ where: { id }, data: { status } });
     return toQuoteDTO(result);

@@ -3,21 +3,17 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Pencil, Trash2, Send, CheckCircle, XCircle, FileText, FileCheck, Ban } from 'lucide-react';
+import { ArrowLeft, Pencil, Trash2, FileText } from 'lucide-react';
 import { QuoteForm } from '@/components/quote/QuoteForm';
 import { QuotePdfModal } from '@/components/quote/QuotePdfModal';
-import { MarkInvoicePaidModal } from '@/components/quote/MarkInvoicePaidModal';
-import { useQuote, useQuoteActions, useIssueInvoice, useCancelInvoice } from '@/hooks/quote.hook';
+import { QuoteActions } from '@/components/quote/QuoteActions';
+import { useQuote, useQuoteActions } from '@/hooks/quote.hook';
 import { useClient } from '@/hooks/client.hook';
 import { Button, Card, ErrorMessage, StatusBadge, ConfirmModal } from '@/components/ui';
-import { ActionBar } from '@/components/ui/ActionBar';
-import { ActionsDropdown } from '@/components/ui/ActionsDropdown';
 import { QuoteWithDetailsDTO, QuoteItemDTO } from '@/lib/dto/quote.dto';
-import { QUOTE_STATUS, QuoteStatus } from '@/lib/domain/enums/quote.enum';
-import { QUOTE_INVOICE_STATUS } from '@/lib/domain/enums/quoteInvoice.enum';
+import { QUOTE_STATUS } from '@/lib/domain/enums/quote.enum';
 import { UpdateQuoteInput } from '@/lib/schemas/quote.input';
 import { UserRole, UserRolePermissions } from '@/lib/domain/enums/user-role.enum';
-import { updateQuoteStatus } from '../quotes.actions';
 
 interface QuoteDetailPageClientProps {
   initialQuote: QuoteWithDetailsDTO;
@@ -28,81 +24,26 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
   const router = useRouter();
   const { quote, mutate } = useQuote(initialQuote.id);
   const { update, remove, isLoading: mutationLoading, error } = useQuoteActions();
-  const { issue, isLoading: isIssuing, error: invoiceError } = useIssueInvoice();
-  const { cancel, isLoading: isCancelling, error: cancelError } = useCancelInvoice();
-
   const data = quote ?? initialQuote;
   const { client } = useClient(initialQuote.clientId);
 
   const [isEditing, setIsEditing] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-  const [isConfirmInvoiceOpen, setIsConfirmInvoiceOpen] = useState(false);
-  const [isConfirmCancelInvoiceOpen, setIsConfirmCancelInvoiceOpen] = useState(false);
-  const [isMarkPaidOpen, setIsMarkPaidOpen] = useState(false);
   const [pdfModal, setPdfModal] = useState<'quote' | 'invoice' | null>(null);
 
   const canUpdate = UserRolePermissions.canEdit(userRole);
   const canDelete = UserRolePermissions.canDelete(userRole);
-  const isLocked = data.status === QUOTE_STATUS.REJECTED;
-  const isInvoiced = data.status === QUOTE_STATUS.INVOICED;
-  const isSent = data.status === QUOTE_STATUS.SENT || data.status === QUOTE_STATUS.ACCEPTED;
-
-  const handleStatusChange = async (status: QuoteStatus) => {
-    const result = await updateQuoteStatus(data.id, status );
-    if (result) mutate();
-  };
+  const isEditable = data.status === QUOTE_STATUS.DRAFT;
 
   const handleDelete = async () => {
     await remove(data.id);
     router.push('/quotes');
   };
 
-  const handleIssueInvoice = async () => {
-    const inv = await issue(data.id);
-    if (inv) mutate();
-  };
-
-  const handleCancelInvoice = async () => {
-    if (!data.invoice) return;
-    const result = await cancel(data.invoice.id);
-    if (result) mutate();
-  };
-
-  // Actions devis selon statut — variables simples, pas de useMemo
-  const quoteStatusActions = (() => {
-    if (!canUpdate) return [];
-    switch (data.status) {
-      case QUOTE_STATUS.DRAFT:
-        return [{ label: 'Marquer envoyé', icon: Send, onClick: () => handleStatusChange(QUOTE_STATUS.SENT) }];
-      case QUOTE_STATUS.SENT:
-        return [
-          { label: 'Accepté', icon: CheckCircle, onClick: () => handleStatusChange(QUOTE_STATUS.ACCEPTED) },
-          { label: 'Refusé', icon: XCircle, onClick: () => handleStatusChange(QUOTE_STATUS.REJECTED), variant: 'danger' as const },
-        ];
-      case QUOTE_STATUS.ACCEPTED:
-        return [{ label: 'Générer la facture', icon: FileCheck, onClick: () => setIsConfirmInvoiceOpen(true) }];
-      default:
-        return [];
-    }
-  })();
-
   const editDeleteActions = [
-    { label: 'Modifier', icon: Pencil, onClick: () => setIsEditing(true), hidden: !canUpdate || isEditing || isLocked || isInvoiced || isSent},
-    { label: 'Supprimer', icon: Trash2, onClick: () => setIsConfirmDeleteOpen(true), variant: 'danger' as const, hidden: !canDelete || isLocked || isInvoiced },
+    { label: 'Modifier', icon: Pencil, onClick: () => setIsEditing(true), hidden: !canUpdate || isEditing || !isEditable },
+    { label: 'Supprimer', icon: Trash2, onClick: () => setIsConfirmDeleteOpen(true), variant: 'danger' as const, hidden: !canDelete || !isEditable },
   ];
-
-  const allActions = [...quoteStatusActions, ...editDeleteActions];
-
-  const invoiceActions = (() => {
-    if (!data.invoice || !canUpdate) return [];
-    if (data.invoice.status === QUOTE_INVOICE_STATUS.ISSUED) {
-      return [
-        { label: 'Marquer payée', icon: CheckCircle, onClick: () => setIsMarkPaidOpen(true), variant:'soft' as const},
-        { label: 'Annuler la facture', icon: Ban, onClick: () => setIsConfirmCancelInvoiceOpen(true), variant: 'softdanger' as const },
-      ];
-    }
-    return [];
-  })();
 
   return (
     <div className="container mx-auto p-6 max-w-6xl pb-24 sm:pb-6">
@@ -117,22 +58,26 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
           <StatusBadge type="quote" status={data.status} />
         </div>
         <div className="flex items-center gap-2">
-          {/* PDF devis toujours visible */}
           <Button size="sm" variant="secondary" Icon={FileText} onClick={() => setPdfModal('quote')}>
             PDF devis
           </Button>
-          {/* PDF facture si disponible */}
           {data.invoice && (
             <Button size="sm" variant="secondary" Icon={FileText} onClick={() => setPdfModal('invoice')}>
               PDF facture
             </Button>
           )}
-          {/* Dropdown ⋮ desktop */}
-          {!isEditing && <ActionsDropdown items={allActions} />}
+          {!isEditing && (
+            <QuoteActions
+              quote={data}
+              userRole={userRole}
+              onMutate={mutate}
+              editDeleteActions={editDeleteActions}
+            />
+          )}
         </div>
       </div>
 
-      {(error || invoiceError || cancelError) && <ErrorMessage error={(error || invoiceError || cancelError)!} />}
+      {error && <ErrorMessage error={error} />}
 
       {isEditing ? (
         <QuoteForm
@@ -178,41 +123,18 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
                     </div>
                   )}
                 </dl>
-                {/* Actions facture — visibles sur toutes les tailles */}
-                {invoiceActions.length > 0 && (
-                  <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
-                    {invoiceActions.map((a, i) => (
-                      <Button key={i} size="sm" variant={a.variant} Icon={a.icon} onClick={a.onClick}>
-                        {a.label}
-                      </Button>
-                    ))}
-                  </div>
-                )}
+                <QuoteActions
+                  quote={data}
+                  userRole={userRole}
+                  onMutate={mutate}
+                  editDeleteActions={[]}
+                />
               </div>
             </Card>
           )}
 
           <Card title="Lignes du devis">
-            {/* Mobile : layout 2 colonnes */}
-            <div className="sm:hidden divide-y divide-gray-100">
-              {data.items.map((item: QuoteItemDTO, i: number) => (
-                <div key={i} className="flex items-start justify-between gap-3 py-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900">{item.label}</p>
-                    {item.description && <p className="text-xs text-gray-400 mt-0.5">{item.description}</p>}
-                    <p className="text-xs text-gray-400 mt-1">{item.quantity} × {item.unitPrice.toFixed(2)} €</p>
-                  </div>
-                  <p className="text-sm font-semibold text-gray-900 flex-shrink-0">{item.lineTotal.toFixed(2)} €</p>
-                </div>
-              ))}
-              <div className="flex justify-between pt-3 font-semibold text-gray-900">
-                <span>Total HT</span>
-                <span>{data.totalAmount.toFixed(2)} €</span>
-              </div>
-            </div>
-
-            {/* Desktop : tableau classique */}
-            <div className="hidden sm:block overflow-x-auto">
+            <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 text-sm">
                 <thead className="bg-gray-50">
                   <tr>
@@ -254,16 +176,7 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
         <QuotePdfModal isOpen onClose={() => setPdfModal(null)} quote={data} mode={pdfModal} clientAddress={client?.address} />
       )}
 
-      {data.invoice && (
-        <MarkInvoicePaidModal isOpen={isMarkPaidOpen} onClose={() => setIsMarkPaidOpen(false)} invoice={data.invoice} onSuccess={() => { mutate(); setIsMarkPaidOpen(false); }} />
-      )}
-
-      {/* Mobile uniquement — actions devis + edit/delete */}
-      <ActionBar items={allActions} />
-
       <ConfirmModal isOpen={isConfirmDeleteOpen} title="Supprimer le devis" content="Êtes-vous sûr de vouloir supprimer ce devis ?" onClose={() => setIsConfirmDeleteOpen(false)} onConfirm={handleDelete} />
-      <ConfirmModal isOpen={isConfirmInvoiceOpen} title="Générer la facture" content="Cette action est irréversible. La facture sera créée définitivement." onClose={() => setIsConfirmInvoiceOpen(false)} onConfirm={handleIssueInvoice} />
-      <ConfirmModal isOpen={isConfirmCancelInvoiceOpen} title="Annuler la facture" content="La facture sera annulée et le devis repassera en statut « Accepté »." onClose={() => setIsConfirmCancelInvoiceOpen(false)} onConfirm={handleCancelInvoice} />
     </div>
   );
 }
