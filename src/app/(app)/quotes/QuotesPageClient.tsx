@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { QuoteWithClientDTO } from '@/lib/dto/quote.dto';
-import { QuoteStatus } from '@/lib/domain/enums/quote.enum';
+import { QUOTE_STATUS, QuoteStatus } from '@/lib/domain/enums/quote.enum';
 import {
   DataTable,
   Button,
@@ -113,13 +113,15 @@ export function QuotesPageClient({ userRole }: QuotesPageClientProps) {
               label: 'Actions',
               render: (q: QuoteWithClientDTO) => (
                 <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                  <Button
-                    size="icon"
-                    variant="softdanger"
-                    Icon={Trash2}
-                    onClick={() => handleDeleteRequest(q.id)}
-                    disabled={deletingId === q.id}
-                  />
+                  {![QUOTE_STATUS.SENT, QUOTE_STATUS.ACCEPTED, QUOTE_STATUS.INVOICED].includes(q.status as any) && (
+                    <Button
+                      size="icon"
+                      variant="softdanger"
+                      Icon={Trash2}
+                      onClick={() => handleDeleteRequest(q.id)}
+                      disabled={deletingId === q.id}
+                    />
+                  )}
                 </div>
               ),
             },
