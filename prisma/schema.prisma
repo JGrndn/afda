@@ -278,6 +278,26 @@ model QuoteInvoice {
 }
 
 
+// ==================
+// AUDIT LOG 
+// ==================
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  entityType String   @map("entity_type") @db.VarChar(50)
+  entityId   Int      @map("entity_id")
+  action     String   @map("action") @db.VarChar(10)   // CREATE | UPDATE | DELETE
+  userId     String   @map("user_id")
+  userName   String   @map("user_name") @db.VarChar(200)
+  changes    Json?                                       // { before: {}, after: {} }
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_logs")
+}
+
 
 
 // ============================================
