@@ -14,6 +14,7 @@ import { QuoteWithDetailsDTO, QuoteItemDTO } from '@/lib/dto/quote.dto';
 import { QUOTE_STATUS } from '@/lib/domain/enums/quote.enum';
 import { UpdateQuoteInput } from '@/lib/schemas/quote.input';
 import { UserRole, UserRolePermissions } from '@/lib/domain/enums/user-role.enum';
+import { AuditLogButton } from '@/components/audit/AuditLogButton';
 
 interface QuoteDetailPageClientProps {
   initialQuote: QuoteWithDetailsDTO;
@@ -66,6 +67,11 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
               PDF facture
             </Button>
           )}
+          {/* Historique — MANAGER/ADMIN uniquement, desktop uniquement */}
+          {(userRole === UserRole.ADMIN || userRole === UserRole.MANAGER) && (
+            <AuditLogButton entityType="quote" entityId={data.id} />
+          )}
+
           {!isEditing && (
             <QuoteActions
               quote={data}

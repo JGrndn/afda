@@ -13,6 +13,7 @@ import {
 import { DomainError } from '../errors/domain-error';
 import { CreatePaymentInput, UpdatePaymentInput } from '@/lib/schemas/payment.input';
 import { PAYMENT_STATUS, PaymentStatus } from '@/lib/domain/enums/payment.enum';
+import { getAuditedPrisma } from '@/lib/audit/withAudit';
 
 export const paymentService = {
   async getAll(
@@ -113,7 +114,7 @@ export const paymentService = {
         paymentDate: input.paymentDate || new Date(),
         status: autoStatus, // Utiliser le statut automatique
       };
-      const result = await prisma.payment.create({ data });
+      const result = await getAuditedPrisma().payment.create({ data });
 
       return toPaymentDTO(result);
     } catch (error: unknown) {
@@ -151,7 +152,7 @@ export const paymentService = {
         ...(input.notes !== undefined && { notes: input.notes }),
       };
 
-      const result = await prisma.payment.update({
+      const result = await getAuditedPrisma().payment.update({
         where: { id },
         data,
       });
@@ -179,7 +180,7 @@ export const paymentService = {
         throw new DomainError('Paiement introuvable', 'PAYMENT_NOT_FOUND');
       }
 
-      await prisma.payment.delete({
+      await getAuditedPrisma().payment.delete({
         where: { id },
       });
 

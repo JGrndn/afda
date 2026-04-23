@@ -18,6 +18,7 @@ import { CreateQuoteInput, UpdateQuoteInput } from '@/lib/schemas/quote.input';
 import { QuoteStatus, QUOTE_STATUS } from '@/lib/domain/enums/quote.enum';
 import { QUOTE_INVOICE_STATUS } from '@/lib/domain/enums/quoteInvoice.enum';
 import { MarkInvoicePaidInput } from '@/lib/schemas/quoteInvoice.schema';
+import { getAuditedPrisma } from '@/lib/audit/withAudit';
 
 function generateQuoteNumber(): string {
   const now = new Date();
@@ -93,7 +94,7 @@ export const quoteService = {
     const totalAmount = computeTotal(input.items);
     const quoteNumber = generateQuoteNumber();
     try {
-      const result = await prisma.quote.create({
+      const result = await getAuditedPrisma().quote.create({
         data: {
           clientId: input.clientId,
           title: input.title,
@@ -130,7 +131,7 @@ export const quoteService = {
     if (nonDeletableStatuses.includes(existing.status as any)) {
       throw new DomainError('Ce devis ne peut pas être supprimé', 'QUOTE_NOT_DELETABLE');
     }
-    const result = await prisma.quote.update({ where: { id }, data: { status } });
+    const result = await getAuditedPrisma().quote.update({ where: { id }, data: { status } });
     return toQuoteDTO(result);
   },
 
@@ -142,7 +143,7 @@ export const quoteService = {
     }
     const totalAmount = input.items ? computeTotal(input.items) : undefined;
     try {
-      const result = await prisma.quote.update({
+      const result = await getAuditedPrisma().quote.update({
         where: { id },
         data: {
           ...(input.title !== undefined && { title: input.title }),
@@ -180,7 +181,7 @@ export const quoteService = {
       throw new DomainError('Un devis facturé ne peut pas être supprimé', 'QUOTE_ALREADY_INVOICED');
     }
     try {
-      await prisma.quote.delete({ where: { id } });
+      await getAuditedPrisma().quote.delete({ where: { id } });
     } catch (error: unknown) {
       const e = error as any;
       if (e?.code === 'P2025') throw new DomainError('Devis introuvable', 'QUOTE_NOT_FOUND');
@@ -203,7 +204,7 @@ export const quoteService = {
     const activeSeasonId = await getActiveSeasonId();
 
     const [invoice] = await prisma.$transaction([
-      prisma.quoteInvoice.create({
+      getAuditedPrisma().quoteInvoice.create({
         data: {
           quoteId: id,
           seasonId: activeSeasonId,
@@ -213,7 +214,7 @@ export const quoteService = {
           totalAmount: existing.totalAmount,
         },
       }),
-      prisma.quote.update({
+      getAuditedPrisma().quote.update({
         where: { id },
         data: { status: QUOTE_STATUS.INVOICED },
       }),
@@ -234,7 +235,7 @@ export const quoteService = {
     if (existing.status === QUOTE_INVOICE_STATUS.CANCELLED) {
       throw new DomainError('Une facture annulée ne peut pas être marquée payée', 'QUOTE_INVOICE_CANCELLED');
     }
-    const result = await prisma.quoteInvoice.update({
+    const result = await getAuditedPrisma().quoteInvoice.update({
       where: { id: quoteInvoiceId },
       data: {
         status: QUOTE_INVOICE_STATUS.PAID,
@@ -256,11 +257,11 @@ export const quoteService = {
     }
     // On repasse le devis en "accepted" pour pouvoir réémettre
     const [result] = await prisma.$transaction([
-      prisma.quoteInvoice.update({
+      getAuditedPrisma().quoteInvoice.update({
         where: { id: quoteInvoiceId },
         data: { status: QUOTE_INVOICE_STATUS.CANCELLED },
       }),
-      prisma.quote.update({
+      getAuditedPrisma().quote.update({
         where: { id: existing.quoteId },
         data: { status: QUOTE_STATUS.ACCEPTED },
       }),

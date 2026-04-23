@@ -1,43 +1,24 @@
-import { Prisma } from '@/generated/prisma/client';
-import { getAuditContext } from '@/lib/audit/auditContext';
+import { Prisma, PrismaClient } from '@/generated/prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 
-/**
- * Maps a Prisma model name to the string stored in audit_logs.entity_type.
- * Only models listed here are audited.
- */
 const AUDITED_MODELS: Record<string, string> = {
-  Family:       'family',
-  Member:       'member',
-  Membership:   'membership',
-  Registration: 'registration',
-  Payment:      'payment',
-  Season:       'season',
-  Workshop:     'workshop',
-  WorkshopPrice:'workshopPrice',
-  Invoice:      'invoice',
-  Client:       'client',
-  Quote:        'quote',
-  QuoteInvoice: 'quoteInvoice',
-  User:         'user',
+  Family:        'family',
+  Member:        'member',
+  Membership:    'membership',
+  Registration:  'registration',
+  Payment:       'payment',
+  Season:        'season',
+  Workshop:      'workshop',
+  WorkshopPrice: 'workshopPrice',
+  Invoice:       'invoice',
+  Client:        'client',
+  Quote:         'quote',
+  QuoteInvoice:  'quoteInvoice',
+  User:          'user',
 };
 
-// Prisma operations we want to audit
-type AuditedOperation =
-  | 'create'
-  | 'update'
-  | 'updateMany'
-  | 'delete'
-  | 'deleteMany'
-  | 'upsert';
-
-const AUDITED_OPERATIONS: AuditedOperation[] = [
-  'create',
-  'update',
-  'updateMany',
-  'delete',
-  'deleteMany',
-  'upsert',
-];
+type AuditedOperation = 'create' | 'update' | 'updateMany' | 'delete' | 'deleteMany' | 'upsert';
+const AUDITED_OPERATIONS: AuditedOperation[] = ['create', 'update', 'updateMany', 'delete', 'deleteMany', 'upsert'];
 
 function toAction(op: string): 'CREATE' | 'UPDATE' | 'DELETE' {
   if (op === 'create' || op === 'upsert') return 'CREATE';
@@ -45,14 +26,10 @@ function toAction(op: string): 'CREATE' | 'UPDATE' | 'DELETE' {
   return 'UPDATE';
 }
 
-/**
- * Strips Prisma Decimal / Date objects so they serialise cleanly to JSON.
- */
 function sanitise(value: unknown): unknown {
   if (value === null || value === undefined) return value;
   if (typeof value === 'bigint') return value.toString();
   if (value instanceof Date) return value.toISOString();
-  // Prisma Decimal
   if (typeof (value as any)?.toNumber === 'function') return (value as any).toNumber();
   if (Array.isArray(value)) return value.map(sanitise);
   if (typeof value === 'object') {
@@ -63,10 +40,6 @@ function sanitise(value: unknown): unknown {
   return value;
 }
 
-/**
- * Returns the primary key (id) from a Prisma result or where clause.
- * Falls back to -1 when not determinable (e.g. deleteMany).
- */
 function extractId(data: unknown): number {
   if (data && typeof data === 'object') {
     const d = data as Record<string, unknown>;
@@ -76,86 +49,102 @@ function extractId(data: unknown): number {
   return -1;
 }
 
-/**
- * Prisma client extension that writes an AuditLog row after every
- * mutating operation on audited models.
- *
- * Usage: attach via `prisma.$extends(auditExtension)`.
- */
-export const auditExtension = Prisma.defineExtension((client) => {
-  return client.$extends({
-    query: {
-      $allModels: {
-        async $allOperations({ model, operation, args, query }) {
-          // ── 1. Quick exit for non-audited models / operations ──────────
-          const entityType = model ? AUDITED_MODELS[model] : undefined;
-          if (!entityType) return query(args);
-          if (!(AUDITED_OPERATIONS as string[]).includes(operation)) return query(args);
-
-          const ctx = getAuditContext();
-          // If there's no audit context (e.g. seed scripts) just run the query.
-          if (!ctx) return query(args);
-
-          // ── 2. For update/delete, fetch the current state (before) ─────
-          let before: unknown = undefined;
-          if (
-            (operation === 'update' || operation === 'delete') &&
-            (args as any).where
-          ) {
-            try {
-              // @ts-ignore — dynamic model access
-              before = await (client as any)[lcFirst(model!)].findFirst({
-                where: (args as any).where,
-              });
-              before = sanitise(before);
-            } catch {
-              // non-critical — continue without before snapshot
-            }
-          }
-
-          // ── 3. Execute the actual query ────────────────────────────────
-          const result = await query(args);
-
-          // ── 4. Build the audit record ──────────────────────────────────
-          const action = toAction(operation);
-          const after = sanitise(result);
-          const entityId =
-            action === 'CREATE'
-              ? extractId(result)
-              : extractId((args as any).where ?? result);
-
-          const changes =
-            action === 'UPDATE'
-              ? { before, after: sanitise((args as any).data ?? result) }
-              : action === 'DELETE'
-              ? { before }
-              : { after };
-
-          // ── 5. Write audit row (fire-and-forget, non-blocking) ─────────
-          // We intentionally don't await so we never slow down the main path.
-          // Errors are swallowed — audit failure must not break the app.
-          ;(client as any).auditLog
-            .create({
-              data: {
-                entityType,
-                entityId,
-                action,
-                userId:   ctx.userId,
-                userName: ctx.userName,
-                changes,
-              },
-            })
-            .catch((err: unknown) => {
-              console.error('[AuditLog] Failed to write audit entry:', err);
-            });
-
-          return result;
-        },
-      },
-    },
-  });
-});
-
 function lcFirst(s: string): string {
   return s.charAt(0).toLowerCase() + s.slice(1);
+}
+
+export interface AuditUserContext {
+  userId: string;
+  userName: string;
+}
+
+// ── Singleton base client (no extension) used to write audit rows ─────────────
+// Separate from the main client to avoid infinite recursion.
+let _baseClient: PrismaClient | null = null;
+
+function getBaseClient(): PrismaClient {
+  if (!_baseClient) {
+    const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+    _baseClient = new PrismaClient({ adapter });
+  }
+  return _baseClient;
+}
+
+/**
+ * Returns a Prisma extension that captures the user context via closure.
+ *
+ * Instead of AsyncLocalStorage (which doesn't propagate reliably across
+ * Next.js server action boundaries), the user context is captured once
+ * per request and embedded directly in the extension via closure.
+ *
+ * Usage:
+ *   const auditedPrisma = prisma.$extends(buildAuditExtension({ userId, userName }));
+ *   await auditedPrisma.member.update(...); // ← automatically audited
+ */
+export function buildAuditExtension(ctx: AuditUserContext) {
+  return Prisma.defineExtension((client) => {
+    return client.$extends({
+      query: {
+        $allModels: {
+          async $allOperations({ model, operation, args, query }) {
+            const entityType = model ? AUDITED_MODELS[model] : undefined;
+            if (!entityType) return query(args);
+            if (!(AUDITED_OPERATIONS as string[]).includes(operation)) return query(args);
+
+            // ── Before snapshot (update / delete only) ──────────────────────
+            let before: unknown = undefined;
+            if (
+              (operation === 'update' || operation === 'delete') &&
+              (args as any).where
+            ) {
+              try {
+                before = await (client as any)[lcFirst(model!)].findFirst({
+                  where: (args as any).where,
+                });
+                before = sanitise(before);
+              } catch {
+                // non-critical — proceed without snapshot
+              }
+            }
+
+            // ── Run the actual query ────────────────────────────────────────
+            const result = await query(args);
+
+            // ── Build audit record ──────────────────────────────────────────
+            const action = toAction(operation);
+            const entityId =
+              action === 'CREATE'
+                ? extractId(result)
+                : extractId((args as any).where ?? result);
+
+            const changes = (
+              action === 'UPDATE'
+                ? { before, after: sanitise((args as any).data ?? result) }
+                : action === 'DELETE'
+                ? { before }
+                : { after: sanitise(result) }
+            ) as Prisma.InputJsonValue;
+
+            // ── Write audit row (fire-and-forget) ───────────────────────────
+            getBaseClient()
+              .auditLog.create({
+                data: {
+                  entityType,
+                  entityId,
+                  action,
+                  userId:   ctx.userId,
+                  userName: ctx.userName,
+                  changes,
+                },
+              })
+              .catch((err: unknown) => {
+                console.error('[AuditLog] Failed to write audit entry:', err);
+              });
+
+            return result;
+          },
+        },
+      },
+    });
+  });
 }

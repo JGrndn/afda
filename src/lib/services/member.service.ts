@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { getAuditedPrisma } from '@/lib/audit/withAudit';
 import { Prisma } from '@/generated/prisma/client';
 import { QueryOptions } from '@/lib/hooks/query';
 import { toMemberDTO, toMemberWithFamilyNameDTO, toMemberWithFullDetailsDTO } from '@/lib/mappers/member.mapper';
@@ -73,7 +74,7 @@ export const memberService = {
         );
       }
 
-      const result = await prisma.member.create({
+      const result = await getAuditedPrisma().member.create({
         data: input,
       });
       return toMemberDTO(result);
@@ -91,7 +92,7 @@ export const memberService = {
 
   async update(id: number, input: UpdateMemberInput): Promise<MemberDTO> {
     try {
-      const result = await prisma.member.update({
+      const result = await getAuditedPrisma().member.update({
         where: { id },
         data: input,
       });
@@ -110,7 +111,7 @@ export const memberService = {
 
   async delete(id: number): Promise<void> {
     try {
-      await prisma.member.delete({
+      await getAuditedPrisma().member.delete({
         where: { id },
       });
     } catch (error: unknown) {

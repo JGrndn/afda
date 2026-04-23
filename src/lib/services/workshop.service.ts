@@ -6,6 +6,7 @@ import { WorkshopDTO, WorkshopWithPricesAndSeasonDTO } from '@/lib/dto/workshop.
 import { DomainError } from '@/lib/errors/domain-error';
 import { CreateWorkshopInput, UpdateWorkshopInput } from '@/lib/schemas/workshop.input';
 import { WorkshopStatus } from '@/lib/domain/enums/workshop.enum';
+import { getAuditedPrisma } from '@/lib/audit/withAudit';
 
 export const workshopService = {
   async getAll(
@@ -59,7 +60,7 @@ export const workshopService = {
 
   async create(input: CreateWorkshopInput): Promise<WorkshopDTO> {
     try {
-      const result = await prisma.workshop.create({
+      const result = await getAuditedPrisma().workshop.create({
         data: input,
       });
       return toWorkshopDTO(result);
@@ -74,7 +75,7 @@ export const workshopService = {
 
   async update(id: number, input: UpdateWorkshopInput): Promise<WorkshopDTO> {
     try {
-      const result = await prisma.workshop.update({
+      const result = await getAuditedPrisma().workshop.update({
         where: { id },
         data: input,
       });
@@ -93,7 +94,7 @@ export const workshopService = {
 
   async delete(id: number): Promise<void> {
     try {
-      await prisma.workshop.delete({
+      await getAuditedPrisma().workshop.delete({
         where: { id },
       });
     } catch (error: unknown) {

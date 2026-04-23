@@ -14,6 +14,7 @@ import { ActionsDropdown } from '@/components/ui/ActionsDropdown';
 import { ClientWithQuotesDTO, ClientQuoteSummaryDTO } from '@/lib/dto/client.dto';
 import { UpdateClientInput } from '@/lib/schemas/client.input';
 import { UserRole, UserRolePermissions } from '@/lib/domain/enums/user-role.enum';
+import { AuditLogButton } from '@/components/audit/AuditLogButton';
 
 interface ClientDetailPageClientProps {
   initialClient: ClientWithQuotesDTO;
@@ -69,6 +70,11 @@ export function ClientDetailPageClient({ initialClient, userRole }: ClientDetail
 
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-3xl font-bold">{data.name}</h1>
+        {/* Historique — MANAGER/ADMIN uniquement, desktop uniquement */}
+        {(userRole === UserRole.ADMIN || userRole === UserRole.MANAGER) && (
+          <AuditLogButton entityType="client" entityId={data.id} />
+        )}
+
         {!isEditing && <ActionsDropdown items={actions} />}
       </div>
 

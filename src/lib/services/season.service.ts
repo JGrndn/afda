@@ -6,6 +6,7 @@ import { SeasonDTO, SeasonWithFullDetailsDTO, SeasonWithPricesAndWorkshopDTO } f
 import { DomainError } from '@/lib/errors/domain-error';
 import { CreateSeasonInput, UpdateSeasonInput } from '@/lib/schemas/season.input';
 import { SEASON_STATUS } from '@/lib/domain/enums/season.enum';
+import { getAuditedPrisma } from '@/lib/audit/withAudit';
 
 export const seasonService = {
   async getAll(
@@ -68,7 +69,7 @@ export const seasonService = {
         membershipAmount: new Prisma.Decimal(input.membershipAmount),
         status: input.status
       };
-      const result = await prisma.season.create({data});
+      const result = await getAuditedPrisma().season.create({data});
       return toSeasonDTO(result);
     } catch(error: unknown){
         const e = error as any;
@@ -82,7 +83,7 @@ export const seasonService = {
   async update(id: number, input:UpdateSeasonInput) : Promise<SeasonDTO>{
     if (input.status === SEASON_STATUS.ACTIVE){
       // one active season only
-      await prisma.season.updateMany({
+      await getAuditedPrisma().season.updateMany({
         where : {
           status : SEASON_STATUS.ACTIVE, 
           NOT: { id: id }
@@ -96,7 +97,7 @@ export const seasonService = {
         membershipAmount: new Prisma.Decimal(input.membershipAmount),
       }),
     };
-    const result = await prisma.season.update({
+    const result = await getAuditedPrisma().season.update({
       where: { id : id },
       data : data
     });
@@ -104,7 +105,7 @@ export const seasonService = {
   },
 
   async delete(id: number){
-    return prisma.season.delete({
+    return getAuditedPrisma().season.delete({
       where : { id : id }
     })
   }
