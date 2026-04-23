@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { AuditLogDTO } from '@/lib/dto/auditlog.dto';
+import { AuditLogDTO } from '@/lib/dto/auditLog.dto';
 import { toAuditLogDTO } from '@/lib/mappers/auditLog.mapper';
 
 export const auditLogService = {
