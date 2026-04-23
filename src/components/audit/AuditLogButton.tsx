@@ -59,7 +59,7 @@ function computeDiff(
   before: Record<string, unknown> | undefined,
   after:  Record<string, unknown> | undefined,
 ): { field: string; before: string; after: string }[] {
-  const SKIP = ['updatedAt', 'createdAt'];
+  const SKIP = ['updatedAt', 'createdAt', 'id'];
   const allKeys = Array.from(
     new Set([...Object.keys(before ?? {}), ...Object.keys(after ?? {})])
   ).filter((k) => !SKIP.includes(k));
@@ -184,7 +184,7 @@ function AuditLogEntry({ log }: { log: AuditLogDTO }) {
                 <table className="w-full text-xs">
                   <tbody className="divide-y divide-gray-50">
                     {Object.entries(after)
-                      .filter(([k]) => !['updatedAt', 'createdAt'].includes(k))
+                      .filter(([k]) => !['updatedAt', 'createdAt', 'id'].includes(k))
                       .map(([k, v]) => (
                         <tr key={k} className="hover:bg-gray-50/50">
                           <td className="px-3 py-2 font-mono text-gray-500 w-1/3">{k}</td>
@@ -211,7 +211,7 @@ function AuditLogEntry({ log }: { log: AuditLogDTO }) {
                 <table className="w-full text-xs">
                   <tbody className="divide-y divide-gray-50">
                     {Object.entries(before)
-                      .filter(([k]) => !['updatedAt', 'createdAt'].includes(k))
+                      .filter(([k]) => !['updatedAt', 'createdAt', 'id'].includes(k))
                       .map(([k, v]) => (
                         <tr key={k} className="hover:bg-gray-50/50">
                           <td className="px-3 py-2 font-mono text-gray-500 w-1/3">{k}</td>
