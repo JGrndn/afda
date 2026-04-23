@@ -1,4 +1,4 @@
-import { AuditLogDTO } from "@/lib/dto/auditlog.dto";
+import { AuditLogDTO } from "@/lib/dto/auditLog.dto";
 
 export function toAuditLogDTO(log: any): AuditLogDTO {
   return {
