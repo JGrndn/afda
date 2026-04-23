@@ -156,6 +156,11 @@ export function FamilyDetailPageClient({ initialFamily, userRole }: FamilyDetail
           {(userRole === UserRole.ADMIN || userRole === UserRole.MANAGER) && (
             <AuditLogButton entityType="family" entityId={familyId} />
           )}
+          {/* Audit invoice de la saison courante */}
+          {(userRole === UserRole.ADMIN || userRole === UserRole.MANAGER) && invoice?.id && (
+            <AuditLogButton entityType="invoice" entityId={invoice.id} label="Historique facture"/>
+          )}
+
           {/* Dropdown ⋮ desktop uniquement */}
           {!isEditing && <ActionsDropdown items={actions} />}
         </div>

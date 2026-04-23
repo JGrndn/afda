@@ -71,7 +71,9 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
           {(userRole === UserRole.ADMIN || userRole === UserRole.MANAGER) && (
             <AuditLogButton entityType="quote" entityId={data.id} />
           )}
-
+          {(userRole === UserRole.ADMIN || userRole === UserRole.MANAGER) && data.invoice?.id && (
+            <AuditLogButton entityType="quoteInvoice" entityId={data.invoice.id} label='Historique facture'/>
+          )}
           {!isEditing && (
             <QuoteActions
               quote={data}
