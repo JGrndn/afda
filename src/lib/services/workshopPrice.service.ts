@@ -4,6 +4,7 @@ import { toWorkshopPriceDTO, toWorkshopPricesWithWorkshopInfoDTO } from '@/lib/m
 import { WorkshopPriceDTO, WorkshopPriceWithWorkshopInfoDTO } from '@/lib/dto/workshopPrice.dto';
 import { DomainError } from '@/lib/errors/domain-error';
 import { CreateWorkshopPriceInput, UpdateWorkshopPriceInput } from '@/lib/schemas/workshop.input';
+import { getAuditedPrisma } from '@/lib/audit/withAudit';
 
 export const workshopPriceService = {
   async getAllForSeason(seasonId:number): Promise<WorkshopPriceWithWorkshopInfoDTO[]>{
@@ -23,7 +24,7 @@ export const workshopPriceService = {
         amount: new Prisma.Decimal(input.amount),
       };
 
-      const result = await prisma.workshopPrice.create({ data });
+      const result = await getAuditedPrisma().workshopPrice.create({ data });
       return toWorkshopPriceDTO(result);
     } catch (error: unknown) {
       const e = error as any;
@@ -46,7 +47,7 @@ export const workshopPriceService = {
         amount: new Prisma.Decimal(input.amount),
       };
 
-      const result = await prisma.workshopPrice.update({
+      const result = await getAuditedPrisma().workshopPrice.update({
         where: { id },
         data,
       });
@@ -62,7 +63,7 @@ export const workshopPriceService = {
 
   async delete(id: number): Promise<void> {
     try {
-      await prisma.workshopPrice.delete({
+      await getAuditedPrisma().workshopPrice.delete({
         where: { id },
       });
     } catch (error: unknown) {
@@ -76,7 +77,7 @@ export const workshopPriceService = {
 
   async deleteByWorkshopAndSeason(workshopId: number, seasonId: number): Promise<void> {
     try {
-      await prisma.workshopPrice.delete({
+      await getAuditedPrisma().workshopPrice.delete({
         where: {
           workshopId_seasonId: {
             workshopId,

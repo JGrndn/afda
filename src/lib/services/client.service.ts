@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { getAuditedPrisma } from '@/lib/audit/withAudit';
 import { Prisma } from '@/generated/prisma/client';
 import { QueryOptions } from '@/lib/hooks/query';
 import {
@@ -50,7 +51,7 @@ export const clientService = {
 
   async create(input: CreateClientInput): Promise<ClientDTO> {
     try {
-      const result = await prisma.client.create({ data: input });
+      const result = await getAuditedPrisma().client.create({ data: input });
       return toClientDTO(result);
     } catch (error: unknown) {
       const e = error as any;
@@ -63,7 +64,7 @@ export const clientService = {
 
   async update(id: number, input: UpdateClientInput): Promise<ClientDTO> {
     try {
-      const result = await prisma.client.update({ where: { id }, data: input });
+      const result = await getAuditedPrisma().client.update({ where: { id }, data: input });
       return toClientDTO(result);
     } catch (error: unknown) {
       const e = error as any;
@@ -76,7 +77,7 @@ export const clientService = {
 
   async delete(id: number): Promise<void> {
     try {
-      await prisma.client.delete({ where: { id } });
+      await getAuditedPrisma().client.delete({ where: { id } });
     } catch (error: unknown) {
       const e = error as any;
       if (e?.code === 'P2025') {

@@ -5,6 +5,7 @@ import { RegistrationDTO } from '@/lib/dto/registration.dto';
 import { DomainError } from '@/lib/errors/domain-error';
 import { CreateRegistrationInput, UpdateRegistrationInput } from '@/lib/schemas/registration.input';
 import { QueryOptions } from '@/lib/hooks/query';
+import { getAuditedPrisma } from '@/lib/audit/withAudit';
 
 export const registrationService = {
 async getAll(
@@ -89,8 +90,7 @@ async getAll(
         discountPercent: new Prisma.Decimal(input.discountPercent),
         registrationDate: input.registrationDate || new Date(),
       };
-console.log('INSCRIPTION')
-      const result = await prisma.registration.create({ data });
+      const result = await getAuditedPrisma().registration.create({ data });
       return toRegistrationDTO(result);
     } catch (error: unknown) {
       if (error instanceof DomainError) {
@@ -160,7 +160,7 @@ console.log('INSCRIPTION')
         }),
       };
 
-      const result = await prisma.registration.update({
+      const result = await getAuditedPrisma().registration.update({
         where: { id },
         data,
       });
@@ -182,7 +182,7 @@ console.log('INSCRIPTION')
 
   async delete(id: number): Promise<void> {
     try {
-      await prisma.registration.delete({
+      await getAuditedPrisma().registration.delete({
         where: { id },
       });
     } catch (error: unknown) {

@@ -14,6 +14,7 @@ import { QuoteWithDetailsDTO, QuoteItemDTO } from '@/lib/dto/quote.dto';
 import { QUOTE_STATUS } from '@/lib/domain/enums/quote.enum';
 import { UpdateQuoteInput } from '@/lib/schemas/quote.input';
 import { UserRole, UserRolePermissions } from '@/lib/domain/enums/user-role.enum';
+import { AuditLogButton } from '@/components/audit/AuditLogButton';
 
 interface QuoteDetailPageClientProps {
   initialQuote: QuoteWithDetailsDTO;
@@ -65,6 +66,13 @@ export function QuoteDetailPageClient({ initialQuote, userRole }: QuoteDetailPag
             <Button size="sm" variant="secondary" Icon={FileText} onClick={() => setPdfModal('invoice')}>
               PDF facture
             </Button>
+          )}
+          {/* Historique — MANAGER/ADMIN uniquement, desktop uniquement */}
+          {(userRole === UserRole.ADMIN || userRole === UserRole.MANAGER) && (
+            <AuditLogButton entityType="quote" entityId={data.id} />
+          )}
+          {(userRole === UserRole.ADMIN || userRole === UserRole.MANAGER) && data.invoice?.id && (
+            <AuditLogButton entityType="quoteInvoice" entityId={data.invoice.id} label='Historique facture'/>
           )}
           {!isEditing && (
             <QuoteActions

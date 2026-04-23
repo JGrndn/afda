@@ -19,6 +19,7 @@ import { MembershipSlideOver } from '@/components/member/MembershipSlideOver';
 import { UserRole, UserRolePermissions } from '@/lib/domain/enums/user-role.enum';
 import { SEASON_STATUS } from '@/lib/domain/enums/season.enum';
 import { reconcileFamilySeason } from '@/lib/actions/reconcilation.actions';
+import { AuditLogButton } from '@/components/audit/AuditLogButton';
 
 interface MemberDetailPageClientProps {
   initialMember: MemberWithFullDetailsDTO;
@@ -121,6 +122,10 @@ export function MemberDetailPageClient({ initialMember, userRole }: MemberDetail
           <h1 className="text-3xl font-bold">{member.firstName} {member.lastName}</h1>
           <p className="text-gray-600 mt-1">{member.isMinor ? 'Mineur' : 'Majeur'}</p>
         </div>
+        {/* Historique — MANAGER/ADMIN uniquement, desktop uniquement */}
+        {(userRole === UserRole.ADMIN || userRole === UserRole.MANAGER) && (
+          <AuditLogButton entityType="member" entityId={memberId} />
+        )}
         {!isEditing && <ActionsDropdown items={actions} />}
       </div>
 

@@ -25,6 +25,7 @@ import { MemberSlideOver } from '@/components/member/MemberSlideOver';
 import { InvoiceButton } from '@/components/invoice/InvoiceButtons';
 import { UserRole, UserRolePermissions } from '@/lib/domain/enums/user-role.enum';
 import { reconcileFamilySeason } from '@/lib/actions/reconcilation.actions';
+import { AuditLogButton } from '@/components/audit/AuditLogButton';
 
 interface FamilyDetailPageClientProps {
   initialFamily: FamilyWithFullDetailsDTO;
@@ -151,6 +152,15 @@ export function FamilyDetailPageClient({ initialFamily, userRole }: FamilyDetail
         <div className="flex items-center gap-2">
           {/* Facture visible partout */}
           {invoice && <InvoiceButton invoice={invoice} />}
+          {/* Historique — MANAGER/ADMIN uniquement, desktop uniquement */}
+          {(userRole === UserRole.ADMIN || userRole === UserRole.MANAGER) && (
+            <AuditLogButton entityType="family" entityId={familyId} />
+          )}
+          {/* Audit invoice de la saison courante */}
+          {(userRole === UserRole.ADMIN || userRole === UserRole.MANAGER) && invoice?.id && (
+            <AuditLogButton entityType="invoice" entityId={invoice.id} label="Historique facture"/>
+          )}
+
           {/* Dropdown ⋮ desktop uniquement */}
           {!isEditing && <ActionsDropdown items={actions} />}
         </div>

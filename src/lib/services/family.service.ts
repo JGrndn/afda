@@ -5,6 +5,7 @@ import { toFamilyDTO, toFamiliesDTO, toFamilyWithFullDetailsDTO } from '@/lib/ma
 import { FamilyDTO, FamilyWithFullDetailsDTO } from '@/lib/dto/family.dto';
 import { DomainError } from '@/lib/errors/domain-error';
 import { CreateFamilyInput, UpdateFamilyInput } from '@/lib/schemas/family.input';
+import { getAuditedPrisma } from '@/lib/audit/withAudit';
 
 export const familyService = {
   async getAll(
@@ -43,7 +44,7 @@ export const familyService = {
 
   async create(input: CreateFamilyInput): Promise<FamilyDTO> {
     try {
-      const result = await prisma.family.create({
+      const result = await getAuditedPrisma().family.create({
         data: input,
       });
       return toFamilyDTO(result);
@@ -58,7 +59,7 @@ export const familyService = {
 
   async update(id: number, input: UpdateFamilyInput): Promise<FamilyDTO> {
     try {
-      const result = await prisma.family.update({
+      const result = await getAuditedPrisma().family.update({
         where: { id },
         data: input,
       });
@@ -74,7 +75,7 @@ export const familyService = {
 
   async delete(id: number): Promise<void> {
     try {
-      await prisma.family.delete({
+      await getAuditedPrisma().family.delete({
         where: { id },
       });
     } catch (error: unknown) {

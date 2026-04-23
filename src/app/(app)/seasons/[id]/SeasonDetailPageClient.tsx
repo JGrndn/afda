@@ -15,6 +15,7 @@ import { WorkshopPriceWithWorkshopInfoDTO } from '@/lib/dto/workshopPrice.dto';
 import { MembershipDTO, MembershipWithMemberDTO } from '@/lib/dto/membership.dto';
 import { SeasonWithFullDetailsDTO } from '@/lib/dto/season.dto';
 import { UserRole, UserRolePermissions } from '@/lib/domain/enums/user-role.enum';
+import { AuditLogButton } from '@/components/audit/AuditLogButton';
 
 interface SeasonDetailPageClientProps {
   initialSeason: SeasonWithFullDetailsDTO;
@@ -100,6 +101,11 @@ export function SeasonDetailPageClient({ initialSeason, userRole }: SeasonDetail
             <StatusBadge type="season" status={season.status} />
           </h1>
         </div>
+        {/* Historique — MANAGER/ADMIN uniquement, desktop uniquement */}
+        {(userRole === UserRole.ADMIN || userRole === UserRole.MANAGER) && (
+          <AuditLogButton entityType="season" entityId={seasonId} />
+        )}
+
         {!isEditing && <ActionsDropdown items={actions} />}
       </div>
 

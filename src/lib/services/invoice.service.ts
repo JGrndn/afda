@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { mapInvoiceToDTO } from '@/lib/mappers/invoice.mapper';
 import { Prisma } from '@/generated/prisma';
+import { getAuditedPrisma } from '@/lib/audit/withAudit';
 
 export const invoiceService = {
   async getById(id: number) {
@@ -33,7 +34,7 @@ export const invoiceService = {
       lineTotal: number;
     }[];
   }) {
-    const invoice = await prisma.invoice.create({
+    const invoice = await getAuditedPrisma().invoice.create({
       data: {
         familyId: data.familyId,
         seasonId: data.seasonId,

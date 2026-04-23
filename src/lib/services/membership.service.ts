@@ -6,6 +6,7 @@ import { MembershipDTO } from '@/lib/dto/membership.dto';
 import { DomainError } from '@/lib/errors/domain-error';
 import { CreateMembershipInput, UpdateMembershipInput } from '@/lib/schemas/membership.input';
 import { MembershipStatus } from '@/lib/domain/enums/membership.enum';
+import { getAuditedPrisma } from '@/lib/audit/withAudit';
 
 
 export const membershipService = {
@@ -92,7 +93,7 @@ export const membershipService = {
         membershipDate: input.membershipDate || new Date(),
       };
 
-      const result = await prisma.membership.create({ data });
+      const result = await getAuditedPrisma().membership.create({ data });
       return toMembershipDTO(result);
     } catch (error: unknown) {
       if (error instanceof DomainError) {
@@ -121,7 +122,7 @@ export const membershipService = {
         ...(input.membershipDate !== undefined && { membershipDate: input.membershipDate }),
       };
 
-      const result = await prisma.membership.update({
+      const result = await getAuditedPrisma().membership.update({
         where: { id },
         data,
       });
@@ -147,7 +148,7 @@ export const membershipService = {
       memberId : { in : memberIds }
     }
     
-    await prisma.membership.updateMany({
+    await getAuditedPrisma().membership.updateMany({
       where,
       data: { status : newStatus}
     });
@@ -156,7 +157,7 @@ export const membershipService = {
 
   async delete(id: number): Promise<void> {
     try {
-      await prisma.membership.delete({
+      await getAuditedPrisma().membership.delete({
         where: { id },
       });
     } catch (error: unknown) {

@@ -14,6 +14,7 @@ import { WorkshopPriceWithSeasonInfoDTO } from '@/lib/dto/workshopPrice.dto';
 import { WorkshopWithPricesAndSeasonDTO } from '@/lib/dto/workshop.dto';
 import { WorkshopPriceSlideOver } from '@/components/workshop/WorkshopPriceSlideOver';
 import { UserRole, UserRolePermissions } from '@/lib/domain/enums/user-role.enum';
+import { AuditLogButton } from '@/components/audit/AuditLogButton';
 
 interface WorkshopDetailPageClientProps {
   initialWorkshop: WorkshopWithPricesAndSeasonDTO;
@@ -97,6 +98,11 @@ export function WorkshopDetailPageClient({ initialWorkshop, userRole }: Workshop
             {workshop.allowMultiple ? `Plusieurs inscriptions autorisées (max ${workshop.maxPerMember})` : 'Inscription unique'}
           </p>
         </div>
+        {/* Historique — MANAGER/ADMIN uniquement, desktop uniquement */}
+        {(userRole === UserRole.ADMIN || userRole === UserRole.MANAGER) && (
+          <AuditLogButton entityType="workshop" entityId={workshopId} />
+        )}
+
         {!isEditing && <ActionsDropdown items={actions} />}
       </div>
 
