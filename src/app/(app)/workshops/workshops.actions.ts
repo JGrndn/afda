@@ -1,6 +1,7 @@
 'use server';
 
 import { withAudit } from '@/lib/audit/withAudit';
+import { requireRoleAction } from '@/lib/auth/action-protection';
 import { WorkshopDTO } from '@/lib/dto/workshop.dto';
 import { WorkshopPriceDTO } from '@/lib/dto/workshopPrice.dto';
 import {
@@ -18,6 +19,7 @@ import { workshopPriceService } from '@/lib/services/workshopPrice.service';
 
 // Workshop Actions
 export async function createWorkshop(input: CreateWorkshopInput): Promise<WorkshopDTO> {
+  await requireRoleAction(['ADMIN', 'MANAGER']);
   return withAudit(async () => {
     const data = CreateWorkshopSchema.parse(input);
     const result = await workshopService.create(data);
@@ -29,6 +31,7 @@ export async function updateWorkshop(
   id: number,
   input: UpdateWorkshopInput
 ): Promise<WorkshopDTO> {
+  await requireRoleAction(['ADMIN', 'MANAGER']);
   return withAudit(async () => {
     const data = UpdateWorkshopSchema.parse(input);
     const result = await workshopService.update(id, data);
@@ -37,6 +40,7 @@ export async function updateWorkshop(
 }
 
 export async function deleteWorkshop(id: number): Promise<void> {
+  await requireRoleAction(['ADMIN', 'MANAGER']);
   return withAudit(async () => {
     await workshopService.delete(id);
   });
@@ -46,6 +50,7 @@ export async function deleteWorkshop(id: number): Promise<void> {
 export async function createWorkshopPrice(
   input: CreateWorkshopPriceInput
 ): Promise<WorkshopPriceDTO> {
+  await requireRoleAction(['ADMIN', 'MANAGER']);
   return withAudit(async () => {
     const data = CreateWorkshopPriceSchema.parse(input);
     const result = await workshopPriceService.create(data);
@@ -57,6 +62,7 @@ export async function updateWorkshopPrice(
   id: number,
   input: UpdateWorkshopPriceInput
 ): Promise<WorkshopPriceDTO> {
+  await requireRoleAction(['ADMIN', 'MANAGER']);
   return withAudit(async () => {
     const data = UpdateWorkshopPriceSchema.parse(input);
     const result = await workshopPriceService.update(id, data);
@@ -65,6 +71,7 @@ export async function updateWorkshopPrice(
 }
 
 export async function deleteWorkshopPrice(id: number): Promise<void> {
+  await requireRoleAction(['ADMIN', 'MANAGER']);
   return withAudit(async () => {
     await workshopPriceService.delete(id);
   });

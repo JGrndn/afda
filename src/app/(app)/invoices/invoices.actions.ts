@@ -4,6 +4,7 @@ import { InvoiceDTO } from '@/lib/dto/invoice.dto';
 import { buildInvoiceForFamily } from '@/lib/domain/invoice/buildInvoiceForFamily';
 import { invoiceService } from '@/lib/services/invoice.service';
 import { withAudit } from '@/lib/audit/withAudit';
+import { requireRoleAction } from '@/lib/auth/action-protection';
 
 function generateInvoiceNumber(familyId: number): string {
   const now = new Date();
@@ -17,6 +18,7 @@ export async function issueInvoice(
   familyId: number,
   seasonId: number
 ): Promise<InvoiceDTO> {
+  await requireRoleAction(['ADMIN', 'MANAGER']);
   return withAudit(async () => {
     // If already issued, return the existing one
     const existing = await invoiceService.findByFamilyAndSeason(familyId, seasonId);
