@@ -1,6 +1,7 @@
 'use server';
 
 import { withAudit } from '@/lib/audit/withAudit';
+import { requireRoleAction } from '@/lib/auth/action-protection';
 import { MembershipDTO } from '@/lib/dto/membership.dto';
 import {
   CreateMembershipInput,
@@ -11,6 +12,7 @@ import {
 import { membershipService } from '@/lib/services/membership.service';
 
 export async function createMembership(input: CreateMembershipInput): Promise<MembershipDTO> {
+  await requireRoleAction(['ADMIN', 'MANAGER']);
   return withAudit(async () => {
     const data = CreateMembershipSchema.parse(input);
     const result = await membershipService.create(data);
@@ -22,6 +24,7 @@ export async function updateMembership(
   id: number,
   input: UpdateMembershipInput
 ): Promise<MembershipDTO> {
+  await requireRoleAction(['ADMIN', 'MANAGER']);
   return withAudit(async () => {
     const data = UpdateMembershipSchema.parse(input);
     const result = await membershipService.update(id, data);
@@ -30,6 +33,7 @@ export async function updateMembership(
 }
 
 export async function deleteMembership(id: number): Promise<void> {
+  await requireRoleAction(['ADMIN', 'MANAGER']);
   return withAudit(async () => {
     await membershipService.delete(id);
   });

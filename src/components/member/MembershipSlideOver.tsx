@@ -27,7 +27,6 @@ export function MembershipSlideOver({
     const result = await create({...data});
     
     if (result) {
-      console.log('success')
       onSuccess?.();
       onClose();
     }

@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import { userService } from '@/lib/services/user.service';
+import { userService } from '@/lib/services/index';
 import { ProfilePageClient } from './ProfilePageClient';
 
 export const metadata = {

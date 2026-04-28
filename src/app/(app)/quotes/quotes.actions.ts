@@ -1,6 +1,7 @@
 'use server';
 
 import { withAudit } from '@/lib/audit/withAudit';
+import { requireRoleAction } from '@/lib/auth/action-protection';
 import { QuoteStatus } from '@/lib/domain/enums/quote.enum';
 import { QuoteDTO, QuoteInvoiceDTO } from '@/lib/dto/quote.dto';
 import {
@@ -16,6 +17,7 @@ import {
 import { quoteService } from '@/lib/services/quote.service';
 
 export async function createQuote(input: CreateQuoteInput): Promise<QuoteDTO> {
+  await requireRoleAction(['ADMIN', 'MANAGER']);
   return withAudit(async () => {
     const data = CreateQuoteSchema.parse(input);
     return quoteService.create(data);
@@ -23,6 +25,7 @@ export async function createQuote(input: CreateQuoteInput): Promise<QuoteDTO> {
 }
 
 export async function updateQuote(id: number, input: UpdateQuoteInput): Promise<QuoteDTO> {
+  await requireRoleAction(['ADMIN', 'MANAGER']);
   return withAudit(async () => {
     const data = UpdateQuoteSchema.parse(input);
     return quoteService.update(id, data);
@@ -30,18 +33,21 @@ export async function updateQuote(id: number, input: UpdateQuoteInput): Promise<
 }
 
 export async function updateQuoteStatus(id: number, status: QuoteStatus): Promise<QuoteDTO> {
+  await requireRoleAction(['ADMIN', 'MANAGER']);
   return withAudit(async () => {
     return quoteService.updateStatus(id, status);
   });
 }
 
 export async function deleteQuote(id: number): Promise<void> {
+  await requireRoleAction(['ADMIN', 'MANAGER']);
   return withAudit(async () => {
     return quoteService.delete(id);
   });
 }
 
 export async function issueQuoteInvoice(quoteId: number): Promise<QuoteInvoiceDTO> {
+  await requireRoleAction(['ADMIN', 'MANAGER']);
   return withAudit(async () => {
     return quoteService.issueInvoice(quoteId);
   });
@@ -51,6 +57,7 @@ export async function markQuoteInvoicePaid(
   quoteInvoiceId: number,
   input: MarkInvoicePaidInput
 ): Promise<QuoteInvoiceDTO> {
+  await requireRoleAction(['ADMIN', 'MANAGER']);
   return withAudit(async () => {
     const data = MarkInvoicePaidSchema.parse(input);
     return quoteService.markInvoicePaid(quoteInvoiceId, data);
@@ -58,6 +65,7 @@ export async function markQuoteInvoicePaid(
 }
 
 export async function cancelQuoteInvoice(quoteInvoiceId: number): Promise<QuoteInvoiceDTO> {
+  await requireRoleAction(['ADMIN', 'MANAGER']);
   return withAudit(async () => {
     return quoteService.cancelInvoice(quoteInvoiceId);
   });
