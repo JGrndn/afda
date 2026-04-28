@@ -4,7 +4,7 @@ import { generateInvoicePdf } from '@/lib/domain/invoice/generateInvoicePdf';
 import { requireAuth } from '@/lib/auth/api-protection';
 
 export async function GET(req: NextRequest) {
-const sessionOrError = await requireAuth(req);
+  const sessionOrError = await requireAuth(req);
   if (sessionOrError instanceof NextResponse) return sessionOrError;
 
   const { searchParams } = new URL(req.url);

@@ -1,10 +1,14 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { seasonService } from '@/lib/services/season.service';
+import { requireAuth } from '@/lib/auth/api-protection';
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const sessionOrError = await requireAuth(request);
+  if (sessionOrError instanceof NextResponse) return sessionOrError;
+    
   try {
     const { id } = await params;
     const season = await seasonService.getByIdWithWorkshopPrices(parseInt(id));
