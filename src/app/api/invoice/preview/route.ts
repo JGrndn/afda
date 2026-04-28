@@ -19,7 +19,6 @@ export async function GET(req: Request) {
   }
   
   const stream = await generateInvoicePdf(invoice);
-  console.log('hello world');
 
   return new NextResponse(stream as any, {
     headers: {

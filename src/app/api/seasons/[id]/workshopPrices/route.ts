@@ -13,7 +13,6 @@ export async function GET(
     }
     return NextResponse.json(season);
   } catch (error) {
-    console.log(error);
     return NextResponse.json({ error: 'Failed to fetch season' }, { status: 500 });
   }
 }
