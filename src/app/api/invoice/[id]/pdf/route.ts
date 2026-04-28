@@ -1,11 +1,15 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { invoiceService } from '@/lib/services/invoice.service';
 import { generateInvoicePdf } from '@/lib/domain/invoice/generateInvoicePdf';
+import { requireAuth } from '@/lib/auth/api-protection';
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const sessionOrError = await requireAuth(request);
+  if (sessionOrError instanceof NextResponse) return sessionOrError;
+
   const resolvedParams = await params;
   const invoice = await invoiceService.getById(parseInt(resolvedParams.id));
 
